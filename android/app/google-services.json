@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "895310337768",
+    "project_id": "test-owled",
+    "storage_bucket": "test-owled.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:895310337768:android:005a639f98a00a15a19b5d",
+        "android_client_info": {
+          "package_name": "com.owled.owleddomoapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "895310337768-djghhtpfpd9u7pa3c5f00um1vj7106ub.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCUAgUcqNpQiV2WrbDDqbmQIQW2CyvNGY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "895310337768-djghhtpfpd9u7pa3c5f00um1vj7106ub.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
