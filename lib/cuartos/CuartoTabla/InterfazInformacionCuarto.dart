@@ -8,6 +8,7 @@ import 'package:owleddomoapp/shared/SubPantallaUno.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
 import 'package:owleddomoapp/shared/FondoCubo.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 
 final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
 final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
@@ -32,7 +33,7 @@ class InterfazInformacionCuarto extends StatefulWidget{
   final String nombre; //Nombre del cuarto.
   final String imagen; //Valor para seleccionar la imagen.
   final String descripcion; //Breve descripción del cuarto.
-  final String usuario; //Usuario identificador del usuario.
+  final Persona usuario; //Usuario identificador del usuario.
   InterfazInformacionCuarto(this.cuarto_id, this.nombre, this.imagen, this.descripcion,
                             this.usuario); //Constructor de la clase.
 
@@ -61,7 +62,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
   String _nombre; //Nombre del cuarto.
   String _imagen; //Valor para seleccionar la imagen.
   String _descripcion; //Descripción del cuarto.
-  final String _usuario; //Identificador del usuario.
+  final Persona _usuario; //Identificador del usuario.
   _InterfazInformacionCuarto(this._cuartoId, this._nombre, this._imagen,
                              this._descripcion, this._usuario); //Constructor de la clase.
 
@@ -100,7 +101,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
 
   Future<List> _obtenerDispositivos() async {
     setState(() {
-      _dispositivosObtenidos = ServiciosDispositivo.dispositivoCuarto(_cuartoId);
+      _dispositivosObtenidos = ServiciosDispositivo.dispositivoCuarto(_cuartoId, _usuario.persona_id);
     });
     _dispositivosObtenidos.then((result) => {
       _estado = tratarError.estadoServicioLeer(result.first),
@@ -312,7 +313,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
                   ),
                   onPressed: () {
                     Navigator.of(context).pop(false);
-                    ServiciosCuarto.borrarCuarto(_cuartoId, _usuario)
+                    ServiciosCuarto.borrarCuarto(_cuartoId, _usuario.persona_id)
                         .then((result) {
                       tratarError.estadoServicioActualizar( result, [], context);
                     });
@@ -385,7 +386,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
             ),
             onPressed: () {
               Route route = MaterialPageRoute (
-                builder: (context) => SubPantallaUno(InterfazEditarCuarto(_cuartoId, _nombre, _imagen, _descripcion, _usuario),"Editando"),
+                builder: (context) => SubPantallaUno(InterfazEditarCuarto(_cuartoId, _nombre, _imagen, _descripcion, _usuario.persona_id),"Editando"),
               );
               Navigator.push(context, route).then((value) =>{
                 if ( value != false ) {

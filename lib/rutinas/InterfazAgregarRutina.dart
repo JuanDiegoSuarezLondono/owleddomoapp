@@ -8,6 +8,7 @@ import 'package:owleddomoapp/cuartos/DispositivoTabla/Dispositivo.dart';
 import 'package:owleddomoapp/rutinas/ServiciosRutina.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 import 'package:progress_state_button/progress_button.dart';
 import 'package:progress_state_button/iconed_button.dart';
 import 'package:date_format/date_format.dart';
@@ -25,7 +26,7 @@ final TratarError tratarError = new TratarError(); //Respuestas predeterminadas 
 
 class InterfazAgregarRutina extends StatefulWidget {
 
-  final String usuario; //Identificador del usuario.
+  final Persona usuario; //Identificador del usuario.
   final int relacionDispositivo; //Identificador de la rutina en el dispositivo.
   InterfazAgregarRutina(this.usuario, this.relacionDispositivo); //Constructor de la clase.
 
@@ -66,7 +67,7 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
 
   final _formKey = GlobalKey<
       FormState>(); //Llave identificadora del formulario.
-  final String _usuario; //Identificador del usuario.
+  final Persona _usuario; //Identificador del usuario.
   final int _relacionDispositivo; //Identificador de la rutina en el dispositivo.
   _InterfazAgregarRutina(this._usuario, this._relacionDispositivo); //Constructor de la clase.
 
@@ -136,7 +137,7 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
 
   Future<List> _obtenerDispositivos() async {
     setState(() {
-      _dispositivosObtenidos =  ServiciosDispositivo.todosDispositivo(_usuario);//_usuario
+      _dispositivosObtenidos =  ServiciosDispositivo.todosDispositivo(_usuario.persona_id);//_usuario
     });
     _dispositivosObtenidos.then((result) => {
       if(mounted) {
@@ -174,7 +175,7 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
 
   Future<List> _obtenerVariables(Dispositivo dispositivoSeleccionado) async {
     setState(() {
-      _variablesObtenidas =  ServiciosVariable.variableByMAC(dispositivoSeleccionado.relacion_id);
+      _variablesObtenidas =  ServiciosVariable.variableByMAC(dispositivoSeleccionado.relacion_id, _usuario.persona_id);
     });
     _variablesObtenidas.then((result) => {
       _listaVariables = [],
@@ -237,7 +238,7 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
     if(_tiempo.substring(1,2) == ":") {
       _tiempo = '0${_tiempo}';
     }
-    ServiciosRutina.agregarRutina(_usuario, _dispositivoSeleccionado.relacion_id, _nombre.text,
+    ServiciosRutina.agregarRutina(_usuario.persona_id, _dispositivoSeleccionado.relacion_id, _nombre.text,
                                   _activar.value ? '1' : '0',_relacionDispositivo.toString(),
                                   dias, _tiempo, acciones)
         .then((result) {
@@ -713,7 +714,7 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
 
     void _alPresionarBoton() {
       _formKey.currentState.validate();
-      if ( _usuario.isEmpty || _nombre.text.isEmpty || _activar == null ||
+      if ( _usuario.persona_id.isEmpty || _nombre.text.isEmpty || _activar == null ||
            _dispositivoSeleccionado.relacion_id == null || !_formKey.currentState.validate()) {
         setState(() {
           if( _dispositivoSeleccionado.nombre == "Dispositivos" &&

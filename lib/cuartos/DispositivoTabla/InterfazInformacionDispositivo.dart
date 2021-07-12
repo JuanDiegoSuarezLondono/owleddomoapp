@@ -8,9 +8,12 @@ import 'package:owleddomoapp/cuartos/DispositivoTabla/Variable/Variable.dart';
 import 'package:owleddomoapp/cuartos/DispositivoTabla/Variable/LuzRGB.dart';
 import 'package:owleddomoapp/cuartos/DispositivoTabla/Variable/Alerta.dart';
 import 'package:owleddomoapp/cuartos/DispositivoTabla/Variable/Golpe.dart';
+import 'package:owleddomoapp/hamburguesa/solicitud/ServiciosSolicitud.dart';
+import 'package:owleddomoapp/hamburguesa/solicitud/Solicitud.dart';
 import 'package:owleddomoapp/shared/SubPantallaUno.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 import 'package:flutter_particles/particles.dart';
 
 final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
@@ -35,7 +38,7 @@ class InterfazInformacionDispositivo extends StatefulWidget{
   final String nombre; //Nombre del dispositivo.
   final String pathFoto; //PathFoto path de la imagen del dispositivo.
   final String fechaModificacion; //Fecha_modificacion última fecha de modificación del dispositivo.
-  final String usuario; //Usuario identificador del usuario.
+  final Persona usuario; //Usuario identificador del usuario.
   InterfazInformacionDispositivo(this.relacionId, this.nombre, this.pathFoto,
                                  this.fechaModificacion, this.usuario); //Constructor de la clase.
 
@@ -63,12 +66,17 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
   String _nombre; //Nombre del dispositivo.
   String _pathFoto; //PathFoto path de la imagen del dispositivo.
   final String _fechaModificacion; //Fecha_modificacion última fecha de modificación del dispositivo.
-  final String _usuario; //Usuario identificador del usuario.
+  final Persona _usuario; //Usuario identificador del usuario.
   _InterfazInformacionDispositivo(this._relacionId, this._nombre, this._pathFoto,
                                   this._fechaModificacion, this._usuario); //Constructor de la clase.
 
   Future<List> _variablesObtenidas; //Lista con el mapeo de las variables.
   int _estado; //Estado del servicio de obtener dispositivos.
+
+  Future<List> _solicidtudesObtenidas; //Lista con el mapeo de las variables.
+  List<Solicitud> _solicitudesLista;
+
+  TextEditingController _codigoUsuario; //Controlador del campo para el nombre en el formulario.
 
   @override
 
@@ -76,7 +84,26 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
 
   void initState() {
     super.initState();
+    _codigoUsuario = TextEditingController();//Asigna el actual nombre al campo de texto.
     _estado = 0;
+    _solicitudesLista = [];
+    _obtenerPermisos();
+  }
+
+  ///Hace una petición para conseguir un mapeo con la lista de los parámetros de los dispositivos,
+  ///además actualiza el estado para saber la condición de la petición.
+  ///@see owleddomo_app/cuartos/DisporitivoTabla/Variable/ServiciosVariable.variableByMAC#method().
+  ///@see owleddomo_app/shared/TratarError.estadoServicioLeer#method().
+  ///@return un mapeo con las variables.
+
+  Future<List> _obtenerPermisos() async {
+    setState(() {
+      _solicidtudesObtenidas =  ServiciosSolicitud.dispositivoSolicitud(_usuario.persona_id,_relacionId);
+    });
+    _solicidtudesObtenidas.then((result) => {
+      _solicitudesLista = result.last,
+    });
+    return _solicidtudesObtenidas;
   }
 
   ///Hace una petición para conseguir un mapeo con la lista de los parámetros de los dispositivos,
@@ -87,7 +114,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
 
   Future<List> _obtenerVariables() async {
     setState(() {
-      _variablesObtenidas =  ServiciosVariable.variableByMAC(_relacionId);
+      _variablesObtenidas =  ServiciosVariable.variableByMAC(_relacionId, _usuario.persona_id);
     });
     _variablesObtenidas.then((result) => {
       _estado = tratarError.estadoServicioLeer(result.first),
@@ -219,6 +246,218 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
       );
     }
 
+    ///Construye el Widget que maneja el botón para editar el dispositivo.
+    ///@return un Widget de Container que contiene un ConstrainedBox que actúa como
+    ///botón.
+
+    Widget _botonPermiteEditar () {
+      return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          primary: Colors.transparent,
+          shadowColor: Colors.transparent,
+        ),
+        onPressed: () {
+        },
+        child: Icon(
+          Icons.edit_rounded,
+          color: colores.obtenerColorTres(),
+          size: 20,
+        ),
+      );
+    }
+
+    ///Organiza las variables obtenidas en filas y columnas a manera de lista vertical.
+    ///@param variablesObtenidas lista con las variables obtenidas.
+    ///@param variables columna con todas las filas de variables obtenidas.
+    ///@param filaLuz fila con todas las interfaces para cada variable de tipo luz.
+    ///@param filaGrabar fila con todas las interfaces para cada variable de tipo grabar.
+    ///@param filaAbiertoCerrado fila con todas las interfaces para cada variable de tipo Open/Close.
+    ///@param filaAlerta fila con todas las interfaces para cada variable de tipo Alerta.
+    ///@param filaAbiertoCerrado fila con todas las interfaces para cada variable de tipo Open/Close.
+    ///@param filaGolpe fila con todas las interfaces para cada variable de tipo Golpe.
+    ///@param contadorLuz enumerador de las variables de tipo luz.
+    ///@param contadorGrabar enumerador de las variables de tipo grabar.
+    ///@param contadorAbiertoCerrado enumerador de las variables de tipo AbiertoCerrado.
+    ///@param contadorAlerta enumerador de las variables de tipo Alerta.
+    ///@param contadorGolpe enumerador de las variables de tipo Golpe.
+    ///@param cantidadGrupos enumerador de la cantidad de grupos de variables que tiene el dispositivo.
+    ///@param variablesRGB lista para pre-agrupar las variables de tipo RGB.
+    ///@return una lista con varias listas horizontales que contienen las interfaces
+    ///todas las variables organizadas según su tipo.
+
+    List<Widget> _armarWidgetPermisos (List permisosObtenidos) {
+      List<Widget> permisos = []; //Columna con todas las filas de variables obtenidas.
+      String nombre = "";
+      permisos.add(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.only(left: 15),
+              child: Text(
+                "Nombre",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.only(right: 15),
+              child: Text(
+                "Puede editar",
+                style: TextStyle(
+                    color: Colors.white
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+      for(Solicitud solicitud in permisosObtenidos) {
+        nombre = solicitud.apodo == null ? '${solicitud.nombres} ${solicitud.apellidos}'
+                                         : solicitud.apodo;
+        permisos.add(
+          Card(
+            margin: EdgeInsets.only(top: 15),
+            child: Container(
+              height: 40,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(
+                    width: 110,
+                    height: 20,
+                    padding: EdgeInsets.only(left: 15),
+                    child: ListView(
+                      physics: BouncingScrollPhysics(),
+                      scrollDirection: Axis.horizontal,
+                      primary: false,
+                      shrinkWrap: true,
+                      children: <Widget> [
+                        Text(
+                          nombre,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontFamily: "Lato",
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 105,
+                    height: 20,
+                    padding: EdgeInsets.only(right: 15),
+                    child: _botonPermiteEditar (),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+      return permisos;
+    }
+
+    ///Construye el Widget que maneja el botón para editar el dispositivo.
+    ///@return un Widget de Container que contiene un ConstrainedBox que actúa como
+    ///botón.
+
+    Widget _botonEnviar () {
+      return Container(
+        margin: EdgeInsets.only(left: 220),
+        child:ConstrainedBox(
+          constraints: BoxConstraints.tightFor(height: 30),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              primary: Colors.transparent,
+              shape: CircleBorder(),
+              shadowColor: Colors.transparent,
+            ),
+            onPressed: () {
+              ServiciosSolicitud.agregarSolicitud(_relacionId, _codigoUsuario.text);
+            },
+            child: Icon(
+              Icons.send,
+              color: colores.obtenerColorCuatro(),
+              size: 20,
+            ),
+          ),
+        ),
+      );
+    }
+
+    ///Construye el Widget que despliega una ventana emergente para confirmar la
+    ///desvinculacion del dispositivo.
+
+    Widget _compartidos () {
+      showDialog(
+          context: context,
+          barrierDismissible: true,
+          builder: (buildcontext) {
+            return AlertDialog(
+              backgroundColor: colores.obtenerColorUno(),
+              title: Text(
+                "Compartido con:",
+                style: TextStyle(
+                  color: colores.obtenerColorDos(),
+                  fontFamily: "Lato",
+                ),
+              ),
+              content: Container(
+                height: 260,
+                child: ListView(
+                  physics: BouncingScrollPhysics(),
+                  primary: false,
+                  shrinkWrap: true,
+                  children: _armarWidgetPermisos(_solicitudesLista),
+                ),
+              ),
+              actions: <Widget>[
+                Divider(
+                  height: 20,
+                  thickness: 5,
+                  indent: 20,
+                  endIndent: 20,
+                  color: colores.obtenerColorInactivo(),
+                ),
+                Stack(
+                  children: <Widget>[
+                    Container(
+                      height: 30,
+                      child: TextFormField(
+                        controller: _codigoUsuario,
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                        ),
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.only(bottom: 0, left:10.0, right: 30),
+                          filled: true,
+                          fillColor: colores.obtenerColorDos(),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(180),
+                          ),
+                          hintText: 'Codigo de usuario',
+                        ),
+                        validator: (value) {
+                          //_validar();
+                          String mensaje;
+                          value.isEmpty ? mensaje='¡Espera!... Debes ponerle un nombre.'
+                              : mensaje=null;
+                          return mensaje;
+                        },
+                      ),
+                    ),
+                    _botonEnviar(),
+                  ],
+                ),
+              ],
+            );
+          }
+      );
+    }
+
     ///Construye el Widget que despliega una ventana emergente para confirmar la
     ///desvinculacion del dispositivo.
 
@@ -271,7 +510,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                   ),
                   onPressed: () {
                     Navigator.of(context).pop(false);
-                    ServiciosDispositivo.borrarDispositivo(_relacionId, _usuario)
+                    ServiciosDispositivo.borrarDispositivo(_relacionId, _usuario.persona_id)
                         .then((result) {
                           tratarError.estadoServicioActualizar( result, [_nombre, _pathFoto], context);
                         });
@@ -306,6 +545,72 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
       );
     }
 
+    ///Construye el Widget que maneja el botón para editar el dispositivo.
+    ///@return un Widget de Container que contiene un ConstrainedBox que actúa como
+    ///botón.
+
+    Widget _botonEditar () {
+      return Container(
+        child:ConstrainedBox(
+          constraints: BoxConstraints.tightFor(height: _height/14.4),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              primary: colores.obtenerColorTres(),
+              shape: CircleBorder(),
+            ),
+            onPressed: () {
+              Route route = MaterialPageRoute (
+                builder: (context) => SubPantallaUno(InterfazEditarDispositivo(_relacionId, _nombre, _pathFoto,_usuario.persona_id),"Editando"),
+              );
+              Navigator.push(context, route).then((value) =>{
+                if ( value != false ) {
+                  setState(() {
+                    _nombre = value[0];
+                    _pathFoto= value[1];
+                  }),
+                }
+              });
+            },
+            child: Icon(
+              Icons.edit_rounded,
+              color: colores.obtenerColorDos(),
+              size: _height/26.4,
+            ),
+          ),
+        ),
+      );
+    }
+
+    ///Construye el Widget que maneja el botón para desvincular el dispositivo.
+    ///@return un Widget de Container que contiene un ConstrainedBox que actúa como
+    ///botón.
+
+    Widget _botonCompartir () {
+      return Padding(
+        padding:EdgeInsets.only(
+          bottom: _height/3.96,
+        ),
+        child: Center(
+          child:ConstrainedBox(
+            constraints: BoxConstraints.tightFor(height: _height/19.8),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: colores.obtenerColorUno(),
+              ),
+              onPressed: () {
+                _compartidos();
+              },
+              child: Icon(
+                Icons.group_add,
+                color: colores.obtenerColorDos(),
+                size: _height/39.6,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     ///Construye el Widget que maneja el botón para desvincular el dispositivo.
     ///@return un Widget de Container que contiene un ConstrainedBox que actúa como
     ///botón.
@@ -332,43 +637,6 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
       );
     }
 
-    ///Construye el Widget que maneja el botón para editar el dispositivo.
-    ///@return un Widget de Container que contiene un ConstrainedBox que actúa como
-    ///botón.
-
-    Widget _botonEditar () {
-      return Container(
-        child:ConstrainedBox(
-          constraints: BoxConstraints.tightFor(height: _height/14.4),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              primary: colores.obtenerColorTres(),
-              shape: CircleBorder(),
-            ),
-            onPressed: () {
-              Route route = MaterialPageRoute (
-                builder: (context) => SubPantallaUno(InterfazEditarDispositivo(_relacionId, _nombre, _pathFoto,_usuario),"Editando"),
-              );
-              Navigator.push(context, route).then((value) =>{
-                if ( value != false ) {
-                  print(value[1]),
-                  setState(() {
-                    _nombre = value[0];
-                    _pathFoto= value[1];
-                  }),
-                }
-              });
-            },
-            child: Icon(
-              Icons.edit_rounded,
-              color: colores.obtenerColorDos(),
-              size: _height/26.4,
-            ),
-          ),
-        ),
-      );
-    }
-
     ///Construye el Widget que contiene los botones de editar y borrar en una misma fila.
     ///@return un Widget de Column que contiene en un Row los botones de editar y borrar.
 
@@ -380,11 +648,18 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
             padding: EdgeInsets.only(
               top: _height/3.881,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            child: Stack (
               children: <Widget>[
-                _botonEditar(),
-                _botonBorrar(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    _botonEditar(),
+                    _botonBorrar(),
+                  ],
+                ),
+                /*Center(
+                  child: _botonCompartir(),
+                ),*/
               ],
             ),
           ),
@@ -730,6 +1005,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
     return Stack(
       children: <Widget>[
         _particulas(),
+        _botonCompartir(),
         _pantallaPrincipal(),
         _botonImagen(),
         _barraInferior(),

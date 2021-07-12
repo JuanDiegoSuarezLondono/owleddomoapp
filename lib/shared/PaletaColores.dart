@@ -1,40 +1,98 @@
 import 'package:flutter/material.dart';
 
-final Color COLOR_UNO = Color(0xFF08192d);
-final Color COLOR_DOS = Colors.white; //FFFFFFFF
-final Color COLOR_TRES = Color(0xFF11DA53);
-final Color COLOR_CUATRO = Color(0xFFbf930d);
-final Color COLOR_GRIS_LETRA = Color(0xFF929292);
-final Color COLOR_FONDO = Color(0xFFECEFF1);
-final Color COLOR_RIESGO = Colors.red; //FFF44336
-
 class PaletaColores {
 
+  Color color_primario;
+  Color color_secundario; //FFFFFFFF
+  Color color_terciario;
+  Color color_cuaternario;
+  Color color_letra_clara;
+  Color color_letra_contraste_secundario;
+  Color color_inactivo;
+  Color color_fondo;
+  Color color_riesgo;
+
+  PaletaColores() {
+    int a = 1;
+    switch(a) {
+      case 0:
+        color_primario = Color(0xFF08192d);
+        color_secundario = Colors.white;//FFFFFFFF
+        color_terciario = Color(0xFF9BBF63);
+        color_cuaternario = Color(0xFFbf930d);
+        color_letra_clara = Colors.white;
+        color_letra_contraste_secundario = Colors.black;
+        color_inactivo = Color(0xFF929292);
+        color_fondo = Color(0xFFECEFF1);
+        color_riesgo = Colors.red; //FFF44336
+        break;
+
+      case 1:
+        color_primario = Color(0xFF08192d);
+        color_secundario = Colors.white;//FFFFFFFF
+        color_terciario = Color(0xFF9BBF63);
+        color_cuaternario = Color(0xFFbf930d);
+        color_letra_clara = Colors.white;
+        color_letra_contraste_secundario = Colors.black;
+        color_inactivo = Color(0xFF929292);
+        color_fondo = Color(0xFFECEFF1);
+        color_riesgo = Colors.red; //FFF44336
+        break;
+    }
+  }
+
+
+  Color obtenerPrimario () {
+    return color_primario;
+  }
+
+  Color obtenerSecundario() {
+    return color_secundario;
+  }
+
+  Color obtenerTerciario () {
+    return color_terciario;
+  }
+
+  Color obtenerCuaternario () {
+    return color_cuaternario;
+  }
+
+  Color obtenerLetraClara () {
+    return color_letra_clara;
+  }
+
+  Color obtenerLetraContraseteSecundario () {
+    return color_letra_contraste_secundario;
+  }
+
+
+
   Color obtenerColorUno () {
-    return COLOR_UNO;
+    return color_primario;
   }
 
   Color obtenerColorDos() {
-    return COLOR_DOS;
+    return color_secundario;
   }
 
   Color obtenerColorTres () {
-    return COLOR_TRES;
+    return color_terciario;
   }
 
   Color obtenerColorCuatro () {
-    return COLOR_CUATRO;
+    return color_cuaternario;
   }
 
   Color obtenerColorInactivo () {
-    return COLOR_GRIS_LETRA;
+    return color_inactivo;
   }
 
   Color obtenerColorFondo () {
-    return COLOR_FONDO;
+    return color_fondo;
   }
 
   Color obtenerColorRiesgo () {
-    return COLOR_RIESGO;
+    return color_riesgo;
   }
 }

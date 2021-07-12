@@ -1,4 +1,3 @@
-
 ///Esta clase se encarga de construir la plantilla para la entidad de cuarto.
 ///@version 1.0, 06/04/21.
 ///@author Juan Diego Suárez Londoño.

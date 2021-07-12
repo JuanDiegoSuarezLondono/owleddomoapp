@@ -28,9 +28,11 @@ class _AppTrips extends State<AppTrips> {
   _AppTrips(this._usuario);
 
   onTapped(int index) {
-    setState(() {
-      actualIndex = index;
-    });
+    if(mounted){
+      setState(() {
+        actualIndex = index;
+      });
+    }
   }
 
   @override
@@ -114,6 +116,7 @@ class _AppTrips extends State<AppTrips> {
       return Scaffold(
         body: tabs[actualIndex],
         bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: PaletaColores().obtenerSecundario(),
           selectedItemColor: colores.obtenerColorTres(),
             currentIndex: actualIndex,
             onTap: onTapped,

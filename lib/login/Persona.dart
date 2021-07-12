@@ -25,10 +25,11 @@ class Persona {
   String url_foto = "assets/img/Imagen_no_disponible.jpg"; //Direccion de almacenamiento de la foto de perfil de la cuenta.
   String rol = "No hay roll"; //Papel que desempeña esa cuenta.
   String apodo = "No hay apodo"; //Mute con el que desea ser reconocida la persona en la cuenta.
+  String codigo_usuario = "0";
 
   Persona({this.persona_id, this.territorio_id, this.nombres, this.apellidos,
     this.telefono, this.fecha_nacimiento, this.correo_electronico,
-    this.url_foto, this.rol, this.apodo}); //Constructor de la clase.
+    this.url_foto, this.rol, this.apodo, this.codigo_usuario}); //Constructor de la clase.
 
   ///Recibe un dispositivo en formato json y se encarga de transformarlo una
   ///instancia de esta clase.
@@ -46,6 +47,7 @@ class Persona {
       url_foto: json['url_foto'] as String,
       rol: json['rol'] as String,
       apodo: json['apodo'] as String,
+      codigo_usuario: json['codigo_usuario'] as String,
     );
   }
 }

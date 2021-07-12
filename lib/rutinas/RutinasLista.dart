@@ -9,6 +9,7 @@ import 'package:owleddomoapp/shared/SubPantallaUno.dart';
 import 'package:owleddomoapp/shared/PantallaSinRed.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:date_format/date_format.dart';
 
@@ -26,7 +27,7 @@ final TratarError tratarError = new TratarError(); //Respuestas predeterminadas 
 
 class RutinasLista extends StatefulWidget {
 
-  final String usuario; //Identificador del usuario.
+  final Persona usuario; //Identificador del usuario.
   RutinasLista(this.usuario) :super(); //Constructor de la clase.
 
   @override
@@ -39,7 +40,7 @@ class RutinasLista extends StatefulWidget {
 ///@param _rutinasListaWidget lista de los Widgets de las rutinas de los dispositivos.
 ///@param _rutinasObtenidas lista con el mapeo de las rutinas.
 ///@param _rutinasLista lista de las rutinas de los dispositivos.
-///@param _numeroRutinas; //Indica el numero de rutinas actiales.
+///@param _numeroRutinas indica el numero de rutinas actuales.
 ///@param _estado estado del servicio de obtener rutinas.
 ///@param _refrescar indica si hay una pantalla de carga activa.
 ///@param _dias lista con las listas de estados para los siete días de la semana para cada rutina.
@@ -55,13 +56,13 @@ class RutinasLista extends StatefulWidget {
 
 class _RutinasLista extends State<RutinasLista> {
 
-  final String _usuario; //Identificador del usuario.
+  final Persona _usuario; //Identificador del usuario.
   _RutinasLista(this._usuario); //Constructor de la clase.
 
   List<Widget> _rutinasListaWidget; //Lista de los Widgets de las rutinas de los dispositivos.
   Future<List> _rutinasObtenidas; //Lista con el mapeo de las rutinas.
   List<Rutina> _rutinasLista; //Lista de las rutinas de los dispositivos.
-  int _numeroRutinas; //Indica el numero de rutinas actiales.
+  int _numeroRutinas; //Indica el numero de rutinas actuales.
 
   int _estado; //Estado del servicio de obtener rutinas.
   bool _refrescar; //Indica si hay una pantalla de carga activa.
@@ -113,7 +114,7 @@ class _RutinasLista extends State<RutinasLista> {
   ///@return no retorna nada en caso de no obtener una validación positiva de los campos.
 
   _actualizarRutina(Rutina rutina, String tiempo) {
-    ServiciosRutina.actualizarRutina(_usuario, rutina.rutina_id, rutina.persona_producto_id,
+    ServiciosRutina.actualizarRutina(_usuario.persona_id, rutina.rutina_id, rutina.persona_producto_id,
                                      rutina.relacion_dispositivo,rutina.dias, tiempo,
                                      rutina.nuevo_valor)
         .then((result) {
@@ -133,7 +134,7 @@ class _RutinasLista extends State<RutinasLista> {
 
   Future<List> _obtenerRutinas()  async {
       setState(() {
-        _rutinasObtenidas =  ServiciosRutina.todasRutinas(_usuario);
+        _rutinasObtenidas =  ServiciosRutina.todasRutinas(_usuario.persona_id);
       });
       _rutinasObtenidas.then((value) => {
       _numeroRutinas = 0,
@@ -645,7 +646,7 @@ class _RutinasLista extends State<RutinasLista> {
                   onPressed: () {
                     Navigator.of(context).pop(false);
                     _plantillaCarga(context);
-                    ServiciosRutina.borrarRutina(_usuario, rutina.rutina_id, rutina.persona_producto_id,
+                    ServiciosRutina.borrarRutina(_usuario.persona_id, rutina.rutina_id, rutina.persona_producto_id,
                                                  rutina.relacion_dispositivo)
                         .then((result) {
                           setState(() {
@@ -726,7 +727,7 @@ class _RutinasLista extends State<RutinasLista> {
               margin: EdgeInsets.all(0),
             ),
             margin: EdgeInsets.all(0),
-            title: CartaRutina(_usuario, rutina.rutina_id, rutina.nombre_dispositivo,
+            title: CartaRutina(_usuario.persona_id, rutina.rutina_id, rutina.nombre_dispositivo,
                                rutina.persona_producto_id, rutina.nombre,
                                rutina.activo, rutina.relacion_dispositivo,
                                rutina.tiempo.substring(0,5)),

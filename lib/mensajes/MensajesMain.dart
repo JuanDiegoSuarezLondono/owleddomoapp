@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:owleddomoapp/TestMesaje.dart';
+import 'package:owleddomoapp/mensajes/MensajesLista.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/login/Persona.dart';
+import 'package:owleddomoapp/shared/MenuHamburguesa.dart';
 
 final PaletaColores colores = new PaletaColores();
 
 class MensajesMain extends StatelessWidget {
-
 
   final Persona usuario;
   MensajesMain(this.usuario,{Key key,String pathImagen,String titulo});
@@ -75,51 +75,8 @@ class MensajesMain extends StatelessWidget {
             ),
           ),
         ),
-        body: Test("1"),
-        endDrawer: Drawer(
-          // Add a ListView to the drawer. This ensures the user can scroll
-          // through the options in the drawer if there isn't enough vertical
-          // space to fit everything.
-          child: ListView(
-            // Important: Remove any padding from the ListView.
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              Container(
-                height: 150,
-                color: colores.obtenerColorUno(),
-
-              ),
-              ListTile(
-                title: Text('Cuenta'),
-                onTap: () {
-                  // Update the state of the app.
-                  // ...
-                },
-              ),
-              ListTile(
-                title: Text('Configuracion'),
-                onTap: () {
-                  // Update the state of the app.
-                  // ...
-                },
-              ),
-              ListTile(
-                title: Text('Ayuda'),
-                onTap: () {
-                  // Update the state of the app.
-                  // ...
-                },
-              ),
-              ListTile(
-                title: Text('Acerca de'),
-                onTap: () {
-                  // Update the state of the app.
-                  // ...
-                },
-              ),
-            ],
-          ),
-        ),
+        body: MensajesLista(usuario),
+        endDrawer: MenuHamburguesa(usuario),
       ),
     );
 

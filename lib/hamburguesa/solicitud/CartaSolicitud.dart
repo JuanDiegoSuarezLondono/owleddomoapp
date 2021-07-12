@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:owleddomoapp/cuartos/DispositivoTabla/ServiciosDispositivo.dart';
 import 'package:owleddomoapp/cuartos/DispositivoTabla/Dispositivo.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
-import 'package:owleddomoapp/login/Persona.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
+import 'package:owleddomoapp/login/Persona.dart';
+
+final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
+final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
 
 ///Esta clase se encarga de construir la vista dentro de la carta de un
 ///cuarto, dotándola de una imagen, un título y el numero de dispositivos totales
@@ -14,20 +17,19 @@ import 'package:owleddomoapp/shared/TratarError.dart';
 ///@param cuartoId identificador único del cuarto.
 ///@param nombre nombre del cuarto.
 ///@param pathImagen path de la imagen en los assets.
-///@param usuario propietario de la cuenta.
 ///@see owleddomo_app/cuartos/CuartosTabla/CuartosLista.dart#class().
 ///@return un Widget Container con la plantilla de la carta de un cuarto.
 
-class CartaCuarto extends StatefulWidget{
+class CartaSolicitud extends StatefulWidget{
 
   final String cuartoId; //Identificador unico del cuarto.
   final String nombre; //Nombre del cuarto.
   final String pathImagen; //Path de la imagen en los assets.
-  final Persona usuario; //Propietario de la cuenta.
-  CartaCuarto(this.cuartoId, this.nombre, this.pathImagen, this.usuario) :super(); //Constructor de la clase.
+  final Persona usuario;
+  CartaSolicitud(this.cuartoId, this.nombre, this.pathImagen, this.usuario) :super(); //Constructor de la clase.
 
   @override
-  _CartaCuarto createState() => _CartaCuarto(cuartoId, nombre, pathImagen, usuario); //Crea un estado mutable del Widget.
+  _CartaSolicitud createState() => _CartaSolicitud(cuartoId, nombre, pathImagen, usuario); //Crea un estado mutable del Widget.
 
 }
 
@@ -35,21 +37,21 @@ class CartaCuarto extends StatefulWidget{
 ///@param _cuartoId identificador unico del cuarto.
 ///@param _nombre nombre del cuarto.
 ///@param _pathImagen path de la imagen en los assets.
-///@param _usuario propietario de la cuenta.
+///@paran _imagen imagen del cuarto.
 ///@paran _existe indica la existencia de la imagen.
 ///@param _dispositivosCuarto lista de dispositivos asociados al cuarto.
 ///@param _textoNumeroDispositivos numero de dispositivos asociados al cuarto.
 ///@param _width obtiene el ancho de la pantalla del dispositivo.
 ///@param _height obtiene el alto de la pantalla del dispositivo.
 
-class _CartaCuarto extends State<CartaCuarto> {
+class _CartaSolicitud extends State<CartaSolicitud> {
 
   final String _cuartoId; //Identificador unico del cuarto.
   final String _nombre; //Nombre del cuarto.
   String _pathImagen; //Path de la imagen en los assets.
-  final Persona _usuario; //Propietario de la cuenta.
+  final Persona _usuario;
 
-  _CartaCuarto(this._cuartoId, this._nombre, this._pathImagen, this._usuario); //Constructor de la clase.
+  _CartaSolicitud(this._cuartoId, this._nombre, this._pathImagen, this._usuario); //Constructor de la clase.
 
   bool _existe; //Indica la existencia de la imagen.
   List<Dispositivo> _dispositivosCuarto; //Lista de dispositivos asociados al cuarto.
@@ -63,41 +65,64 @@ class _CartaCuarto extends State<CartaCuarto> {
     super.initState();
     _existe = false; //Se asume que la imagen en la galeria no existe.
     _comprobarImagen(); //Se comprueba la existencia de la imagen en la galeria.
-    _textoNumeroDispositivos = "No hay dispositivos"; //Texto predeterminado en caso de no haber dispositivos.
+    _textoNumeroDispositivos = "No hay dispositivos";
     _dispositivosCuarto = [];
     _obtenerDispositivos();
   }
 
   ///Busca que la imagen suministrada exista en la galeria, de ser verdad cambia
-  ///el estado de _existe a "true".
+  ///el estado de_existe a "true".
 
   _comprobarImagen() {
-    File(_pathImagen).exists().then((value) => {
-      if(mounted) {
+    File(_pathImagen).exists().then((value) =>
         setState(() {
           _existe = value;
         })
-      }
-    }
     );
   }
 
   ///Hace una petición para conseguir un mapeo con la lista de los parámetros de
   ///los dispositivos asociados a un cuarto determinado, además actualiza el texto
   ///debajo del titulo para saber la condición de la petición.
-  ///@param texto numero de dispositivos que posee cuarto.
+  ///@param texto numero de dispositivos del cuarto.
+  ///@param respuesta estado del servicio de obtener dispositivos del cuarto.
   ///@see owleddomo_app/cuartos/DispositivoTabla/ServiciosDispositivo.dispositivoCuarto#method().
   ///@see owleddomo_app/shared/TratarError.estadoServicioLeer#method().
 
   Future<void> _obtenerDispositivos() async {
-    List<String> textos = ['Dispositivos x','No hay dispositivos','Falla de dispositivo',
-                           'Acceso denegado','Servidor roto','Algo pasa con la APP',
-                           'No hay internet','Algo va mal'];
-    ServiciosDispositivo.dispositivoCuarto(_cuartoId, _usuario.persona_id).then((result) {
+    String texto = "0"; //Numero de dispositivos del cuarto.
+    ServiciosDispositivo.dispositivoCuarto(_cuartoId, _usuario.persona_id)
+        .then((result) {
+      int respuesta = tratarError.estadoServicioLeer(result.first); //Estado del servicio de obtener dispositivos del cuarto.
       if (mounted) {
         setState(() {
-          _dispositivosCuarto = TratarError().textoAgregado(result,textos, true).first;
-          _textoNumeroDispositivos = TratarError().textoAgregado(result,textos, true).last;
+          switch (respuesta) {
+            case 0:
+              _dispositivosCuarto = result.last;
+              texto = _dispositivosCuarto.length.toString();
+              _textoNumeroDispositivos = "Dispositivos x$texto";
+              break;
+            case 1:
+              _dispositivosCuarto = null;
+              _textoNumeroDispositivos = "No hay dispositivos";
+              break;
+            case 2:
+              _dispositivosCuarto = null;
+              _textoNumeroDispositivos = "Algo pasa con la APP";
+              break;
+            case 3:
+              _dispositivosCuarto = null;
+              _textoNumeroDispositivos = "No hay servidor";
+              break;
+            case 4:
+              _dispositivosCuarto = null;
+              _textoNumeroDispositivos = "No hay internet";
+              break;
+            case 5:
+              _dispositivosCuarto = null;
+              _textoNumeroDispositivos = "Algo va mal";
+              break;
+          }
         });
       }
     });
@@ -118,14 +143,14 @@ class _CartaCuarto extends State<CartaCuarto> {
         margin: EdgeInsets.only(top: _height/264),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: PaletaColores().obtenerSecundario(),
+          color: colores.obtenerColorDos(),
           shape: BoxShape.circle,
           image: DecorationImage(
             fit: BoxFit.cover,
             image: _pathImagen.substring(0,6) == "assets" ?
-                   AssetImage(_pathImagen) :
-                   _existe ? FileImage(File(_pathImagen)) :
-                   AssetImage("assets/img/Imagen_no_disponible.jpg"),
+            AssetImage(_pathImagen) :
+            _existe ? FileImage(File(_pathImagen)) :
+            AssetImage("assets/img/Imagen_no_disponible.jpg"),
           ),
         ),
       );
@@ -144,7 +169,6 @@ class _CartaCuarto extends State<CartaCuarto> {
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: PaletaColores().color_letra_contraste_secundario,
             fontSize: _height/52.8,
             fontWeight: FontWeight.bold,
             fontFamily: "Lato",
@@ -167,7 +191,7 @@ class _CartaCuarto extends State<CartaCuarto> {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: _height/66,
-            color: PaletaColores().color_letra_contraste_secundario.withOpacity(0.4),
+            color: colores.obtenerColorInactivo(),
             fontFamily: "Lato",
           ),
         ),

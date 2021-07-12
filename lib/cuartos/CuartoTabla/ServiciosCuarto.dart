@@ -14,7 +14,7 @@ import 'package:http/http.dart'as http;
 
 class ServiciosCuarto {
 
-  static const URL = "https://o6vrtl78zb.execute-api.us-east-2.amazonaws.com/test/appusuario/cuartoapi";
+  static const URL = "https://zmyanb1bc1.execute-api.sa-east-1.amazonaws.com/test/appusuario/cuartoapi";
 
   ///Metodo usado para castear la respuesta desde un String que contiene
   ///la informacion de las entidades requeridas a una lista de objetos para
@@ -42,22 +42,14 @@ class ServiciosCuarto {
     List resultado = []; //Lista de los resultados y la flag del estado.
     try {
       final respuesta = await http.get(getConsult); //Datos sin parecear de la consulta http.
-      if (respuesta.statusCode >= 200 && respuesta.statusCode < 300 && respuesta.body != "[]") {
+      if (respuesta.statusCode >= 200 && respuesta.statusCode < 300) {
         List<Cuarto> lista = parsearRespuesta(respuesta.body); //Lista parseada de los cuartos.
-        resultado.add("EXITO");
+        resultado.add(respuesta.statusCode);
         resultado.add(lista);
         return resultado;
-      } else if (respuesta.statusCode >= 200 && respuesta.statusCode < 300) {
-        resultado.add("VACIO");
-        return resultado;
-      } else if (respuesta.statusCode >= 400 && respuesta.statusCode < 500 ) {
-        resultado.add("LOCAL");
-        return resultado;
-      } else if (respuesta.statusCode >= 500 && respuesta.statusCode < 600 ) {
-        resultado.add("SERVIDOR");
-        return resultado;
       } else {
-        resultado.add("OTRO");
+        resultado.add(respuesta.statusCode);
+        resultado.add(respuesta.body);
         return resultado;
       }
     } catch (e) {

@@ -9,6 +9,7 @@ import 'package:owleddomoapp/shared/PantallaSinRed.dart';
 import 'package:owleddomoapp/shared/SubPantallaUno.dart';
 import 'package:owleddomoapp/shared/PantallaEspera.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 
 final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
@@ -25,7 +26,7 @@ final TratarError tratarError = new TratarError(); //Respuestas predeterminadas 
 
 class DispositivosLista extends StatefulWidget {
 
-  final String usuario; //Identificador del usuario.
+  final Persona usuario; //Identificador del usuario.
   DispositivosLista(this.usuario) :super(); //Constructor de la clase.
 
   @override
@@ -44,7 +45,7 @@ class DispositivosLista extends StatefulWidget {
 
 class _DispositivosLista extends State<DispositivosLista> {
 
-  final String _usuario; //Identificador del usuario.
+  final Persona _usuario; //Identificador del usuario.
   _DispositivosLista(this._usuario); //Constructor de la clase.
 
   List<Widget> _dispositivosLista; //Lista de las cartas de los dispositivos.
@@ -72,7 +73,7 @@ class _DispositivosLista extends State<DispositivosLista> {
 
   Future<List> _obtenerDispositivos() async {
     setState(() {
-      _dispositivosObtenidos =  ServiciosDispositivo.todosDispositivo(_usuario);
+      _dispositivosObtenidos =  ServiciosDispositivo.todosDispositivo(_usuario.persona_id);
     });
     _dispositivosObtenidos.then((value) => {
       _estado = tratarError.estadoServicioLeer(value.first),

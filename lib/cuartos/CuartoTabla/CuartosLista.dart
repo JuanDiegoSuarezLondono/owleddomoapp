@@ -10,9 +10,9 @@ import 'package:owleddomoapp/shared/PantallaSinRed.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 
 final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
 
 ///Esta clase se encarga de manejar la pantalla del despliegue de la lista de los
 ///cuartos y su lógica.
@@ -25,7 +25,7 @@ final TratarError tratarError = new TratarError(); //Respuestas predeterminadas 
 
 class CuartosLista extends StatefulWidget {
 
-  final String usuario; //Identificador del usuario.
+  final Persona usuario; //Identificador del usuario.
   CuartosLista(this.usuario) :super(); //Constructor de la clase.
 
   @override
@@ -44,7 +44,7 @@ class CuartosLista extends StatefulWidget {
 
 class _CuartosLista extends State<CuartosLista> {
 
-  final String _usuario; //Identificador del usuario.
+  final Persona _usuario; //Identificador del usuario.
   _CuartosLista(this._usuario); //Constructor de la clase.
 
   List<Widget> _cuartosLista; //Lista de las cartas de los cuartos.
@@ -59,7 +59,7 @@ class _CuartosLista extends State<CuartosLista> {
   void initState() {
     super.initState();
     _cuartosLista = [];
-    _estado = 0;
+    _estado = 1;
     _refrescar = false; //Inicializa este valor para que no haga un Navigator.pop al no tener pantalla de carga.
   }
 
@@ -70,11 +70,14 @@ class _CuartosLista extends State<CuartosLista> {
   ///@return Un mapeo con los cuartos.
 
   Future<List> _obtenerCuartos()  async {
-    setState(() {
-      _cuartosObtenidos =  ServiciosCuarto.todosCuartos(_usuario);
-    });
-    _cuartosObtenidos.then((value) => {
-      _estado = tratarError.estadoServicioLeer(value.first),
+    _cuartosObtenidos =  ServiciosCuarto.todosCuartos(_usuario.persona_id);
+    _cuartosObtenidos.then((result) {
+      if (mounted) {
+        setState(() {
+          _estado = TratarError().estadoServicioLeer(result);
+          _estado = 0;
+        });
+      }
     });
     return _cuartosObtenidos;
   }
@@ -86,12 +89,14 @@ class _CuartosLista extends State<CuartosLista> {
 
   _alPresionarAgregarCuarto () {
     Route route = MaterialPageRoute (builder: (context) =>
-        SubPantallaUno(InterfazAgregarCuarto(_usuario),"Creando cuarto")
+        SubPantallaUno(InterfazAgregarCuarto(_usuario.persona_id),"Creando cuarto")
     ); //Especifica la ruta hacia la interfaz para agregar un cuarto.
     Navigator.push(context, route).then((value)=>{
-      setState(() {
-        _estado = 5; //Al regresar a la lista, hace que se actualice.
-      }),
+      if(mounted) {
+        setState(() {
+          _estado = 8; //Al regresar a la lista, hace que se actualice.
+        }),
+      },
       _obtenerCuartos(), //Vuelve a cargar la lista luego de agregar el cuarto.
     });
   }
@@ -109,9 +114,11 @@ class _CuartosLista extends State<CuartosLista> {
                                                  cuarto.pathImagen,
                                                  cuarto.descripcion,_usuario),"Cuarto"));
     Navigator.push(context, route).then((value)=>{
-      setState(() {
-        _estado = 5; //Al regresar a la lista, hace que se actualice.
-      }),
+      if(mounted) {
+        setState(() {
+          _estado = 8; //Al regresar a la lista, hace que se actualice.
+        }),
+      },
       _obtenerCuartos(), //Vuelve a cargar la lista luego de agregar el cuarto.
     });
   }
@@ -126,33 +133,42 @@ class _CuartosLista extends State<CuartosLista> {
 
     Widget _botonAgregarCuarto() {
       return AvatarGlow(
-        glowColor: colores.obtenerColorTres(),
+        glowColor: PaletaColores().obtenerTerciario(),
         endRadius: 90.0,
         duration: Duration(milliseconds: 2000),
         repeat: true,
         showTwoGlows: true,
         repeatPauseDuration: Duration(seconds: 2),
-        child: Stack(
-          children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(
-                top: _height/31.68,
-                left: _width/8.779,
-              ),
-              color: colores.obtenerColorFondo(),
-              width: _height/19.8,
-              height: _height/19.8,
+        child: Container (
+          height: _height/5.617,
+          width: _width/2.553,
+          color: Colors.red,
+          child: Center(
+            child: Stack(
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.only(
+                    top: _height/31.68,
+                    left: _width/8.779,
+                  ),
+                  color: colores.obtenerColorFondo(),
+                  width: _height/19.8,
+                  height: _height/19.8,
+                ),
+                MaterialButton(
+                  onPressed: () {
+                    _alPresionarAgregarCuarto();
+                  },
+                  shape: CircleBorder(),
+                  child: Icon(
+                    Icons.add_circle,
+                    size: _height/8.799,
+                    color: PaletaColores().obtenerTerciario(),
+                  ),
+                ),
+              ],
             ),
-            MaterialButton(
-              onPressed: _alPresionarAgregarCuarto,
-              shape: CircleBorder(),
-              child: Icon(
-                Icons.add_circle,
-                size: _height/8.799,
-                color: colores.obtenerColorTres(),
-              ),
-            ),
-          ],
+          ),
         ),
       );
     }
@@ -177,13 +193,13 @@ class _CuartosLista extends State<CuartosLista> {
       return Center(
         child: Card(
           margin: EdgeInsets.symmetric(vertical: _height/79.2),
-          color: colores.obtenerColorDos(),
+          color: PaletaColores().obtenerSecundario(),
           child: InkWell(
-            splashColor: colores.obtenerColorCuatro(),
+            splashColor: PaletaColores().obtenerCuaternario(),
             onTap: () {
               _alPresionarCarta (_cuarto);
             },
-            child: CartaCuarto(_cuarto.cuarto_id, _cuarto.nombre, _cuarto.pathImagen),
+            child: CartaCuarto(_cuarto.cuarto_id, _cuarto.nombre, _cuarto.pathImagen, _usuario),
           ),
         ),
       );
@@ -271,6 +287,7 @@ class _CuartosLista extends State<CuartosLista> {
             Text(
               "¡Añadamos un Cuarto!",
               style: TextStyle(
+                color: PaletaColores().obtenerLetraContraseteSecundario(),
                 fontSize: _height/26.4,
                 fontFamily: "Lato",
               ),
@@ -331,11 +348,11 @@ class _CuartosLista extends State<CuartosLista> {
                     }
                     if ( _estado == 0 ) {
                       children = _obtenerColumnas(_armarTarjetasCuartos(snapshot.data));
-                    } else if(  _estado == 1) {
+                    } else if(  _estado == 1 ) {
                       children = <Widget>[
                         _pantallaSinCuartos(),
                       ];
-                    } else if ( _estado == 2) {
+                    } else if ( _estado == 2 ) {
                       children = <Widget>[
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -345,17 +362,21 @@ class _CuartosLista extends State<CuartosLista> {
                               child: Icon(
                                 Icons.precision_manufacturing_sharp,
                                 size: _height/7.92,
-                                color: colores.obtenerColorRiesgo(),
+                                color: PaletaColores().obtenerColorRiesgo(),
                               ),
                             ),
-                            Text(
-                              "¡Rayos! Algo pasa con la app...",
-                              maxLines: 2,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: colores.obtenerColorRiesgo(),
-                                fontFamily: "Lato",
+                            Container(
+                              child: Text(
+                                "No se pudo conectar con el dispositivo",
+                                maxLines: 2,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: _height/26.4,
+                                  color: PaletaColores().obtenerColorRiesgo(),
+                                  fontFamily: "Lato",
+                                ),
                               ),
+                              width: _width/1.2,
                             ),
                           ],
                         ),
@@ -368,31 +389,89 @@ class _CuartosLista extends State<CuartosLista> {
                             Container(
                               alignment: Alignment.center,
                               child: Icon(
-                                Icons.cloud_off_rounded,
+                                Icons.local_police_rounded,
                                 size: _height/7.92,
-                                color: colores.obtenerColorCuatro(),
+                                color: PaletaColores().obtenerColorRiesgo(),
                               ),
                             ),
-                            Text(
-                              "Un avión tumbo nuestra nube...\nEstamos trabajando en ello :)",
-                              maxLines: 2,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: colores.obtenerColorCuatro(),
-                                fontFamily: "Lato",
+                            Container(
+                              child: Text(
+                                "No te identificamos...\n¿Esto es tuyo?",
+                                maxLines: 3,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: _height/26.4,
+                                  color: PaletaColores().obtenerColorRiesgo(),
+                                  fontFamily: "Lato",
+                                ),
                               ),
+                              width: _width/1.2,
                             ),
                           ],
                         ),
                       ];
                     } else if ( _estado == 4) {
                       children = <Widget>[
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              alignment: Alignment.center,
+                              child: Icon(
+                                Icons.cloud_off_rounded,
+                                size: _height/7.92,
+                                color: colores.obtenerColorCuatro(),
+                              ),
+                            ),
+                            Container(
+                              child: Text(
+                                "Un avión tumbo nuestra nube...\nEstamos trabajando en ello :)",
+                                maxLines: 5,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: _width/16.36363636363636,
+                                  color: PaletaColores().obtenerCuaternario(),
+                                  fontFamily: "Lato",
+                                ),
+                              ),
+                              width: _width/1.2,
+                            ),
+                          ],
+                        ),
+                      ];
+                    } else if ( _estado == 5 ) {
+                      children = <Widget>[
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              alignment: Alignment.center,
+                              child: Icon(
+                                Icons.device_unknown_rounded,
+                                size: _height/7.92,
+                                color: PaletaColores().obtenerColorRiesgo(),
+                              ),
+                            ),
+                            Text(
+                              "¡Rayos! Algo pasa con la app...",
+                              maxLines: 2,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: PaletaColores().obtenerColorRiesgo(),
+                                fontFamily: "Lato",
+                              ),
+                            ),
+                          ],
+                        ),
+                      ];
+                    } else if ( _estado == 6) {
+                      children = <Widget>[
                         Container(
                           height: _height/1.427027027027027,
                           child: PantallaCargaSinRed(),
                         ),
                       ];
-                    } else if ( _estado == 5) {
+                    } else if ( _estado == 8) {
                       children = <Widget>[
                         _cargando(),
                       ];

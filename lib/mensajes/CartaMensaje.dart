@@ -25,7 +25,7 @@ final TratarError tratarError = new TratarError(); //Respuestas predeterminadas 
 ///@see owleddomo_app/rutinas/RutinasLista.dart#class().
 ///@return un Widget Container con la plantilla de la carta una rutina.
 
-class CartaRutina extends StatefulWidget{
+class CartaMensaje extends StatefulWidget{
 
   final String usuario; //Identificador del usuario.
   final String rutina_id; //Identificador único de la rutina.
@@ -36,13 +36,13 @@ class CartaRutina extends StatefulWidget{
   final String relacionDispositivo; //Identificador de la rutina dentro del dispositivo.
   final String hora; //Hora en la que se activa la rutina.
 
-  CartaRutina(this.usuario, this.rutina_id, this.nombreDispositivo, this.persona_producto_id,
-              this.nombreRutina, this.activo, this.relacionDispositivo,this.hora) :super(); //Constructor de la clase.
+  CartaMensaje(this.usuario, this.rutina_id, this.nombreDispositivo, this.persona_producto_id,
+      this.nombreRutina, this.activo, this.relacionDispositivo,this.hora) :super(); //Constructor de la clase.
 
   @override
-  _CartaRutina createState() => _CartaRutina(usuario, rutina_id, nombreDispositivo,
-                                             persona_producto_id,nombreRutina, activo,
-                                             relacionDispositivo,hora); //Crea un estado mutable del Widget.
+  _CartaMensaje createState() => _CartaMensaje(usuario, rutina_id, nombreDispositivo,
+      persona_producto_id,nombreRutina, activo,
+      relacionDispositivo,hora); //Crea un estado mutable del Widget.
 
 }
 
@@ -59,7 +59,7 @@ class CartaRutina extends StatefulWidget{
 ///@param _width obtiene el ancho de la pantalla del dispositivo.
 ///@param _height obtiene el alto de la pantalla del dispositivo.
 
-class _CartaRutina extends State<CartaRutina> {
+class _CartaMensaje extends State<CartaMensaje> {
 
   final String _usuario; //Identificador del usuario.
   final String _rutina_id; //Identificador único de la rutina.
@@ -70,8 +70,8 @@ class _CartaRutina extends State<CartaRutina> {
   final String _relacionDispositivo; //Identificador de la rutina dentro del dispositivo.
   final String _hora; //Hora en la que se activa la rutina.
 
-  _CartaRutina(this._usuario, this._rutina_id, this._nombreDispositivo, this._persona_producto_id,
-               this._nombreRutina, this._activo, this._relacionDispositivo, this._hora); //Constructor de la clase.
+  _CartaMensaje(this._usuario, this._rutina_id, this._nombreDispositivo, this._persona_producto_id,
+      this._nombreRutina, this._activo, this._relacionDispositivo, this._hora); //Constructor de la clase.
 
   @override
 
@@ -81,28 +81,26 @@ class _CartaRutina extends State<CartaRutina> {
     super.initState();
   }
 
-  ///Actualiza la ruitna o genera un error en caso de cualquier eventualidad.
-  ///@see owleddomo_app/rutinas/ServiciosRutina.actualizarRutina#method().
-  ///@see owleddomo_app/shared/TratarError.estadoServicioActualizarSnackbar#method().
-  ///@return no retorna nada en caso de no obtener una validación positiva de los campos.
-
-  _actualizarRutina() {
-    ServiciosRutina.activarRutina(_usuario, _rutina_id, _persona_producto_id,
-                                  _activo.toString(),_relacionDispositivo )
-        .then((result) {
-      String respuesta = tratarError.estadoServicioActualizarSnackbar (result, context);
-      if ( respuesta != "EXITO") {
-        setState(() {
-          _activo = _activo == 0 ? 1 : 0;
-        });
-      }
-    });
-  }
-
   Widget build(BuildContext context) {
+
+    var isMe = false;
 
     double _width = MediaQuery.of(context).size.width; //Obtiene el ancho de la pantalla del dispositivo.
     double _height = MediaQuery.of(context).size.height; //Obtiene el alto de la pantalla del dispositivo.
+
+    final bg = isMe ? Colors.white : Colors.greenAccent.shade100;
+    final align = isMe ? CrossAxisAlignment.start : CrossAxisAlignment.end;
+    final radius = isMe
+        ? BorderRadius.only(
+      topRight: Radius.circular(5.0),
+      bottomLeft: Radius.circular(10.0),
+      bottomRight: Radius.circular(5.0),
+    )
+        : BorderRadius.only(
+      topLeft: Radius.circular(5.0),
+      bottomLeft: Radius.circular(5.0),
+      bottomRight: Radius.circular(10.0),
+    );
 
     ///Construye el Widget encargado del nombre de la rutina.
     ///@return un Container con el texto del nombre de la rutina.
@@ -123,45 +121,6 @@ class _CartaRutina extends State<CartaRutina> {
           ),
         ),
       );
-    }
-
-    ///Construye el Widget encargado del botón que activa o desactiva la rutina.
-    ///@return un InkWell con el botón de la rutina en un estilo que depende si esta activo o no.
-
-    Widget _botonActivo () {
-      return InkWell(
-        onTap: () {
-          setState(() {
-            _activo = _activo == 0 ? 1 : 0;
-          });
-          _actualizarRutina();
-        },
-        splashColor: Colors.transparent,
-        child: Container(
-          alignment: Alignment.center,
-          margin: EdgeInsets.only(left: 20),
-          width: _width/12,
-          height: _width/12,
-          child: Container(
-            width: _width/25.71428571428571,
-            height: _width/25.71428571428571,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: _activo == 0 ? colores.obtenerColorInactivo()
-                  : colores.obtenerColorTres(),
-              boxShadow: [
-                BoxShadow(
-                  color: _activo == 0 ? colores.obtenerColorInactivo()
-                      : colores.obtenerColorTres(),
-                  spreadRadius: _activo == 0 ? 0 : 5,
-                  blurRadius: _activo == 0 ? 0 : 7,
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-
     }
 
     ///Construye el Widget encargado del título.
@@ -210,7 +169,7 @@ class _CartaRutina extends State<CartaRutina> {
     Widget _columnaDerecha () {
       return Container(
         alignment: Alignment.center,
-        width: _width/2.608695652173913,
+        width: _width/2.4,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget> [
@@ -226,16 +185,46 @@ class _CartaRutina extends State<CartaRutina> {
     ///@return un Container con un Row.
 
     Widget _carta () {
-      return Container(
-        height: _height/15.84,
-        child: Row (
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            _nombreRutinaWidget(),
-            _botonActivo(),
-            _columnaDerecha(),
-          ],
-        ),
+      return Column(
+        crossAxisAlignment: align,
+        children: <Widget>[
+          Container(
+            margin: const EdgeInsets.all(3.0),
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                    blurRadius: .5,
+                    spreadRadius: 1.0,
+                    color: Colors.black.withOpacity(.12))
+              ],
+              color: bg,
+              borderRadius: radius,
+            ),
+            child: Stack(
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(right: 48.0),
+                  child: Text(_nombreDispositivo),
+                ),
+                Positioned(
+                  bottom: 0.0,
+                  right: 0.0,
+                  child: Row(
+                    children: <Widget>[
+                      Text(_hora,
+                          style: TextStyle(
+                            color: Colors.black38,
+                            fontSize: 10.0,
+                          )),
+                      SizedBox(width: 3.0),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          )
+        ],
       );
     }
     return _carta();

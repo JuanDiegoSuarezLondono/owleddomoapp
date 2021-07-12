@@ -1,4 +1,3 @@
-///Esta clase se encarga de construir la plantilla para la entidad de persona.
 ///@version 1.0, 06/04/21.
 ///@author Juan Diego Suárez Londoño.
 ///@param persona_id id única de la persona.

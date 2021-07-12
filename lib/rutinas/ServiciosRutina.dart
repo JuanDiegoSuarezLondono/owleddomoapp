@@ -14,7 +14,7 @@ import 'package:http/http.dart'as http;
 
 class ServiciosRutina {
 
-  static const URL = "https://o6vrtl78zb.execute-api.us-east-2.amazonaws.com/test/appusuario/rutinaapi";
+  static const URL = "https://zmyanb1bc1.execute-api.sa-east-1.amazonaws.com/test/appusuario/rutinaapi";
 
   ///Metodo usado para castear la respuesta desde un String que contiene
   ///la informacion de las entidades requeridas a una lista de objetos para

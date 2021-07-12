@@ -7,6 +7,7 @@ import 'package:barcode_scan_fix/barcode_scan.dart';
 import 'package:flutter_particles/particles.dart';
 import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 
 final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
 final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
@@ -20,7 +21,7 @@ final TratarError tratarError = new TratarError(); //Respuestas predeterminadas 
 
 class InterfazAgregarDispositivo extends StatefulWidget {
 
-  final String usuario; //Identificador del usuario.
+  final Persona usuario; //Identificador del usuario.
   InterfazAgregarDispositivo(this.usuario); //Constructor de la clase.
 
   @override
@@ -47,7 +48,7 @@ class InterfazAgregarDispositivo extends StatefulWidget {
 class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
 
   final _formKey = GlobalKey<FormState>(); //Llave identificadora del formulario.
-  final String _usuario; //Identificador del usuario.
+  final Persona _usuario; //Identificador del usuario.
   _InterfazAgregarDispositivo(this._usuario); //Constructor de la clase.
 
   String _qrResultado; //Texto recuperado del código QR.
@@ -289,7 +290,7 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
     ///@return no retorna nada en caso de no obtener una validación positiva de los campos.
 
     _agregarDispositivo() {
-      ServiciosDispositivo.agregarDispositivo( _qrResultado, _usuario,
+      ServiciosDispositivo.agregarDispositivo( _qrResultado, _usuario.persona_id,
                                                _nombre.text, _imagen)
           .then((result) {
             String respuesta = tratarError.estadoServicioActualizar( result, [_nombre.text, _imagen] , context);
@@ -312,7 +313,7 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
     ///@return un retorno vaico.
 
     void _alPresionarBoton() {
-      if ( _qrResultado == "Vacio" || _usuario.isEmpty
+      if ( _qrResultado == "Vacio" || _usuario.persona_id.isEmpty
           || _nombre.text.isEmpty || _imagen == null) {
         if (_estadoBoton == ButtonState.fail) {
           setState(() {

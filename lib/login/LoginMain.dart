@@ -1,19 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:owleddomoapp/AppTrips.dart';
-import 'package:owleddomoapp/login/Persona.dart';
-import 'package:owleddomoapp/login/ServiciosPersona.dart';
 import 'package:owleddomoapp/login/territorio/ServiciosTerritorio.dart';
 import 'package:owleddomoapp/login/territorio/Territorio.dart';
+import 'package:owleddomoapp/login/ServiciosPersona.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 import 'package:owleddomoapp/shared/SeleccionarIcono.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
-import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
+import 'package:progress_state_button/iconed_button.dart';
 import 'package:flutter/animation.dart';
-
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
 
 ///Esta clase se encarga de manejar la pantalla del formulario para agregar un dispositivo.
 ///@version 1.0, 06/04/21.
@@ -64,10 +61,6 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
 
   Future<List> _personasObtenidas; //Lista con el mapeo de los dispositivos.
 
-  Future<List> _PCLIObtenidos; //Lista con el mapeo de los dispositivos.
-  List<Territorio> _PCLILista; //Lista de elementos en el dropdown de dispositivos.
-  Territorio _PCLISeleccionado; //Dispositivo seleccionado en el dropdown de dispositivos.
-
   Future<List> _ADMUNOObtenidos; //Lista con el mapeo de los dispositivos.
   List<Territorio> _ADMUNOLista; //Lista de elementos en el dropdown de dispositivos.
   Territorio _ADMUNOSeleccionado; //Dispositivo seleccionado en el dropdown de dispositivos.
@@ -76,15 +69,11 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
   List<Territorio> _ADMDOSLista; //Lista de elementos en el dropdown de dispositivos.
   Territorio _ADMDOSSeleccionado; //Dispositivo seleccionado en el dropdown de dispositivos.
 
-  List<Territorio> _paisListas;
-  List<Territorio> _provinciaListas;
-  List<Territorio> _ciudadListas;
   ButtonState _estadoBoton; //Estado entre las transiciones del botón.
 
   //Animation
   Animation<double> backgroundAnimation;
-
-//Animation Controller
+  //Animation Controller
   AnimationController _backgroundController;
   //Alignment tweens
   AlignmentTween alignmentTop = AlignmentTween(begin: Alignment.topRight, end: Alignment.topLeft);
@@ -98,6 +87,7 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
 
   final List<LabeledGlobalKey> _keyList= [GlobalKey(),GlobalKey(),GlobalKey(),
                                          GlobalKey(),GlobalKey()];
+
   int _actualIndex;
   var _keyActual = new GlobalKey();
 
@@ -105,29 +95,29 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
     TweenSequenceItem(
       weight: 0.5,
       tween: ColorTween(
-        begin: colores.obtenerColorUno().withBlue(330),
-        end: colores.obtenerColorCuatro(),
+        begin: Color(0xFF08192d).withBlue(330),
+        end: Color(0xFFbf930d),
       ),
     ),
     TweenSequenceItem(
       weight: 0.5,
       tween: ColorTween(
-        begin: colores.obtenerColorCuatro(),
-        end: colores.obtenerColorUno().withBlue(330),
+        begin: Color(0xFFbf930d),
+        end: Color(0xFF08192d).withBlue(330),
       ),
     ),
     TweenSequenceItem(
       weight: 0.5,
       tween: ColorTween(
-        begin: colores.obtenerColorUno().withBlue(330),
-        end: colores.obtenerColorTres(),
+        begin: Color(0xFF08192d).withBlue(330),
+        end: Color(0xFF11DA53),
       ),
     ),
     TweenSequenceItem(
       weight: 0.5,
       tween: ColorTween(
-        begin: colores.obtenerColorTres(),
-        end: colores.obtenerColorUno().withBlue(330),
+        begin: Color(0xFF11DA53),
+        end: Color(0xFF08192d).withBlue(330),
       ),
     ),
   ]);
@@ -142,11 +132,6 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
     _nombre = TextEditingController();
     _apellido = TextEditingController();
     _clave = TextEditingController();
-
-    _PCLISeleccionado = Territorio();
-    _PCLISeleccionado.nombre = 'Cargando...';
-    _PCLILista = [Territorio()];
-    _PCLILista[0] = _PCLISeleccionado;
 
     _ADMUNOSeleccionado = Territorio();
     _ADMUNOSeleccionado.nombre = 'Primero seleccione un pais';
@@ -168,52 +153,23 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
       vsync: this,
     )..repeat();
     backgroundAnimation = CurvedAnimation(parent: _backgroundController, curve: Curves.easeIn);
-    _obtenerPCLI();
     _keyActual = _keyList[0];
     _actualIndex = 0;
+    _obtenerADMUNO();
   }
 
   Future<List> _obtenerLogin() async {
-    setState(() {
-      _personasObtenidas =  ServiciosPersona.login(_nombreCorreo.text,_clave.text);
-    });
+    if(mounted) {
+      setState(() {
+        _personasObtenidas =  ServiciosPersona.login(_nombreCorreo.text,_clave.text);
+      });
+    }
     return _personasObtenidas;
   }
 
-  Future<List> _obtenerPCLI() async {
+  Future<List> _obtenerADMUNO() async {
     setState(() {
-      _PCLIObtenidos = ServiciosTerritorio.obtenerPaises();
-    });
-    _PCLIObtenidos.then((result) => {
-      if(mounted) {
-        setState(() {
-          _PCLILista = [];
-          if(result.first == "EXITO" && result.last != "EXITO" ) {
-            _PCLISeleccionado.nombre = 'Pais';
-            _PCLILista = [Territorio()];
-            _PCLILista[0] = _PCLISeleccionado;
-            _PCLILista..addAll(result.last);
-          }
-          else if (result.first == "VACIO") {
-            _PCLISeleccionado.nombre = 'No hay paises';
-            _PCLILista = [Territorio()];
-            _PCLILista[0] = _PCLISeleccionado;
-          }
-          else {
-            _PCLISeleccionado.nombre = 'Error';
-            _PCLILista = [Territorio()];
-            _PCLILista[0] = _PCLISeleccionado;
-          }
-        }),
-      }
-    });
-    return _PCLIObtenidos;
-
-  }
-
-  Future<List> _obtenerADMUNO(Territorio PCLI) async {
-    setState(() {
-      _ADMUNOObtenidos = ServiciosTerritorio.obtenerProvincias(PCLI.codigo_pais);
+      _ADMUNOObtenidos = ServiciosTerritorio.obtenerProvincias("CO");
     });
     _ADMUNOObtenidos.then((result) => {
       if(mounted) {
@@ -315,15 +271,16 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         width: _width,
         height: _height,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          color: PaletaColores().obtenerPrimario(),
+          /*gradient: LinearGradient(
             begin: alignmentTop.evaluate(backgroundAnimation),
             end: alignmentBottom.evaluate(backgroundAnimation),
             colors: [
-              colores.obtenerColorUno(),
+              PaletaColores().obtenerColorUno(),
               backgroundNormal.evaluate(backgroundAnimation),
-              colores.obtenerColorUno().withBlue(10),
+              PaletaColores().obtenerColorUno().withBlue(10),
             ],
-          ),
+          ),*/
         ),
       );
     }
@@ -338,19 +295,19 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: colores.obtenerColorCuatro(),
+            primaryColor: PaletaColores().obtenerColorCuatro(),
           ),
           child: TextFormField(
-            style: TextStyle(fontSize: 13),
+            style: TextStyle(fontSize: _width/27.69230769230769),
             controller: _nombreCorreo,
             decoration: InputDecoration(
               filled: true,
-              fillColor: colores.obtenerColorDos(),
+              fillColor: PaletaColores().obtenerColorDos(),
               border: const OutlineInputBorder(),
               labelText: 'Introduzca el Correo o Usuario',
               icon: Icon(
                 Icons.person_rounded,
-                color: colores.obtenerColorInactivo(),
+                color: PaletaColores().obtenerColorInactivo(),
                 size: _width/14.4,
               ),
             ),
@@ -376,20 +333,20 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: colores.obtenerColorCuatro(),
+            primaryColor: PaletaColores().obtenerColorCuatro(),
           ),
           child: TextFormField(
             obscureText: true,
-            style: TextStyle(fontSize: 13),
+            style: TextStyle(fontSize: _width/27.69230769230769),
             controller: _clave,
             decoration: InputDecoration(
               filled: true,
-              fillColor: colores.obtenerColorDos(),
+              fillColor: PaletaColores().obtenerColorDos(),
               border: const OutlineInputBorder(),
               labelText: 'Introduzca su Contraseña',
               icon: Icon(
                 Icons.lock_open_rounded,
-                color: colores.obtenerColorInactivo(),
+                color: PaletaColores().obtenerColorInactivo(),
                 size: _width/14.4,
               ),
             ),
@@ -437,19 +394,19 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         child: ProgressButton.icon(iconedButtons: {
           ButtonState.idle: IconedButton(
               icon: Icon(Icons.login_rounded, color: Colors.white),
-              color: colores.obtenerColorInactivo()),
+              color: PaletaColores().obtenerColorInactivo()),
           ButtonState.loading:
-          IconedButton(text: "Cargando", color: colores.obtenerColorUno()),
+          IconedButton(text: "Cargando", color: PaletaColores().obtenerColorUno()),
           ButtonState.fail: IconedButton(
               icon: Icon(Icons.cancel, color: Colors.white),
-              color: colores.obtenerColorRiesgo()),
+              color: PaletaColores().obtenerColorRiesgo()),
           ButtonState.success: IconedButton(
               text: "Exito",
               icon: Icon(
                 Icons.check_circle,
                 color: Colors.white,
               ),
-              color: colores.obtenerColorTres())
+              color: PaletaColores().obtenerColorTres())
         }, onPressed: () {
           if (_formKey.currentState.validate()) {
             _alPresionarBoton();
@@ -467,16 +424,16 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         children: <Widget> [
           Container(
             decoration: BoxDecoration(
-              color: colores.obtenerColorUno(),
+              color: PaletaColores().obtenerColorUno(),
               shape: BoxShape.circle,
               border: Border.all(
-                color: colores.obtenerColorUno(),
-                width: 2,
+                color: PaletaColores().obtenerColorUno(),
+                width: _width/180,
               ),
             ),
             child: IconButton(
-              iconSize: 30,
-              color: colores.obtenerColorTres(),
+              iconSize: _width/12,
+              color: PaletaColores().obtenerColorTres(),
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
               icon: Icon(
@@ -496,14 +453,14 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: colores.obtenerColorCuatro(),
-                width: 2,
+                color: PaletaColores().obtenerColorCuatro(),
+                width: _width/180,
               ),
             ),
             child: IconButton(
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
-              icon: SeleccionarIcono("RecuperarContraseña", _width/12, colores.obtenerColorCuatro()),
+              icon: SeleccionarIcono("RecuperarContraseña", _width/12, PaletaColores().obtenerColorCuatro()),
               onPressed: () {
               },
             ),
@@ -514,7 +471,7 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
 
     Widget _botonesWidget() {
       return Container (
-        margin: EdgeInsets.symmetric(horizontal: 24),
+        margin: EdgeInsets.symmetric(horizontal: _width/15),
         alignment: Alignment.center,
         child: Column(
           children: <Widget> [
@@ -528,12 +485,12 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
     Widget _cartaIntro() {
       return Container (
         key: _keyList[0],
-        margin: EdgeInsets.symmetric(horizontal: 24),
+        margin: EdgeInsets.symmetric(horizontal: _width/15),
         alignment: Alignment.center,
         child: Card(
           child: Container(
-            height: 350,
-            width: 300,
+            height: _height/2.262857142857143,
+            width: _width/1.2,
             child: Form(
               key: _formKey,
               child: Column(
@@ -574,30 +531,30 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
 
     Widget _botonAtras() {
       return Container(
-        margin: EdgeInsets.only(left: 10),
+        margin: EdgeInsets.only(left: _width/36),
         child: ElevatedButton(
           child: Container (
-            width: 80,
+            width: _width/4.5,
             child: Row (
               children: <Widget> [
                 Container (
                   child: Icon(
                     Icons.arrow_back_ios,
-                    size: 20,
+                    size: _width/18,
                   ),
                 ),
                 Text(
                   "Regresar",
                   style: TextStyle(
-                    color: colores.obtenerColorDos(),
-                    fontSize: 14.0,
+                    color: PaletaColores().obtenerColorDos(),
+                    fontSize: _width/25.71428571428571,
                   ),
                 ),
               ],
             ),
           ),
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(colores.obtenerColorRiesgo()),
+            backgroundColor: MaterialStateProperty.all<Color>(PaletaColores().obtenerColorRiesgo()),
           ),
           onPressed: () => {
             _irAtras(),
@@ -608,30 +565,30 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
 
     Widget _botonSiguiente() {
       return Container(
-        margin: EdgeInsets.only(right: 10),
+        margin: EdgeInsets.only(right: _width/36),
         child: ElevatedButton(
           child: Container (
-            width: 80,
+            width: _width/4.5,
             child: Row (
               children: <Widget> [
                 Text(
                   "Siguiente",
                   style: TextStyle(
-                    color: colores.obtenerColorDos(),
-                    fontSize: 14.0,
+                    color: PaletaColores().obtenerColorDos(),
+                    fontSize: _width/25.71428571428571,
                   ),
                 ),
                 Container (
                   child: Icon(
                     Icons.arrow_forward_ios_outlined,
-                    size: 20,
+                    size: _width/18,
                   ),
                 ),
               ],
             ),
           ),
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(colores.obtenerColorTres()),
+            backgroundColor: MaterialStateProperty.all<Color>(PaletaColores().obtenerColorTres()),
           ),
           onPressed: () => {
             _irAdelante(),
@@ -642,7 +599,7 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
 
     Widget _barraNavegacion() {
       return Container(
-        height: 50,
+        height: _height/15.84,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget> [
@@ -661,13 +618,13 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: colores.obtenerColorCuatro(),
+            primaryColor: PaletaColores().obtenerColorCuatro(),
           ),
           child: TextFormField(
             controller: _nombre,
             decoration: InputDecoration(
               filled: true,
-              fillColor: colores.obtenerColorDos(),
+              fillColor: PaletaColores().obtenerColorDos(),
               border: const OutlineInputBorder(),
               hintText: '¿Como va a llamar a este dispositivo?',
               labelText: 'Ingrese su Nombre',
@@ -692,13 +649,13 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: colores.obtenerColorCuatro(),
+            primaryColor: PaletaColores().obtenerColorCuatro(),
           ),
           child: TextFormField(
             controller: _apellido,
             decoration: InputDecoration(
               filled: true,
-              fillColor: colores.obtenerColorDos(),
+              fillColor: PaletaColores().obtenerColorDos(),
               border: const OutlineInputBorder(),
               hintText: '¿Como va a llamar a este dispositivo?',
               labelText: 'Ingrese se Apellido',
@@ -718,29 +675,29 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
     Widget _cartaNombApell() {
       return Container (
         key: _keyList[1],
-        margin: EdgeInsets.symmetric(horizontal: 24),
+        margin: EdgeInsets.symmetric(horizontal: _width/15),
         alignment: Alignment.center,
         child: Card(
           child: Container(
-            height: 240,
-            width: 300,
+            height: _height/3.3,
+            width: _width/1.2,
             child: Form(
               key: _formKeyRegisterUno,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Container(
-                    width: 280,
-                    height: 150,
+                    width: _width/1.285714285714286,
+                    height: _height/5.28,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Container(
-                          child: SeleccionarIcono("Astronauta", _width/12, colores.obtenerColorInactivo()),
-                          margin: EdgeInsets.only(left: 10),
+                          child: SeleccionarIcono("Astronauta", _width/12, PaletaColores().obtenerColorInactivo()),
+                          margin: EdgeInsets.only(left: _width/36),
                         ),
                         Container(
-                          width: 240,
+                          width: _width/1.5,
                           child: Column(
                             children: <Widget> [
                               _nombreWidget(),
@@ -756,63 +713,6 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
               ),
             ),
           ),
-        ),
-      );
-    }
-
-    Widget _dropDownPCLI() {
-      return Container(
-        width: _width/2,
-        child: DropdownButton<Territorio>(
-          isExpanded: true,
-          value: _PCLISeleccionado,
-          menuMaxHeight: _height/1,
-
-          /*icon: Icon(
-            _iconoDispositivo,
-            color: _dispositivoColorDrowDown,
-          ),
-          iconSize: _width/18,*/
-          elevation: 16,
-          underline: Container(
-            height: _height/396,
-            //color: _dispositivoColorDrowDown,
-          ),
-          onChanged: (Territorio nuevoValor) {
-            setState(() {
-              _PCLISeleccionado = nuevoValor;
-              if (_PCLISeleccionado.nombre != "Error"
-                  && _PCLISeleccionado.codigo_pais == null) {
-                //_dispositivoColorDrowDown = colores.obtenerColorInactivo();
-                //_iconoDispositivo = Icons.device_unknown_rounded;
-                //_estado = 0;
-              } else if (_PCLISeleccionado.nombre == "Error"
-                  && _PCLISeleccionado.codigo_pais == null) {
-               //_iconoDispositivo = Icons.error_outline_rounded;
-                //_estado = 0;
-              } else {
-                //_dispositivoColorDrowDown = colores.obtenerColorCuatro();
-                //_iconoDispositivo = Icons.check_rounded;
-                //_estado = 2;
-                _obtenerADMUNO(_PCLISeleccionado);
-              }
-            });
-          },
-          items: _PCLILista.map((Territorio dispositivo) {
-            return DropdownMenuItem<Territorio>(
-              value: dispositivo,
-              child: Text(
-                dispositivo.nombre,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2,
-                style: TextStyle(
-                  //color: _dispositivoColorDrowDown,
-                  fontFamily: 'Lato',
-                  fontSize: _width/30,
-                ),
-              ),
-            );
-          }).toList(),
         ),
       );
     }
@@ -933,32 +833,31 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
     Widget _cartaTerritorio() {
       return Container (
         key: _keyList[2],
-        margin: EdgeInsets.symmetric(horizontal: 24),
+        margin: EdgeInsets.symmetric(horizontal: _width/15),
         alignment: Alignment.center,
         child: Card(
           child: Container(
-            height: 300,
-            width: 300,
+            height: _height/2.64,
+            width: _width/1.2,
             child: Form(
               key: _formKeyRegisterDos,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Container(
-                    width: 280,
-                    height: 150,
+                    width: _width/1.285714285714286,
+                    height: _height/5.28,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Container(
-                          child: SeleccionarIcono("Localizacion", _width/12, colores.obtenerColorInactivo()),
-                          margin: EdgeInsets.only(left: 10),
+                          child: SeleccionarIcono("Localizacion", _width/12, PaletaColores().obtenerColorInactivo()),
+                          margin: EdgeInsets.only(left: _width/36),
                         ),
                         Container(
-                          width: 240,
+                          width: _width/1.5,
                           child: Column(
                             children: <Widget> [
-                              _dropDownPCLI(),
                               _dropDownADMUNO(),
                               _dropDownADMDOS(),
                             ],
@@ -984,13 +883,13 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: colores.obtenerColorCuatro(),
+            primaryColor: PaletaColores().obtenerColorCuatro(),
           ),
           child: TextFormField(
             controller: _correo,
             decoration: InputDecoration(
               filled: true,
-              fillColor: colores.obtenerColorDos(),
+              fillColor: PaletaColores().obtenerColorDos(),
               border: const OutlineInputBorder(),
               hintText: '¿Como va a llamar a este dispositivo?',
               labelText: 'Ingrese su correo',
@@ -1015,13 +914,13 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: colores.obtenerColorCuatro(),
+            primaryColor: PaletaColores().obtenerColorCuatro(),
           ),
           child: TextFormField(
             controller: _telefono,
             decoration: InputDecoration(
               filled: true,
-              fillColor: colores.obtenerColorDos(),
+              fillColor: PaletaColores().obtenerColorDos(),
               border: const OutlineInputBorder(),
               hintText: '¿Como va a llamar a este dispositivo?',
               labelText: 'Ingrese su telefono',
@@ -1041,29 +940,29 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
     Widget _cartaCorreoTel() {
       return Container (
         key: _keyList[3],
-        margin: EdgeInsets.symmetric(horizontal: 24),
+        margin: EdgeInsets.symmetric(horizontal: _width/24),
         alignment: Alignment.center,
         child: Card(
           child: Container(
-            height: 240,
-            width: 300,
+            height: _height/3.3,
+            width: _width/1.2,
             child: Form(
               key: _formKeyRegisterTres,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Container(
-                    width: 280,
-                    height: 150,
+                    width: _width/1.285714285714286,
+                    height: _height/5.28,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Container(
-                          child: SeleccionarIcono("Correo", _width/12, colores.obtenerColorInactivo()),
-                          margin: EdgeInsets.only(left: 10),
+                          child: SeleccionarIcono("Correo", _width/12, PaletaColores().obtenerColorInactivo()),
+                          margin: EdgeInsets.only(left: _width/360),
                         ),
                         Container(
-                          width: 240,
+                          width: _width/1.5,
                           child: Column(
                             children: <Widget> [
                               _correoWidget(),
@@ -1091,13 +990,13 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: colores.obtenerColorCuatro(),
+            primaryColor: PaletaColores().obtenerColorCuatro(),
           ),
           child: TextFormField(
             controller: _ingresarClave,
             decoration: InputDecoration(
               filled: true,
-              fillColor: colores.obtenerColorDos(),
+              fillColor: PaletaColores().obtenerColorDos(),
               border: const OutlineInputBorder(),
               hintText: '¿Como va a llamar a este dispositivo?',
               labelText: 'Ingresar clave',
@@ -1122,13 +1021,13 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: colores.obtenerColorCuatro(),
+            primaryColor: PaletaColores().obtenerColorCuatro(),
           ),
           child: TextFormField(
             controller: _confirmarClave,
             decoration: InputDecoration(
               filled: true,
-              fillColor: colores.obtenerColorDos(),
+              fillColor: PaletaColores().obtenerColorDos(),
               border: const OutlineInputBorder(),
               hintText: '¿Como va a llamar a este dispositivo?',
               labelText: 'Confirmar Clave',
@@ -1147,24 +1046,24 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
 
     Widget _botonEnviar() {
       return Container(
-        margin: EdgeInsets.only(right: 10),
+        margin: EdgeInsets.only(right: _width/36),
         child: ElevatedButton(
           child: Container (
-            width: 80,
+            width: _width/4.5,
             child: Row (
               children: <Widget> [
                 Text(
                   "Registrarse",
                   style: TextStyle(
-                    color: colores.obtenerColorDos(),
-                    fontSize: 14.0,
+                    color: PaletaColores().obtenerColorDos(),
+                    fontSize: _width/25.71428571428571,
                   ),
                 ),
               ],
             ),
           ),
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(colores.obtenerColorUno()),
+            backgroundColor: MaterialStateProperty.all<Color>(PaletaColores().obtenerColorUno()),
           ),
           onPressed: () => {
             _actualIndex = 0,
@@ -1196,7 +1095,7 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
 
     Widget _barraNavegacionFinal() {
       return Container(
-        height: 50,
+        height: _height/15.84,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget> [
@@ -1210,33 +1109,33 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
     Widget _cartaClave() {
       return Container (
         key: _keyList[4],
-        margin: EdgeInsets.symmetric(horizontal: 24),
+        margin: EdgeInsets.symmetric(horizontal: _width/15),
         alignment: Alignment.center,
         child: Card(
           child: Container(
-            height: 240,
-            width: 300,
+            height: _height/3.3,
+            width: _width/1.2,
             child: Form(
               key: _formKeyRegisterCuatro,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Container(
-                    width: 280,
-                    height: 150,
+                    width: _width/1.285714285714286,
+                    height: _height/5.28,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Container(
                           child: Icon(
                             Icons.vpn_key_rounded,
-                            color: colores.obtenerColorInactivo(),
+                            color: PaletaColores().obtenerColorInactivo(),
                             size: _width/12,
                           ),
-                          margin: EdgeInsets.only(left: 10),
+                          margin: EdgeInsets.only(left: _width/36),
                         ),
                         Container(
-                          width: 240,
+                          width: _width/1.5,
                           child: Column(
                             children: <Widget> [
                               _introducirClaveWidget(),
@@ -1273,18 +1172,18 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
                         margin: EdgeInsets.only(top:_height/14.94339622),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: colores.obtenerColorUno(),
+                          color: PaletaColores().obtenerColorUno(),
                           boxShadow: [
-                            BoxShadow(color: colores.obtenerColorDos(), spreadRadius: 2),
+                            BoxShadow(color: PaletaColores().obtenerColorDos(), spreadRadius: 2),
                           ],
                         ),
-                        height: 220,
-                        width: 220,
+                        height: _height/3.6,
+                        width: _width/1.636363636363636,
                       ),
                       Container (
                         margin: EdgeInsets.only(top:_height/14.94339622),
-                        height: 180,
-                        width: 180,
+                        height: _height/4.4,
+                        width: _width/2,
                         decoration: BoxDecoration(
                           color: Colors.transparent,
                           image: DecorationImage(
@@ -1296,9 +1195,9 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
                     ],
                   ),
                   Container (
-                    margin: EdgeInsets.only(top: 20),
+                    margin: EdgeInsets.only(top: _height/39.6),
                     alignment: Alignment.center,
-                    height: 400,
+                    height: _height/1.98,
                     width: _width,
                     child: ListView(
                       scrollDirection: Axis.horizontal,

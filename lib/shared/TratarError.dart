@@ -3,26 +3,94 @@ import 'package:owleddomoapp/shared/PaletaColores.dart';
 
 class TratarError {
 
-  int estadoServicioLeer (String estado) {
+  List textoAgregado (List estado, List<String> textos, bool conteo) {
+    List respuestaError = [];
+    switch (estado.first.toString()) {
+      case "200":
+        respuestaError.add(estado.last);
+        respuestaError.add(
+            estado.last.toString() != "[]" ?
+                    conteo ? '${textos[0]}${estado.last.length}'
+                           : '${textos[0]}'
+                    : '${textos[1]}');
+        break;
+      case "201":
+        respuestaError.add(estado.last);
+        respuestaError.add(
+            estado.last.toString() != "[]" ?
+            conteo ? '${textos[0]}${estado.last.length}'
+                : '${textos[0]}'
+                : '${textos[1]}');
+        break;
+      case "400":
+        respuestaError.add(null);
+        respuestaError.add('${textos[2]}');
+        break;
+      case "401":
+        respuestaError.add(null);
+        respuestaError.add('${textos[3]}');
+        break;
+      case "409":
+        respuestaError.add(null);
+        respuestaError.add('${textos[4]}');
+        break;
+      case "421":
+        respuestaError.add(null);
+        respuestaError.add('${textos[4]}');
+        break;
+      case "422":
+        respuestaError.add(null);
+        respuestaError.add('${textos[4]}');
+        break;
+      case "502":
+        respuestaError.add(null);
+        respuestaError.add('${textos[5]}');
+        break;
+      case "Failed host lookup: 'zmyanb1bc1.execute-api.sa-east-1.amazonaws.com'":
+        respuestaError.add(null);
+        respuestaError.add('${textos[6]}');
+        break;
+      default:
+        respuestaError.add(null);
+        respuestaError.add('${textos[7]}');
+        break;
+    }
+
+    return respuestaError;
+  }
+
+  int estadoServicioLeer (List estado) {
     int numeroEstado = 0;
-    switch (estado) {
-      case "EXITO":
+    switch (estado.first.toString()) {
+      case "200":
+        numeroEstado = estado.last.toString() != "[]" ? 0 : 1;
+        break;
+      case "201":
         numeroEstado = 0;
         break;
-      case "VACIO":
-        numeroEstado = 1;
-        break;
-      case "LOCAL":
+      case "400":
         numeroEstado = 2;
         break;
-      case "SERVIDOR":
+      case "401":
         numeroEstado = 3;
         break;
-      case "Failed host lookup: 'o6vrtl78zb.execute-api.us-east-2.amazonaws.com'":
+      case "409":
         numeroEstado = 4;
         break;
-      case "OTRO":
+      case "421":
+        numeroEstado = 4;
+        break;
+      case "422":
+        numeroEstado = 4;
+        break;
+      case "502":
         numeroEstado = 5;
+        break;
+      case "Failed host lookup: 'zmyanb1bc1.execute-api.sa-east-1.amazonaws.com'":
+        numeroEstado = 6;
+        break;
+      default:
+        numeroEstado = 7;
         break;
     }
     return numeroEstado;
@@ -174,5 +242,4 @@ class TratarError {
     );
     return estado;
   }
-
 }
