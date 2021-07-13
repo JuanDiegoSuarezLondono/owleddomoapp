@@ -9,9 +9,6 @@ import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 import 'package:image_picker/image_picker.dart';
 
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
-
 ///Esta clase se encarga de manejar la interfaz con el formulario para editar el
 ///cuarto suministrado.
 ///@version 1.0, 06/04/21
@@ -92,7 +89,7 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
     }
     _existe = false; //Se asume que la imagen en la galeria no existe.
     _comprobarImagen(); //Se comprueba la existencia de la imagen en la galeria.
-    _bordeImagen = colores.obtenerColorCuatro();
+    _bordeImagen = PaletaColores().obtenerCuaternario();
     _nombreCampo = TextEditingController(text: _nombre); //Asigna el actual nombre al campo de texto.
     _descripcionCampo = TextEditingController(text: _descripcion); //Asigna la actual descripción al campo de texto.
     _estadoBoton = ButtonState.idle;
@@ -123,8 +120,10 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
       if (mounted) {
         setState(() {
           _imagenCamara = null;
-          value == null ? _imagen = null : _imagen = value;
-          value == null ? _bordeImagen = colores.obtenerColorRiesgo() : _bordeImagen = colores.obtenerColorCuatro();
+          value == null ? _imagen = null
+                        : _imagen = value;
+          value == null ? _bordeImagen = PaletaColores().obtenerColorRiesgo()
+                        : _bordeImagen = PaletaColores().obtenerCuaternario();
         })
       },
     });
@@ -143,13 +142,37 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
       if(imagen != null) {
         File archivoImagen = File(imagen.path);
         _imagenCamara = archivoImagen;
-        _bordeImagen = colores.obtenerColorCuatro();
+        _bordeImagen = PaletaColores().obtenerCuaternario();
       } else {
         _imagenCamara = null;
-        _bordeImagen = colores.obtenerColorRiesgo();
+        _bordeImagen = PaletaColores().obtenerColorRiesgo();
       }
       _comprobarImagen();
       _imagen = null;
+    });
+  }
+
+  ///Actualiza el cuarto o genera un error en caso de cualquier eventualidad.
+  ///@see owleddomo_app/cuartos/CuartoTabla/ServiciosDispositivo.actualizarCuarto#method().
+  ///@see owleddomo_app/shared/TratarError.estadoServicioActualizar#method().
+  ///@return No retorna nada en caso de no obtener una validación positiva de los campos.
+
+  _actualizarCuarto() {
+    ServiciosCuarto.actualizarCuarto(_cuartoId, _usuario, _nombreCampo.text,
+                                     _imagenFinal, _descripcionCampo.text).then((result) {
+
+      String respuesta = TratarError().tarjetaDeEstado( result, [_nombreCampo.text,
+                        _imagenFinal, _descripcionCampo.text], context).first.toString();
+
+      if ( respuesta == "2") {
+        setState(() {
+          _estadoBoton = ButtonState.success;
+        });
+      } else {
+        setState(() {
+          _estadoBoton = ButtonState.fail;
+        });
+      }
     });
   }
 
@@ -174,10 +197,10 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: colores.obtenerColorInactivo(),
+                color: PaletaColores().obtenerColorInactivo(),
                 width: _height/300,
               ),
-              color: colores.obtenerColorDos(),
+              color: PaletaColores().obtenerSecundario(),
               borderRadius: BorderRadius.circular(150),
             ),
             height: _height/11.31428571428571,
@@ -185,7 +208,7 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
             child: Icon(
               Icons.camera_alt_rounded,
               size: _height/22.62857142857143,
-              color: colores.obtenerColorInactivo(),
+              color: PaletaColores().obtenerColorInactivo(),
             ),
           ),
         ),
@@ -214,7 +237,7 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
                 color: _bordeImagen,
                 width: _height/300,
               ),
-              color: colores.obtenerColorDos(),
+              color: PaletaColores().obtenerSecundario(),
               borderRadius: BorderRadius.circular(150),
               image: DecorationImage(
                   fit: BoxFit.cover,
@@ -233,13 +256,13 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
                 color: _bordeImagen,
                 width: _height/300,
               ),
-              color: colores.obtenerColorDos(),
+              color: PaletaColores().obtenerSecundario(),
               borderRadius: BorderRadius.circular(150),
             ),
             child: Icon(
               Icons.image,
               size: _height/6.6,
-              color: colores.obtenerColorInactivo(),
+              color: PaletaColores().obtenerColorInactivo(),
             ),
           ),
         ),
@@ -257,22 +280,46 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: colores.obtenerColorCuatro(),
+            primaryColor: PaletaColores().obtenerCuaternario(),
           ),
           child: TextFormField(
             controller: _nombreCampo,
+            style: TextStyle(
+              color: PaletaColores().obtenerLetraContraseteSecundario(),
+              fontFamily: "Lato",
+            ),
             maxLength: 50,
             decoration: InputDecoration(
               filled: true,
-              fillColor: colores.obtenerColorDos(),
+              fillColor: PaletaColores().obtenerSecundario(),
               border: const OutlineInputBorder(),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: PaletaColores().obtenerCuaternario(),
+                  width: 2.0,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: PaletaColores().obtenerColorInactivo(),
+                  width: 2.0,
+                ),
+              ),
               hintText: '¿Como quieres llamar a este cuarto?',
+              hintStyle: TextStyle(
+                color: PaletaColores().obtenerColorInactivo(),
+                fontFamily: "Lato",
+              ),
               labelText: 'Nombre',
+              labelStyle: TextStyle(
+                color: PaletaColores().obtenerColorInactivo(),
+                fontFamily: "Lato",
+              ),
             ),
             autofocus: true,
             validator: (value) {
               String mensaje;
-              value.isEmpty ? mensaje='¡Ey, ey!... ¿Que nombre quieres '
+              value.isEmpty ? mensaje = 'Dime ¿Que nombre quieres'
                 'para tu cuarto?' : mensaje = null;
               return mensaje;
               },
@@ -293,19 +340,43 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: colores.obtenerColorCuatro(),
+            primaryColor: PaletaColores().obtenerCuaternario(),
           ),
           child: TextFormField(
             controller: _descripcionCampo,
+            style: TextStyle(
+              color: PaletaColores().obtenerLetraContraseteSecundario(),
+              fontFamily: "Lato",
+            ),
             maxLength: 500,
             decoration: InputDecoration(
               filled: true,
-              fillColor: colores.obtenerColorDos(),
+              fillColor: PaletaColores().obtenerSecundario(),
               border: const OutlineInputBorder(),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: PaletaColores().obtenerCuaternario(),
+                  width: 2.0,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: PaletaColores().obtenerColorInactivo(),
+                  width: 2.0,
+                ),
+              ),
               hintText: '¿Que distingue a este cuarto?',
+              hintStyle: TextStyle(
+                color: PaletaColores().obtenerColorInactivo(),
+                fontFamily: "Lato",
+              ),
               labelText: 'Descripcion',
+              labelStyle: TextStyle(
+                color: PaletaColores().obtenerColorInactivo(),
+                fontFamily: "Lato",
+              ),
             ),
-            maxLines: 3,
+            maxLines: 4,
             validator: (value) {
               String mensaje;
               value.isEmpty ? mensaje='Solo di algo cortito' : mensaje=null;
@@ -314,28 +385,6 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
           ),
         ),
       );
-    }
-
-    ///Actualiza el cuarto o genera un error en caso de cualquier eventualidad.
-    ///@see owleddomo_app/cuartos/CuartoTabla/ServiciosDispositivo.actualizarCuarto#method().
-    ///@see owleddomo_app/shared/TratarError.estadoServicioActualizar#method().
-    ///@return No retorna nada en caso de no obtener una validación positiva de los campos.
-
-    _actualizarCuarto() {
-      ServiciosCuarto.actualizarCuarto(_cuartoId, _usuario, _nombreCampo.text,
-                                       _imagenFinal, _descripcionCampo.text)
-          .then((result) {
-        String respuesta = tratarError.estadoServicioActualizar( result, [_nombreCampo.text, _imagenFinal, _descripcionCampo.text], context);
-        if ( respuesta == "EXITO") {
-          setState(() {
-            _estadoBoton = ButtonState.success;
-          });
-        } else {
-          setState(() {
-            _estadoBoton = ButtonState.fail;
-          });
-        }
-      });
     }
 
     ///Maneja el comportamiento al presionar el botón.
@@ -351,9 +400,9 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
         }
         setState(() {
           if (_imagen == null && _imagenCamara == null) {
-            _bordeImagen = colores.obtenerColorRiesgo();
+            _bordeImagen = PaletaColores().obtenerColorRiesgo();
           } else {
-            _bordeImagen = colores.obtenerColorInactivo();
+            _bordeImagen = PaletaColores().obtenerColorInactivo();
           }
         });
         return;
@@ -384,30 +433,46 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
     Widget _boton() {
       return Container(
         width: _width/3.6,
-        child: ProgressButton.icon(iconedButtons: {
-          ButtonState.idle: IconedButton(
-              text: "Enviar",
-              icon: Icon(Icons.send, color: Colors.white),
-              color: colores.obtenerColorInactivo()),
-          ButtonState.loading:
-          IconedButton(text: "Cargando", color: colores.obtenerColorUno()),
-          ButtonState.fail: IconedButton(
-              icon: Icon(Icons.cancel, color: Colors.white),
-              color: colores.obtenerColorRiesgo()),
-          ButtonState.success: IconedButton(
-              text: "Exito",
-              icon: Icon(
-                Icons.check_circle,
-                color: Colors.white,
+        child: ProgressButton.icon(
+            textStyle: TextStyle(
+              color: PaletaColores().obtenerLetraContrasetePrimario(),
+            ),
+            iconedButtons: {
+              ButtonState.idle: IconedButton(
+                  text: "Enviar",
+                  icon: Icon(
+                    Icons.send,
+                    color: PaletaColores().obtenerLetraContrasetePrimario(),
+                  ),
+                  color: PaletaColores().obtenerColorInactivo(),
               ),
-              color: colores.obtenerColorTres())
-        }, onPressed: () {
-          if (_formKey.currentState.validate()) {
-            _alPresionarBoton();
-          } else if (_estadoBoton == ButtonState.fail) {
-            _estadoBoton = ButtonState.idle;
-          }
-        },
+              ButtonState.loading:
+              IconedButton(
+                text: "Cargando",
+                color: PaletaColores().obtenerPrimario(),
+              ),
+              ButtonState.fail: IconedButton(
+                icon: Icon(
+                  Icons.cancel,
+                  color: PaletaColores().obtenerLetraContrasetePrimario(),
+                ),
+                color: PaletaColores().obtenerColorRiesgo(),
+              ),
+              ButtonState.success: IconedButton(
+                  text: "Exito",
+                  icon: Icon(
+                    Icons.check_circle,
+                    color: PaletaColores().obtenerLetraContrasetePrimario(),
+                  ),
+                  color: PaletaColores().obtenerTerciario(),
+              ),
+            }, onPressed: () {
+              if (_formKey.currentState.validate()) {
+                _alPresionarBoton();
+              } else if (_estadoBoton == ButtonState.fail) {
+                _estadoBoton = ButtonState.idle;
+              }
+              },
             state: _estadoBoton),
       );
     }
@@ -438,7 +503,8 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
       physics: BouncingScrollPhysics(),
       children: [
         Container(
-          height: _height/1.176820208023774,
+          color: PaletaColores().obtenerColorFondo(),
+          height: _height/1.161290322580645,
           child: Stack(
               children: <Widget>[
                 FondoCubo(),

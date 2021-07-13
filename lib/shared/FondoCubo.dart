@@ -3,8 +3,6 @@ import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:flutter/material.dart';
 import 'package:funvas/funvas.dart';
 
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-
 ///Esta clase se encarga de suministrar una animación de un cubo.
 ///@version 1.0, 06/04/21
 ///@author https://portfolio.creativemaybeno.dev/
@@ -36,7 +34,7 @@ class FondoCubo extends StatelessWidget {
 class Sixteen extends Funvas {
   @override
   void u(double t) {
-    c.drawPaint(Paint()..color = colores.obtenerColorFondo());
+    c.drawPaint(Paint()..color = PaletaColores().obtenerColorFondo());//PaletaColores().obtenerColorFondo());
     final d = s2q(500).width;
     const double dimenciones = 0.5;
 
@@ -109,7 +107,7 @@ class Sixteen extends Funvas {
         p1,
         p2,
         Paint()
-          ..color = colores.obtenerColorTres().withBlue(i * 222 ~/ transformedCube.length)
+          ..color = PaletaColores().obtenerTerciario().withBlue(i * 222 ~/ transformedCube.length)
           ..strokeWidth = 11
           ..strokeCap = StrokeCap.round,
       );

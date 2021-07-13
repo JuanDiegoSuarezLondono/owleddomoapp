@@ -98,8 +98,9 @@ class CuartosMain extends StatelessWidget {
             bottom: PreferredSize(
               preferredSize: Size.fromHeight(height/16.16326530612245),
               child: TabBar(
-                labelColor: colores.obtenerColorTres(),
-                unselectedLabelColor: colores.obtenerColorInactivo(),
+                labelColor: PaletaColores().obtenerTerciario(),
+                unselectedLabelColor: PaletaColores().obtenerColorInactivo(),
+                indicatorColor: PaletaColores().obtenerTerciario(),
                 indicatorWeight: height/264,
                 tabs: [
                   for (final tab in tabs) Tab(child: tab),

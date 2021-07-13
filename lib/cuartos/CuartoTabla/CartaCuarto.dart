@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:owleddomoapp/cuartos/DispositivoTabla/ServiciosDispositivo.dart';
-import 'package:owleddomoapp/cuartos/DispositivoTabla/Dispositivo.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/login/Persona.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
@@ -52,7 +51,6 @@ class _CartaCuarto extends State<CartaCuarto> {
   _CartaCuarto(this._cuartoId, this._nombre, this._pathImagen, this._usuario); //Constructor de la clase.
 
   bool _existe; //Indica la existencia de la imagen.
-  List<Dispositivo> _dispositivosCuarto; //Lista de dispositivos asociados al cuarto.
   String _textoNumeroDispositivos; //Numero de dispositivos asociados al cuarto.
 
   @override
@@ -64,7 +62,6 @@ class _CartaCuarto extends State<CartaCuarto> {
     _existe = false; //Se asume que la imagen en la galeria no existe.
     _comprobarImagen(); //Se comprueba la existencia de la imagen en la galeria.
     _textoNumeroDispositivos = "No hay dispositivos"; //Texto predeterminado en caso de no haber dispositivos.
-    _dispositivosCuarto = [];
     _obtenerDispositivos();
   }
 
@@ -96,7 +93,6 @@ class _CartaCuarto extends State<CartaCuarto> {
     ServiciosDispositivo.dispositivoCuarto(_cuartoId, _usuario.persona_id).then((result) {
       if (mounted) {
         setState(() {
-          _dispositivosCuarto = TratarError().textoAgregado(result,textos, true).first;
           _textoNumeroDispositivos = TratarError().textoAgregado(result,textos, true).last;
         });
       }

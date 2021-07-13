@@ -123,6 +123,7 @@ class PopUpImagenes extends StatelessWidget {
         height: height/1.98,
         width: width,
         child: ListView(
+          physics: BouncingScrollPhysics(),
           children: <Widget>[
             obtenerColumnas(),
           ],

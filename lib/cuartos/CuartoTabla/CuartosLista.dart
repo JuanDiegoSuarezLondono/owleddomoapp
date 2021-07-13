@@ -12,8 +12,6 @@ import 'package:owleddomoapp/shared/TratarError.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:owleddomoapp/login/Persona.dart';
 
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-
 ///Esta clase se encarga de manejar la pantalla del despliegue de la lista de los
 ///cuartos y su lógica.
 ///@version 1.0, 06/04/21.
@@ -48,7 +46,7 @@ class _CuartosLista extends State<CuartosLista> {
   _CuartosLista(this._usuario); //Constructor de la clase.
 
   List<Widget> _cuartosLista; //Lista de las cartas de los cuartos.
-  Future<List> _cuartosObtenidos; //Lista con el mapeo de los cuartos.
+  Future _cuartosObtenidos; //Lista con el mapeo de los cuartos.
   int _estado; //Estado del servicio de obtener cuartos.
   bool _refrescar; //Endica si hay una pantalla de carga activa.
 
@@ -61,6 +59,7 @@ class _CuartosLista extends State<CuartosLista> {
     _cuartosLista = [];
     _estado = 1;
     _refrescar = false; //Inicializa este valor para que no haga un Navigator.pop al no tener pantalla de carga.
+    _cuartosObtenidos = _obtenerCuartos();
   }
 
   ///Hace una petición para conseguir un mapeo con la lista de los parámetros de
@@ -69,17 +68,16 @@ class _CuartosLista extends State<CuartosLista> {
   ///@see owleddomo_app/shared/TratarError.estadoServicioLeer#method().
   ///@return Un mapeo con los cuartos.
 
-  Future<List> _obtenerCuartos()  async {
-    _cuartosObtenidos =  ServiciosCuarto.todosCuartos(_usuario.persona_id);
+  Future<List> _obtenerCuartos() async {
+    _cuartosObtenidos = ServiciosCuarto.todosCuartos(_usuario.persona_id);
     _cuartosObtenidos.then((result) {
       if (mounted) {
         setState(() {
           _estado = TratarError().estadoServicioLeer(result);
-          _estado = 0;
         });
       }
     });
-    return _cuartosObtenidos;
+    return await _cuartosObtenidos;
   }
 
   ///Acción de navegación a la interfaz de agregar cuartos al presionar el botón
@@ -97,7 +95,10 @@ class _CuartosLista extends State<CuartosLista> {
           _estado = 8; //Al regresar a la lista, hace que se actualice.
         }),
       },
-      _obtenerCuartos(), //Vuelve a cargar la lista luego de agregar el cuarto.
+      setState(() {
+        _obtenerCuartos(); //Vuelve a cargar la lista luego de agregar el cuarto.
+      }),
+
     });
   }
 
@@ -116,6 +117,7 @@ class _CuartosLista extends State<CuartosLista> {
     Navigator.push(context, route).then((value)=>{
       if(mounted) {
         setState(() {
+
           _estado = 8; //Al regresar a la lista, hace que se actualice.
         }),
       },
@@ -142,19 +144,9 @@ class _CuartosLista extends State<CuartosLista> {
         child: Container (
           height: _height/5.617,
           width: _width/2.553,
-          color: Colors.red,
           child: Center(
             child: Stack(
               children: <Widget>[
-                Container(
-                  margin: EdgeInsets.only(
-                    top: _height/31.68,
-                    left: _width/8.779,
-                  ),
-                  color: colores.obtenerColorFondo(),
-                  width: _height/19.8,
-                  height: _height/19.8,
-                ),
                 MaterialButton(
                   onPressed: () {
                     _alPresionarAgregarCuarto();
@@ -338,8 +330,8 @@ class _CuartosLista extends State<CuartosLista> {
             shrinkWrap: true,
             children: <Widget> [
               FutureBuilder<List>(
-                future: _obtenerCuartos(),
-                builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
+                future: _cuartosObtenidos,
+                builder: (context, AsyncSnapshot<List> snapshot) {
                   List<Widget> children;
                   if (snapshot.hasData) {
                     if (_refrescar) {
@@ -371,7 +363,7 @@ class _CuartosLista extends State<CuartosLista> {
                                 maxLines: 2,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: _height/26.4,
+                                  fontSize: _width/16.36363636363636,
                                   color: PaletaColores().obtenerColorRiesgo(),
                                   fontFamily: "Lato",
                                 ),
@@ -400,7 +392,7 @@ class _CuartosLista extends State<CuartosLista> {
                                 maxLines: 3,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: _height/26.4,
+                                  fontSize: _width/16.36363636363636,
                                   color: PaletaColores().obtenerColorRiesgo(),
                                   fontFamily: "Lato",
                                 ),
@@ -420,7 +412,7 @@ class _CuartosLista extends State<CuartosLista> {
                               child: Icon(
                                 Icons.cloud_off_rounded,
                                 size: _height/7.92,
-                                color: colores.obtenerColorCuatro(),
+                                color: PaletaColores().obtenerCuaternario(),
                               ),
                             ),
                             Container(
@@ -457,6 +449,7 @@ class _CuartosLista extends State<CuartosLista> {
                               maxLines: 2,
                               textAlign: TextAlign.center,
                               style: TextStyle(
+                                fontSize: _width/16.36363636363636,
                                 color: PaletaColores().obtenerColorRiesgo(),
                                 fontFamily: "Lato",
                               ),
@@ -467,7 +460,7 @@ class _CuartosLista extends State<CuartosLista> {
                     } else if ( _estado == 6) {
                       children = <Widget>[
                         Container(
-                          height: _height/1.427027027027027,
+                          height: _height/1.36551724137931,
                           child: PantallaCargaSinRed(),
                         ),
                       ];
@@ -485,7 +478,7 @@ class _CuartosLista extends State<CuartosLista> {
                               child: Icon(
                                 Icons.error_rounded,
                                 size: _height/7.92,
-                                color: colores.obtenerColorRiesgo(),
+                                color: PaletaColores().obtenerColorRiesgo(),
                               ),
                             ),
                             Text(
@@ -493,7 +486,8 @@ class _CuartosLista extends State<CuartosLista> {
                               maxLines: 2,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: colores.obtenerColorRiesgo(),
+                                fontSize: _width/16.36363636363636,
+                                color: PaletaColores().obtenerColorRiesgo(),
                                 fontFamily: "Lato",
                               ),
                             ),
@@ -515,7 +509,7 @@ class _CuartosLista extends State<CuartosLista> {
                             child: Icon(
                               Icons.error_rounded,
                               size: _height/7.92,
-                              color: colores.obtenerColorRiesgo(),
+                              color: PaletaColores().obtenerColorRiesgo(),
                             ),
                           ),
                           Text(
@@ -523,7 +517,8 @@ class _CuartosLista extends State<CuartosLista> {
                             maxLines: 2,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: colores.obtenerColorRiesgo(),
+                              fontSize: _width/16.36363636363636,
+                              color: PaletaColores().obtenerColorRiesgo(),
                               fontFamily: "Lato",
                             ),
                           ),

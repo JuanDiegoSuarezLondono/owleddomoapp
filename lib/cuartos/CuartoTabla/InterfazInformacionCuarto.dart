@@ -10,9 +10,6 @@ import 'package:owleddomoapp/shared/TratarError.dart';
 import 'package:owleddomoapp/shared/FondoCubo.dart';
 import 'package:owleddomoapp/login/Persona.dart';
 
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
-
 ///Esta clase se encarga de la pantalla donde se muestra la información del cuarto
 ///y su lógica.
 ///@version 1.0, 06/04/21
@@ -53,6 +50,7 @@ class InterfazInformacionCuarto extends StatefulWidget{
 ///@param _usuario identificador del usuario.
 ///@param _existe si una imagen existe es true, de no serlo es false.
 ///@param _dispositivosCuarto lista de dispositivos asociados al cuarto.
+///@param _estado estado del servicio de obtener dispositivos.
 ///@param _width obtiene el ancho de la pantalla del dispositivo.
 ///@param _height obtiene el alto de la pantalla del dispositivo.
 
@@ -78,7 +76,8 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
     super.initState();
     _existe = false; //Se asume que la imagen en la galeria no existe.
     _comprobarImagen(); //Se comprueba la existencia de la imagen en la galeria.
-    _estado = 0;
+    _estado = 1;
+    _dispositivosObtenidos = _obtenerDispositivos();
   }
 
   ///Busca que la imagen suministrada exista en la galeria, de ser verdad cambia
@@ -100,13 +99,15 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
   ///@return un mapeo con los dispositivos.
 
   Future<List> _obtenerDispositivos() async {
-    setState(() {
-      _dispositivosObtenidos = ServiciosDispositivo.dispositivoCuarto(_cuartoId, _usuario.persona_id);
+    _dispositivosObtenidos = ServiciosDispositivo.dispositivoCuarto(_cuartoId, _usuario.persona_id);
+    _dispositivosObtenidos.then((result) {
+      if(mounted) {
+        setState(() {
+          _estado = TratarError().estadoServicioLeer(result);
+        });
+      }
     });
-    _dispositivosObtenidos.then((result) => {
-      _estado = tratarError.estadoServicioLeer(result.first),
-    });
-    return _dispositivosObtenidos;
+    return await _dispositivosObtenidos;
   }
 
   Widget build(BuildContext context) {
@@ -126,10 +127,10 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             border: Border.all(
-              color: colores.obtenerColorCuatro(),
+              color: PaletaColores().obtenerColorCuatro(),
               width: _height/300,
             ),
-            color: colores.obtenerColorDos(),
+            color: PaletaColores().obtenerSecundario(),
             shape: BoxShape.circle,
             image: DecorationImage(
               fit: BoxFit.cover,
@@ -160,6 +161,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
             textAlign: TextAlign.left,
             maxLines: 1,
             style: TextStyle(
+              color: PaletaColores().obtenerLetraContraseteSecundario(),
               fontFamily: "lato",
               fontWeight: FontWeight.bold,
               fontSize: _height/19.8,
@@ -190,7 +192,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
         decoration: BoxDecoration(
             boxShadow: <BoxShadow>[
               BoxShadow(
-                  color: Colors.black45,
+                  color: PaletaColores().obtenerLetraContraseteSecundario().withOpacity(0.45),
                   blurRadius: 10,
                   offset: Offset(0,10)
               )
@@ -246,7 +248,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
           decoration: BoxDecoration(
             border: Border.symmetric(
               horizontal: BorderSide(
-                color: colores.obtenerColorCuatro(),
+                color: PaletaColores().obtenerCuaternario(),
                 width: _height/396,
               ),
             ),
@@ -256,6 +258,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
               _descripcion,
               textAlign: TextAlign.justify,
               style: TextStyle(
+                color: PaletaColores().obtenerLetraContraseteSecundario(),
                 fontFamily: "lato",
                 fontSize: _height/52.8,
               ),
@@ -274,23 +277,25 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
           barrierDismissible: false,
           builder: (buildcontext) {
             return AlertDialog(
-              backgroundColor: colores.obtenerColorUno(),
+              backgroundColor: PaletaColores().obtenerPrimario(),
               title: Text(
                 "¿Está seguro?",
                 style: TextStyle(
-                  color: colores.obtenerColorDos(),
+                  color: PaletaColores().obtenerLetraContrasetePrimario(),
+                  fontFamily: "lato",
                 ),
               ),
               content: Text(
                 "Al eliminar este cuarto se perderá la configuración del mismo.",
                 style: TextStyle(
-                  color: colores.obtenerColorDos(),
+                  color: PaletaColores().obtenerLetraContrasetePrimario(),
+                  fontFamily: "lato",
                 ),
               ),
               actions: <Widget>[
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: colores.obtenerColorTres(),
+                    primary: PaletaColores().obtenerTerciario(),
                   ),
                   child:Container (
                     width: _width/6.428571428571429,
@@ -299,13 +304,14 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
                       children: <Widget> [
                         Icon(
                           Icons.warning_rounded,
-                          color: colores.obtenerColorDos(),
+                          color: PaletaColores().obtenerLetraContrasetePrimario(),
                           size: _height/26.4,
                         ),
                         Text(
                           "OK",
                           style: TextStyle(
-                            color: colores.obtenerColorDos(),
+                            color: PaletaColores().obtenerLetraContrasetePrimario(),
+                            fontFamily: "lato",
                           ),
                         ),
                       ],
@@ -315,13 +321,13 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
                     Navigator.of(context).pop(false);
                     ServiciosCuarto.borrarCuarto(_cuartoId, _usuario.persona_id)
                         .then((result) {
-                      tratarError.estadoServicioActualizar( result, [], context);
+                      TratarError().tarjetaDeEstado( result, [], context);
                     });
                   },
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: colores.obtenerColorRiesgo(),
+                    primary: PaletaColores().obtenerColorRiesgo(),
                   ),
                   child:Container (
                     width: _width/6.428571428571429,
@@ -330,7 +336,10 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
                       children: <Widget> [
                         Text(
                           "Cancelar",
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(
+                            color: PaletaColores().obtenerLetraContrasetePrimario(),
+                            fontFamily: "lato",
+                          ),
                         ),
                       ],
                     ),
@@ -355,7 +364,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
           constraints: BoxConstraints.tightFor(height: _height/14.4),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              primary: colores.obtenerColorRiesgo(),
+              primary: PaletaColores().obtenerColorRiesgo(),
               shape: CircleBorder(),
             ),
             onPressed: () {
@@ -363,7 +372,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
             },
             child: Icon(
               Icons.delete_rounded,
-              color: colores.obtenerColorDos(),
+              color: PaletaColores().obtenerLetraContraseteSecundario(),
               size: _height/26.4,
             ),
           ),
@@ -378,15 +387,18 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
     Widget _botonEditar () {
       return Container(
         child:ConstrainedBox(
-          constraints: BoxConstraints.tightFor(height: _height/14.4),
+          constraints: BoxConstraints.tightFor(
+            height: _height/14.4,
+          ),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              primary: colores.obtenerColorTres(),
+              primary: PaletaColores().obtenerTerciario(),
               shape: CircleBorder(),
             ),
             onPressed: () {
               Route route = MaterialPageRoute (
-                builder: (context) => SubPantallaUno(InterfazEditarCuarto(_cuartoId, _nombre, _imagen, _descripcion, _usuario.persona_id),"Editando"),
+                builder: (context) => SubPantallaUno(InterfazEditarCuarto(_cuartoId,
+                                      _nombre, _imagen, _descripcion, _usuario.persona_id),"Editando"),
               );
               Navigator.push(context, route).then((value) =>{
                 if ( value != false ) {
@@ -401,7 +413,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
             },
             child: Icon(
               Icons.edit_rounded,
-              color: colores.obtenerColorDos(),
+              color: PaletaColores().obtenerLetraContraseteSecundario(),
               size: _height/26.4,
             ),
           ),
@@ -445,7 +457,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
           left: _width/24,
         ),
         child: Card(
-          color: colores.obtenerColorDos(),
+          color: PaletaColores().obtenerSecundario(),
           child: Container(
             height: _height/1.513043,
             width: _width/1.118,
@@ -480,8 +492,8 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
               scrollDirection: Axis.horizontal,
               children: <Widget>[
                 FutureBuilder<List>(
-                  future: _obtenerDispositivos(),
-                  builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
+                  future: _dispositivosObtenidos,
+                  builder: (context, AsyncSnapshot<List> snapshot) {
                     List<Widget> children;
                     if (snapshot.hasData) {
                       if( _estado == 0 ) {
@@ -493,11 +505,11 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
                           Container(
                             margin: EdgeInsets.only(top: _height/26.4),
                             child: Text(
-                              'Estoy triste porque no tengo dispositivos   :c',
+                              'Estoy triste porque no\ntengo dispositivos    :c',
                               maxLines: 2,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: colores.obtenerColorUno(),
+                                color: PaletaColores().obtenerLetraContraseteSecundario(),
                                 fontFamily: "Lato",
                               ),
                             ),
@@ -508,18 +520,32 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
                           Container(
                             margin: EdgeInsets.only(top: _height/26.4),
                             child: Text(
-                              "¡Rayos! Algo pasa con la app...",
+                              "No se ha encontrado dispositivo",
                               maxLines: 2,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: colores.obtenerColorRiesgo(),
+                                color: PaletaColores().obtenerColorRiesgo(),
                                 fontFamily: "Lato",
                               ),
                             ),
                           ),
                         ];
-                      }
-                      else if ( _estado == 3) {
+                      } else if ( _estado == 3) {
+                        children = <Widget>[
+                          Container(
+                            margin: EdgeInsets.only(top: _height/26.4),
+                            child: Text(
+                              "No te identificamos\ncomo el dueño",
+                              maxLines: 2,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: PaletaColores().obtenerColorRiesgo(),
+                                fontFamily: "Lato",
+                              ),
+                            ),
+                          ),
+                        ];
+                      } else if ( _estado == 4) {
                         children = <Widget>[
                           Container(
                             margin: EdgeInsets.only(top: _height/26.4),
@@ -528,23 +554,38 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
                               maxLines: 2,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: colores.obtenerColorCuatro(),
+                                color: PaletaColores().obtenerCuaternario(),
+                                fontFamily: "Lato",
+                              ),
+                            ),
+                          ),
+                        ];
+                      } else if ( _estado == 5 ) {
+                        children = <Widget>[
+                          Container(
+                            margin: EdgeInsets.only(top: _height/26.4),
+                            child: Text(
+                              "¡Rayos! Algo pasa con la app...",
+                              maxLines: 2,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: PaletaColores().obtenerColorRiesgo(),
                                 fontFamily: "Lato",
                               ),
                             ),
                           ),
                         ];
                       }
-                      else if ( _estado == 4) {
+                      else if ( _estado == 6) {
                         children = <Widget>[
                           Container(
                             margin: EdgeInsets.only(top: _height/26.4),
                             child: Text(
-                              "Si la vida te da internet, has limonada",
+                              "Si la vida te da internet,\nhas limonada",
                               maxLines: 2,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: colores.obtenerColorInactivo(),
+                                color: PaletaColores().obtenerColorInactivo(),
                                 fontFamily: "Lato",
                               ),
                             ),
@@ -559,7 +600,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
                               maxLines: 2,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: colores.obtenerColorRiesgo(),
+                                color: PaletaColores().obtenerColorRiesgo(),
                                 fontFamily: "Lato",
                               ),
                             ),
@@ -575,7 +616,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
                             maxLines: 2,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: colores.obtenerColorRiesgo(),
+                              color: PaletaColores().obtenerColorRiesgo(),
                               fontFamily: "Lato",
                             ),
                           ),
@@ -591,7 +632,9 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
                                 top: _height/26.4,
                               ),
                               child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(colores.obtenerColorUno()),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    PaletaColores().obtenerLetraContraseteSecundario(),
+                                ),
                               ),
                             ),
                           ],
@@ -614,7 +657,8 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
       physics: BouncingScrollPhysics(),
       children: [
         Container(
-          height: _height/1.176820208023774,
+          color: PaletaColores().obtenerColorFondo(),
+          height: _height/1.161290322580645,
           child: Stack(
             children: <Widget>[
               FondoCubo(),

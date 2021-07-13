@@ -6,7 +6,7 @@ class PaletaColores {
   Color color_secundario; //FFFFFFFF
   Color color_terciario;
   Color color_cuaternario;
-  Color color_letra_clara;
+  Color color_letra_contraste_primario;
   Color color_letra_contraste_secundario;
   Color color_inactivo;
   Color color_fondo;
@@ -20,7 +20,7 @@ class PaletaColores {
         color_secundario = Colors.white;//FFFFFFFF
         color_terciario = Color(0xFF9BBF63);
         color_cuaternario = Color(0xFFbf930d);
-        color_letra_clara = Colors.white;
+        color_letra_contraste_primario = Colors.white;
         color_letra_contraste_secundario = Colors.black;
         color_inactivo = Color(0xFF929292);
         color_fondo = Color(0xFFECEFF1);
@@ -28,14 +28,14 @@ class PaletaColores {
         break;
 
       case 1:
-        color_primario = Color(0xFF08192d);
-        color_secundario = Colors.white;//FFFFFFFF
+        color_primario = Colors.white;
+        color_secundario = Color(0xFF08192d);
         color_terciario = Color(0xFF9BBF63);
-        color_cuaternario = Color(0xFFbf930d);
-        color_letra_clara = Colors.white;
-        color_letra_contraste_secundario = Colors.black;
-        color_inactivo = Color(0xFF929292);
-        color_fondo = Color(0xFFECEFF1);
+        color_cuaternario = Color(0xFFF2CF1D);
+        color_letra_contraste_primario = Colors.black;
+        color_letra_contraste_secundario = Colors.white;//FFFFFFFF
+        color_inactivo = Color(0xFFECEFF1);
+        color_fondo = Color(0xFF1E3C40);
         color_riesgo = Colors.red; //FFF44336
         break;
     }
@@ -58,8 +58,8 @@ class PaletaColores {
     return color_cuaternario;
   }
 
-  Color obtenerLetraClara () {
-    return color_letra_clara;
+  Color obtenerLetraContrasetePrimario () {
+    return color_letra_contraste_primario;
   }
 
   Color obtenerLetraContraseteSecundario () {

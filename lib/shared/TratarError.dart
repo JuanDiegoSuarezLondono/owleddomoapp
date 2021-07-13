@@ -3,16 +3,16 @@ import 'package:owleddomoapp/shared/PaletaColores.dart';
 
 class TratarError {
 
-  List textoAgregado (List estado, List<String> textos, bool conteo) {
+  List textoAgregado(List estado, List<String> textos, bool conteo) {
     List respuestaError = [];
     switch (estado.first.toString()) {
       case "200":
         respuestaError.add(estado.last);
         respuestaError.add(
             estado.last.toString() != "[]" ?
-                    conteo ? '${textos[0]}${estado.last.length}'
-                           : '${textos[0]}'
-                    : '${textos[1]}');
+            conteo ? '${textos[0]}${estado.last.length}'
+                : '${textos[0]}'
+                : '${textos[1]}');
         break;
       case "201":
         respuestaError.add(estado.last);
@@ -59,7 +59,7 @@ class TratarError {
     return respuestaError;
   }
 
-  int estadoServicioLeer (List estado) {
+  int estadoServicioLeer(List estado) {
     int numeroEstado = 0;
     switch (estado.first.toString()) {
       case "200":
@@ -95,6 +95,107 @@ class TratarError {
     }
     return numeroEstado;
   }
+
+
+  List tarjetaDeEstado (List estado, List<String> alRegresar, BuildContext context) {
+    final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
+    double _height = MediaQuery.of(context).size.height; //Obtiene el alto de la pantalla del dispositivo.
+    Color color = colores.obtenerColorInactivo();
+    IconData icono = Icons.star;
+    String texto = "Estrella";
+    switch (estado.first.toString()) {
+      case "200":
+        color = PaletaColores().obtenerTerciario();
+        icono = Icons.check_circle;
+        texto = "¡Exito!";
+        Navigator.of(context).pop(alRegresar);
+        break;
+      case "201":
+        color = PaletaColores().obtenerTerciario();
+        icono = Icons.check_circle;
+        texto = "¡Creado!";
+        Navigator.of(context).pop(alRegresar);
+        break;
+      case "400":
+        color = PaletaColores().obtenerColorRiesgo();
+        icono = Icons.device_unknown_rounded;
+        texto = "No se pudo conectar con el dispositivo";
+        break;
+      case "401":
+        color = PaletaColores().obtenerColorRiesgo();
+        icono = Icons.local_police_rounded;
+        texto = "No te identificamos...\n¿Esto es tuyo?";
+        break;
+      case "409":
+        color = colores.obtenerColorCuatro();
+        icono = Icons.cloud_off_rounded;
+        texto = "Un avión tumbo nuestra nube...\nEstamos trabajando en ello :)";
+        break;
+      case "421":
+        color = colores.obtenerColorCuatro();
+        icono = Icons.cloud_off_rounded;
+        texto = "Un avión tumbo nuestra nube...\nEstamos trabajando en ello :)";
+        break;
+      case "422":
+        color = colores.obtenerColorCuatro();
+        icono = Icons.cloud_off_rounded;
+        texto = "Un avión tumbo nuestra nube...\nEstamos trabajando en ello :)";
+        break;
+      case "502":
+        color = colores.obtenerColorRiesgo();
+        icono = Icons.precision_manufacturing_sharp;
+        texto = "¡Rayos! Algo pasa con la app...";
+        break;
+      case "Failed host lookup: 'zmyanb1bc1.execute-api.sa-east-1.amazonaws.com'":
+        color = colores.obtenerColorInactivo();
+        icono = Icons.wifi_off_outlined;
+        texto = "Si la vida te da internet, has limonada";
+        break;
+      default:
+        color = colores.obtenerColorRiesgo();
+        icono = Icons.error_rounded;
+        texto = "Ups... Algo salio mal";
+        break;
+    }
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: colores.obtenerColorUno(),
+          content: Container(
+            height: _height/4.4,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  alignment: Alignment.center,
+                  child: Icon(
+                    icono,
+                    size: _height/7.92,
+                    color: color,
+                  ),
+                ),
+                Text(
+                  texto,
+                  maxLines: 3,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: _height/44,
+                    color: color,
+                    fontFamily: "Lato",
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    return estado;
+  }
+
 
   String estadoServicioActualizar (String estado,List<String> alRegresar, BuildContext context) {
     final PaletaColores colores = new PaletaColores(); //Colores predeterminados.

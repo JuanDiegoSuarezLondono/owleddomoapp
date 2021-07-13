@@ -133,6 +133,7 @@ class _RutinasLista extends State<RutinasLista> {
   ///@return un mapeo con las rutinas.
 
   Future<List> _obtenerRutinas()  async {
+    print("TTTTTTTTT");
       setState(() {
         _rutinasObtenidas =  ServiciosRutina.todasRutinas(_usuario.persona_id);
       });
@@ -847,10 +848,10 @@ class _RutinasLista extends State<RutinasLista> {
               builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
                 List<Widget> children;
                 if (snapshot.hasData) {
-                  if (_refrescar) {
+                  /*if (_refrescar) {
                     _refrescar = false;
                     Navigator.of(context).pop(null);
-                  }
+                  }*/
                   if ( _estado == 0 ) {
                       children = _obtenerFilas(_armarTarjetaRutina(snapshot.data));
                   } else if(  _estado == 1) {

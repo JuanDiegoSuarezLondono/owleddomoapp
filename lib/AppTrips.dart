@@ -117,7 +117,7 @@ class _AppTrips extends State<AppTrips> {
         body: tabs[actualIndex],
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: PaletaColores().obtenerSecundario(),
-          selectedItemColor: colores.obtenerColorTres(),
+          selectedItemColor: PaletaColores().obtenerCuaternario(),
             currentIndex: actualIndex,
             onTap: onTapped,
             items: <BottomNavigationBarItem> [

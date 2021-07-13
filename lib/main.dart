@@ -4,6 +4,7 @@ import 'shared/PaletaColores.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/services.Dart';
 
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
     'high_importance_channel', // id
@@ -40,7 +41,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      color: Colors.white,
+      color: PaletaColores().obtenerColorFondo(),
       title: 'Owled',
       home: MyHomePage(),
     );
@@ -102,6 +103,9 @@ class _MyHomePageState extends State<MyHomePage> {
             });
       }
     });
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
   }
 
   /*void showNotification() {

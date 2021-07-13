@@ -66,7 +66,7 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
   void initState() {
     super.initState();
     _nombreCampo = TextEditingController(text: _nombre);//Asigna el actual nombre al campo de texto.
-    _bordeImagen = colores.obtenerColorInactivo();
+    _bordeImagen = PaletaColores().obtenerColorInactivo();
     _estadoBoton = ButtonState.idle;
   }
 
@@ -75,8 +75,8 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
 
   _validar() {
     setState(() {
-      _bordeImagen = _pathFoto == null ? colores.obtenerColorRiesgo()
-                                     : colores.obtenerColorInactivo();
+      _bordeImagen = _pathFoto == null ? PaletaColores().obtenerColorRiesgo()
+                                       : PaletaColores().obtenerColorInactivo();
     });
   }
 
@@ -91,7 +91,8 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
     ).then((value) => {
       if (mounted) {
         setState(() {
-          _bordeImagen = value == null ? colores.obtenerColorRiesgo() : colores.obtenerColorCuatro();
+          _bordeImagen = value == null ? PaletaColores().obtenerColorRiesgo()
+                                       : PaletaColores().obtenerCuaternario();
           value == null ? _pathFoto= null : _pathFoto = value;
         })
       },
