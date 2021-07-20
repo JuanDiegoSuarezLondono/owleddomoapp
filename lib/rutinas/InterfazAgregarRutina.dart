@@ -13,9 +13,6 @@ import 'package:progress_state_button/progress_button.dart';
 import 'package:progress_state_button/iconed_button.dart';
 import 'package:date_format/date_format.dart';
 
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
-
 ///Esta clase se encarga de manejar la pantalla del formulario para agregar una rutina.
 ///@version 1.0, 06/04/21.
 ///@author Juan Diego Suárez Londoño.
@@ -65,8 +62,7 @@ class InterfazAgregarRutina extends StatefulWidget {
 
 class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with RestorationMixin {
 
-  final _formKey = GlobalKey<
-      FormState>(); //Llave identificadora del formulario.
+  final _formKey = GlobalKey<FormState>(); //Llave identificadora del formulario.
   final Persona _usuario; //Identificador del usuario.
   final int _relacionDispositivo; //Identificador de la rutina en el dispositivo.
   _InterfazAgregarRutina(this._usuario, this._relacionDispositivo); //Constructor de la clase.
@@ -104,13 +100,13 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
     super.initState();
     _nombre = TextEditingController();
     _activar = RestorableBool(true);
-    _dispositivoColorDrowDown = colores.obtenerColorInactivo();
+    _dispositivoColorDrowDown = PaletaColores().obtenerColorInactivo();
     _iconoDispositivo = Icons.device_unknown_rounded;
     _dispositivoSeleccionado = Dispositivo();
     _dispositivoSeleccionado.nombre = 'Cargando...';
     _dispositivosLista = [Dispositivo()];
     _dispositivosLista[0] = _dispositivoSeleccionado;
-    _obtenerDispositivos();
+    _dispositivosObtenidos = _obtenerDispositivos();
     _listaVariables = [];
     _activarVariable = [];
     _estado = 0;
@@ -136,27 +132,25 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
   ///@return un mapeo con los dispositivos.
 
   Future<List> _obtenerDispositivos() async {
-    setState(() {
-      _dispositivosObtenidos =  ServiciosDispositivo.todosDispositivo(_usuario.persona_id);//_usuario
-    });
+    _dispositivosObtenidos =  ServiciosDispositivo.todosDispositivo(_usuario.persona_id);
     _dispositivosObtenidos.then((result) => {
       if(mounted) {
         setState(() {
           _dispositivosLista = [];
-          _dispositivoColorDrowDown = colores.obtenerColorInactivo();
-          if(result.first == "EXITO" && result.last != "EXITO" ) {
+          _dispositivoColorDrowDown = PaletaColores().obtenerColorInactivo();
+          if(result.first.toString() == "200" && result.last.toString() != "200" ) {
             _dispositivoSeleccionado.nombre = 'Dispositivos';
             _dispositivosLista = [Dispositivo()];
             _dispositivosLista[0] = _dispositivoSeleccionado;
             _dispositivosLista..addAll(result.last);
           }
-          else if (result.first == "VACIO") {
+          else if (result.last.length == 0) {
             _dispositivoSeleccionado.nombre = 'No hay dispositivos';
             _dispositivosLista = [Dispositivo()];
             _dispositivosLista[0] = _dispositivoSeleccionado;
           }
           else {
-            _dispositivoColorDrowDown = colores.obtenerColorRiesgo();
+            _dispositivoColorDrowDown = PaletaColores().obtenerColorRiesgo();
             _dispositivoSeleccionado.nombre = 'Error';
             _dispositivosLista = [Dispositivo()];
             _dispositivosLista[0] = _dispositivoSeleccionado;
@@ -164,7 +158,7 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
         }),
       }
     });
-    return _dispositivosObtenidos;
+    return await _dispositivosObtenidos;
   }
 
   ///Hace una petición para conseguir un mapeo con la lista de los parámetros
@@ -174,13 +168,11 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
   ///@return un mapeo con las variables.
 
   Future<List> _obtenerVariables(Dispositivo dispositivoSeleccionado) async {
-    setState(() {
-      _variablesObtenidas =  ServiciosVariable.variableByMAC(dispositivoSeleccionado.relacion_id, _usuario.persona_id);
-    });
+    _variablesObtenidas =  ServiciosVariable.variableByMAC(dispositivoSeleccionado.relacion_id, _usuario.persona_id);
     _variablesObtenidas.then((result) => {
       _listaVariables = [],
       _activarVariable = [],
-      if(result.first == "EXITO" && result.last != "EXITO") {
+      if( result.first.toString() == "200" && result.last.toString() != "200" ) {
         for(Variable variable in result.last){
           if(variable.variable_id == '9HZA7L57GRSYG' ){
             _listaVariables.add(variable),
@@ -207,7 +199,7 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
       context: context,
       initialTime: _tiempoSeleccionado,
     ); //Seleccionador variable que almacena el valor de la pantalla desplegada en el showTimePicker.
-    if (seleccionador != null)
+    if (seleccionador != null && mounted) {
       setState(() {
         _tiempoSeleccionado = seleccionador;
         _horas = _tiempoSeleccionado.hour.toString();
@@ -218,6 +210,7 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
             DateTime(2019, 08, 1, _tiempoSeleccionado.hour, _tiempoSeleccionado.minute),
             [hh, ':', nn, " ", am]).toString();
       });
+    }
   }
 
   ///Agrega la rutina o genera un error en caso de cualquier eventualidad.
@@ -225,7 +218,7 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
   ///@see owleddomo_app/shared/TratarError.estadoServicioActualizar#method().
   ///@return No retorna nada en caso de no obtener una validación positiva de los campos.
 
-  _agregarCuarto() {
+  _agregarRutina() {
     String dias = '';
     String acciones= '';
     for (int i = 0; i<7 ; i++) {
@@ -242,15 +235,19 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
                                   _activar.value ? '1' : '0',_relacionDispositivo.toString(),
                                   dias, _tiempo, acciones)
         .then((result) {
-          String respuesta = tratarError.estadoServicioActualizar( result, ['agregado'], context);
-          if ( respuesta == "EXITO") {
-            setState(() {
-              _estadoBoton = ButtonState.success;
-            });
+          String respuesta = TratarError().tarjetaDeEstado( result, ['agregado'], context).first.toString();
+          if ( respuesta == "200") {
+            if(mounted) {
+              setState(() {
+                _estadoBoton = ButtonState.success;
+              });
+            }
           } else {
-            setState(() {
-              _estadoBoton = ButtonState.fail;
-            });
+            if(mounted) {
+              setState(() {
+                _estadoBoton = ButtonState.fail;
+              });
+            }
           }
         });
   }
@@ -265,20 +262,48 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
 
     Widget _nombreWidget() {
       return Container(
+        margin: EdgeInsets.only(right: _width/4.8),
         width: _width/2.4,
         child: Theme(
           data: ThemeData(
-            primaryColor: colores.obtenerColorCuatro(),
+            primaryColor: PaletaColores().obtenerCuaternario(),
           ),
           child: TextFormField(
             controller: _nombre,
+            style: TextStyle(
+              color: PaletaColores().obtenerLetraContrasteSecundario(),
+              fontFamily: "Lato",
+            ),
             maxLength: 8,
             decoration: InputDecoration(
+              counterStyle: TextStyle(
+                color: PaletaColores().obtenerLetraContrasteSecundario(),
+                fontFamily: "Lato",
+              ),
               filled: true,
-              fillColor: colores.obtenerColorDos(),
-              border: const OutlineInputBorder(),
+              fillColor: PaletaColores().obtenerSecundario(),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: PaletaColores().obtenerCuaternario(),
+                  width: 2.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: PaletaColores().obtenerColorInactivo(),
+                  width: 2.0,
+                ),
+              ),
               hintText: '¡Nombrala!',
+              hintStyle: TextStyle(
+                color: PaletaColores().obtenerColorInactivo(),
+                fontFamily: "Lato",
+              ),
               labelText: 'Nombre',
+              labelStyle: TextStyle(
+                color: PaletaColores().obtenerColorInactivo(),
+                fontFamily: "Lato",
+              ),
             ),
             autofocus: false,
             validator: (value) {
@@ -299,16 +324,22 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
       return Padding(
         padding: EdgeInsets.only(
           bottom: _height/16.5,
+          left: _width/2.32258064516129,
         ),
-        child: CupertinoSwitch(
-          activeColor: colores.obtenerColorCuatro(),
-          trackColor: colores.obtenerColorInactivo(),
-          value: _activar.value,
-          onChanged: (valor) {
-            setState(() {
-              _activar.value = valor;
-            });
+        child: Transform.scale(
+          scale: 0.5,
+          child: CupertinoSwitch(
+            activeColor: PaletaColores().obtenerCuaternario(),
+            trackColor: PaletaColores().obtenerColorInactivo(),
+            value: _activar.value,
+            onChanged: (valor) {
+              if(mounted) {
+                setState(() {
+                  _activar.value = valor;
+                });
+              }
             },
+          ),
         ),
       );
     }
@@ -319,15 +350,13 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
 
     Widget _primeraFila() {
       return Container(
-        alignment: Alignment.centerLeft,
           child: Card(
-            margin: EdgeInsets.only(top: _height/39.6),
-            color: colores.obtenerColorDos(),
+            color: PaletaColores().obtenerSecundario(),
             child: Container(
+              alignment: Alignment.topRight,
               width: _width/1.2,
               margin: EdgeInsets.only(top: _height/52.8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Stack(
                 children: <Widget> [
                   _nombreWidget(),
                   _activarWidget(),
@@ -349,6 +378,7 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
           isExpanded: true,
           value: _dispositivoSeleccionado,
           menuMaxHeight: _height/2.64,
+          dropdownColor: PaletaColores().obtenerSecundario(),
           icon: Icon(
             _iconoDispositivo,
             color: _dispositivoColorDrowDown,
@@ -360,24 +390,26 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
             color: _dispositivoColorDrowDown,
           ),
           onChanged: (Dispositivo nuevoValor) {
-            setState(() {
-              _dispositivoSeleccionado = nuevoValor;
-              if (_dispositivoSeleccionado.nombre != "Error"
-                  && _dispositivoSeleccionado.relacion_id == null) {
-                _dispositivoColorDrowDown = colores.obtenerColorInactivo();
-                _iconoDispositivo = Icons.device_unknown_rounded;
-                _estado = 0;
-              } else if (_dispositivoSeleccionado.nombre == "Error"
-                         && _dispositivoSeleccionado.relacion_id == null) {
-                _iconoDispositivo = Icons.error_outline_rounded;
-                _estado = 0;
-              } else {
-                _dispositivoColorDrowDown = colores.obtenerColorCuatro();
-                _iconoDispositivo = Icons.check_rounded;
-                _estado = 2;
-                _obtenerVariables(_dispositivoSeleccionado);
-              }
-            });
+            if(mounted) {
+              setState(() {
+                _dispositivoSeleccionado = nuevoValor;
+                if (_dispositivoSeleccionado.nombre != "Error"
+                    && _dispositivoSeleccionado.relacion_id == null) {
+                  _dispositivoColorDrowDown = PaletaColores().obtenerColorInactivo();
+                  _iconoDispositivo = Icons.device_unknown_rounded;
+                  _estado = 0;
+                } else if (_dispositivoSeleccionado.nombre == "Error"
+                    && _dispositivoSeleccionado.relacion_id == null) {
+                  _iconoDispositivo = Icons.error_outline_rounded;
+                  _estado = 0;
+                } else {
+                  _dispositivoColorDrowDown = PaletaColores().obtenerCuaternario();
+                  _iconoDispositivo = Icons.check_rounded;
+                  _estado = 2;
+                  _obtenerVariables(_dispositivoSeleccionado);
+                }
+              });
+            }
             },
           items: _dispositivosLista.map((Dispositivo dispositivo) {
             return DropdownMenuItem<Dispositivo>(
@@ -416,13 +448,20 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
           children: <Widget> [
             Row(
               children: [
-                Text('${tipo}:'),
+                Text(
+                  '${tipo}:',
+                  style: TextStyle(
+                    color: PaletaColores().obtenerLetraContrasteSecundario(),
+                    fontFamily: 'Lato',
+                    fontSize: _width/30,
+                  ),
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: lista,
                 )
               ],
-            )
+            ),
           ],
         ),
       );
@@ -463,39 +502,44 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
                       break;
                     case "9HZA7L57GRSYG":
                       contadorLuz++;
-                      filaLuz.add(InkWell(
-                        onTap: () {
-                          setState(() {
-                            _activarVariable[i] = _activarVariable[i] ? false : true;
-                          });
-                        },
-                        child: Container(
-                          width: _width/25.71428571428571,
-                          height: _width/25.71428571428571,
-                          margin: EdgeInsets.symmetric(
-                            horizontal: _height/79.2,
-                          ),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _activarVariable[i] ? colores.obtenerColorTres()
-                                : colores.obtenerColorInactivo(),
-                            boxShadow: [
-                              BoxShadow(
-                                color: _activarVariable[i] ? colores.obtenerColorTres()
-                                    : colores.obtenerColorInactivo(),
-                                spreadRadius: _activarVariable[i] ? 5 : 0,
-                                blurRadius: _activarVariable[i] ? 7 : 0,
-                              ),
-                            ],
+                      filaLuz.add(
+                        InkWell(
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          onTap: () {
+                            if(mounted) {
+                              setState(() {
+                                _activarVariable[i] = _activarVariable[i] ? false : true;
+                              });
+                            }
+                            },
+                          child: Container(
+                            width: _width/25.71428571428571,
+                            height: _width/25.71428571428571,
+                            margin: EdgeInsets.symmetric(
+                              horizontal: _height/79.2,
+                            ),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: _activarVariable[i] ? PaletaColores().obtenerTerciario()
+                                   : PaletaColores().obtenerColorInactivo(),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _activarVariable[i] ? PaletaColores().obtenerTerciario()
+                                       : PaletaColores().obtenerColorInactivo(),
+                                  spreadRadius: _activarVariable[i] ? 5 : 0,
+                                  blurRadius: _activarVariable[i] ? 7 : 0,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      )
                       );
                       break;
-                    case "QRNSS74XFQMED":
-                      contadorOpenClose++;
-                      filaOpenClose.add(Text("contadorOpenClose"));
-                      break;
+                      case "QRNSS74XFQMED":
+                        contadorOpenClose++;
+                        filaOpenClose.add(Text("contadorOpenClose"));
+                        break;
                   }
                 }
                 if (contadorGrabar > 0) {
@@ -508,12 +552,13 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
                   variables.add( _filaVariable(filaOpenClose, "Abrir/Cerrar"));
                 }
               }
+
               return AlertDialog(
-                backgroundColor: colores.obtenerColorDos(),
+                backgroundColor: PaletaColores().obtenerSecundario(),
                 title: Text(
                   "¿Que hago al llegar la hora?",
                   style: TextStyle(
-                    color: Colors.black,
+                    color: PaletaColores().obtenerLetraContrasteSecundario(),
                     fontFamily: "Lato",
                     fontSize: _height/44,
                   ),
@@ -522,10 +567,10 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
                 _estado != 0 ? _estado == 1 ?
                 Padding(
                   padding: EdgeInsets.only(
-                    top: 0,
-                  ),
+                    top: 0,),
                   child: Container(
                     height: _height/15.84,
+                    width: _width/1.2,
                     child: Center(
                       child: ListView(
                         physics: BouncingScrollPhysics(),
@@ -536,8 +581,22 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
                     ),
                   ),
                 ) :
-                Text("Un momento por favor...") :
-                Text("Antes hay que seleccionar un dispositivo"),//
+                Text(
+                  "Un momento por favor...",
+                  style: TextStyle(
+                    color: PaletaColores().obtenerLetraContrasteSecundario(),
+                    fontFamily: "Lato",
+                    fontSize: _height/49.5,
+                  ),
+                ) :
+                Text(
+                  "Antes hay que seleccionar un dispositivo",
+                  style: TextStyle(
+                    color: PaletaColores().obtenerLetraContrasteSecundario(),
+                    fontFamily: "Lato",
+                    fontSize: _height/49.5,
+                  ),
+                ),//
               );
             },
           );
@@ -554,7 +613,7 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
           icon: Icon(
             Icons.account_tree_rounded,
             size: _height/19.8,
-            color: colores.obtenerColorInactivo(),
+            color: PaletaColores().obtenerColorInactivo(),
           ),
           onPressed: () {
             _popUpVariables();
@@ -570,10 +629,8 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
 
     Widget _segundaFila() {
       return Container(
-        alignment: Alignment.centerRight,
         child: Card(
-          margin: EdgeInsets.only(top: _height/39.6),
-          color: colores.obtenerColorDos(),
+          color: PaletaColores().obtenerSecundario(),
           child: Container(
             width: _width/1.2,
             margin: EdgeInsets.symmetric(vertical: _height/79.2),
@@ -598,14 +655,17 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
     Widget _botonDia(String dia, int index, double factorAncho) {
       return InkWell(
         onTap: () {
-          setState(() {
-            _dias[index] = !_dias[index];
-          });
+          if(mounted) {
+            setState(() {
+              _dias[index] = !_dias[index];
+            });
+          }
         },
         child: Container(
           decoration: BoxDecoration(shape: BoxShape.circle, color: _dias[index]
-              ? colores.obtenerColorCuatro()
-              : colores.obtenerColorInactivo()),
+              ? PaletaColores().obtenerCuaternario()
+              : PaletaColores().obtenerColorInactivo(),
+          ),
           child: Padding(
             padding: EdgeInsets.all(_height/79.2),
             child: Center(
@@ -615,8 +675,9 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
                 dia,
                 style: TextStyle(
                   fontSize: _height/39.6,
-                  color: Colors.white,
+                  color: PaletaColores().obtenerLetraContrasteSecundario(),
                   fontWeight: FontWeight.bold,
+                  fontFamily: "Lato",
                 ),
               ),
             ),
@@ -631,46 +692,33 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
 
     Widget _terceraFila() {
       return Container(
-        alignment: Alignment.centerLeft,
         child: Card(
-          margin: EdgeInsets.only(top: _height/39.6),
-          color: colores.obtenerColorDos(),
+          color: PaletaColores().obtenerSecundario(),
           child: Container(
             width: _width/1.2,
             margin: EdgeInsets.symmetric(vertical: _height/52.8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                _botonDia("D", 0, 2),
-                _botonDia("L", 1, 2),
-                _botonDia("M", 2, 1.4),
-                _botonDia("Mi", 3, 1),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    ///Construye el Widget que contiene los elementos de la cuarta fila, es decir,
-    ///los botones de "J" (jueves), "V" (viernes) y "S" (sabado).
-    ///@return Un Widget de Padding que contiene Row.
-
-    Widget _cuartaFila() {
-      return Container(
-        alignment: Alignment.centerRight,
-        child: Card(
-          margin: EdgeInsets.only(top: _height/79.2),
-          color: colores.obtenerColorDos(),
-          child: Container(
-            width: _width/1.2,
-            margin: EdgeInsets.symmetric(vertical: _height/52.8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            child: Column(
               children: <Widget> [
-                _botonDia("J", 4, 2),
-                _botonDia("V", 5, 2),
-                _botonDia("S", 6, 2),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    _botonDia("D", 0, 2),
+                    _botonDia("L", 1, 2),
+                    _botonDia("M", 2, 1.4),
+                    _botonDia("Mi", 3, 1),
+                  ],
+                ),
+                Container(
+                  width: _width/1.636363636363636,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget> [
+                      _botonDia("J", 4, 2),
+                      _botonDia("V", 5, 2),
+                      _botonDia("S", 6, 2),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -682,19 +730,25 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
     ///el seleccionador de tiempo para la rutina.
     ///@return Un Widget de Padding que contiene un selector de tiempo.
 
-    Widget _quintaFila() {
+    Widget _ultimaFila() {
       return Container(
         child: InkWell(
           onTap: () {
             _seleccionarTiempo(context);
             },
           child: Container(
-            margin: EdgeInsets.symmetric(vertical: _height/52.8, horizontal: _width/36),
+            margin: EdgeInsets.symmetric(
+              vertical: _height/52.8,
+              horizontal: _width/36,
+            ),
             width: _width/1.2,
             height: _height/7.92,
             alignment: Alignment.center,
             child: TextFormField(
-              style: TextStyle(fontSize: _width/6),
+              style: TextStyle(
+                fontSize: _width/6,
+                color: PaletaColores().obtenerLetraContrasteSecundario(),
+              ),
               textAlign: TextAlign.center,
               enabled: false,
               keyboardType: TextInputType.text,
@@ -714,12 +768,14 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
 
     void _alPresionarBoton() {
       _formKey.currentState.validate();
-      if ( _usuario.persona_id.isEmpty || _nombre.text.isEmpty || _activar == null ||
-           _dispositivoSeleccionado.relacion_id == null || !_formKey.currentState.validate()) {
+      if ((_usuario.persona_id.isEmpty || _nombre.text.isEmpty || _activar == null ||
+           _dispositivoSeleccionado.relacion_id == null || !_formKey.currentState.validate())
+           && mounted) {
         setState(() {
           if( _dispositivoSeleccionado.nombre == "Dispositivos" &&
-              _dispositivoSeleccionado.relacion_id == null) {
-            _dispositivoColorDrowDown = colores.obtenerColorRiesgo();
+              _dispositivoSeleccionado.relacion_id == null ||
+              _dispositivoSeleccionado.nombre == "No hay dispositivos") {
+            _dispositivoColorDrowDown = PaletaColores().obtenerColorRiesgo();
           }
           if (_estadoBoton == ButtonState.fail) {
             _estadoBoton = ButtonState.idle;
@@ -727,22 +783,24 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
         });
         return;
       }
-      setState(() {
-        switch (_estadoBoton) {
-          case ButtonState.idle:
-            _estadoBoton = ButtonState.loading;
-            _agregarCuarto();
-            break;
-          case ButtonState.loading:
-            break;
-          case ButtonState.success:
-            _estadoBoton = ButtonState.idle;
-            break;
-          case ButtonState.fail:
-            _estadoBoton = ButtonState.idle;
-            break;
-        }
-      });
+      if(mounted) {
+        setState(() {
+          switch (_estadoBoton) {
+            case ButtonState.idle:
+              _estadoBoton = ButtonState.loading;
+              _agregarRutina();
+              break;
+            case ButtonState.loading:
+              break;
+            case ButtonState.success:
+              _estadoBoton = ButtonState.idle;
+              break;
+            case ButtonState.fail:
+              _estadoBoton = ButtonState.idle;
+              break;
+          }
+        });
+      }
     }
 
     ///Construye el Widget que maneja el botón para suministrar los datos del formulario.
@@ -752,30 +810,43 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
       return Container(
         width: _width/3.6,
         margin: EdgeInsets.only(bottom: _height/52.8),
-        child: ProgressButton.icon(iconedButtons: {
-          ButtonState.idle: IconedButton(
-              text: "Enviar",
-              icon: Icon(Icons.send, color: Colors.white),
-              color: colores.obtenerColorInactivo()),
-          ButtonState.loading:
-          IconedButton(text: "Cargando", color: colores.obtenerColorUno()),
-          ButtonState.fail: IconedButton(
-              icon: Icon(Icons.cancel, color: Colors.white),
-              color: colores.obtenerColorRiesgo()),
-          ButtonState.success: IconedButton(
-              text: "Exito",
-              icon: Icon(
-                Icons.check_circle,
-                color: Colors.white,
+        child: ProgressButton.icon(
+            textStyle: TextStyle(
+              color: PaletaColores().obtenerContrasteInactivo(),
+            ),
+            iconedButtons: {
+              ButtonState.idle: IconedButton(
+                text: "Enviar",
+                icon: Icon(
+                  Icons.send,
+                  color: PaletaColores().obtenerContrasteInactivo(),
+                ),
+                color: PaletaColores().obtenerColorInactivo(),
               ),
-              color: colores.obtenerColorTres())
-        }, onPressed: () {
-          if (_estadoBoton == ButtonState.fail){
-            setState(() {
-              _estadoBoton = ButtonState.idle;
-            });
-          } else {
+              ButtonState.loading: IconedButton(
+                text: "Cargando",
+                color: PaletaColores().obtenerPrimario(),
+              ),
+              ButtonState.fail: IconedButton(
+                icon: Icon(
+                  Icons.cancel,
+                  color: PaletaColores().obtenerContrasteRiesgo(),
+                ),
+                color: PaletaColores().obtenerColorRiesgo(),
+              ),
+              ButtonState.success: IconedButton(
+                text: "Exito",
+                icon: Icon(
+                  Icons.check_circle,
+                  color: PaletaColores().obtenerContrasteRiesgo(),
+                ),
+                color: PaletaColores().obtenerTerciario(),
+              ),
+            }, onPressed: () {
+          if (_formKey.currentState.validate()) {
             _alPresionarBoton();
+          } else if (_estadoBoton == ButtonState.fail){
+            _estadoBoton = ButtonState.idle;
           }
         },
             state: _estadoBoton),
@@ -790,26 +861,44 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
       return Container(
         alignment: Alignment.center,
         child: Card(
-          margin: EdgeInsets.only(top: _height/39.6),
-          color: colores.obtenerColorDos(),
+          color: PaletaColores().obtenerSecundario(),
           child: Container(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget> [
-                _quintaFila(),
+                _ultimaFila(),
                 Container (
                   width: _width/1.2,
                   child: Divider(
-                    color: Colors.grey,
-                    height: 20,
+                    color: PaletaColores().obtenerColorInactivo(),
+                    height: _height/39.6,
                     thickness: 1,
-                    indent: 30,
-                    endIndent: 30,
+                    indent: _width/24,
+                    endIndent: _width/24,
                   ),
                 ),
                 _boton(),
               ],
             ),
+          ),
+        ),
+      );
+    }
+
+    ///Construye el Widget de cada label para cada carta.
+    ///@return Un Widget de Padding que posee un texto.
+
+    Widget label(String texto) {
+      return Padding(
+        padding: EdgeInsets.only(
+          top: _height/39.6,
+          bottom: _height/158.4,
+        ),
+        child: Text(
+          texto,
+          style: TextStyle(
+            color: PaletaColores().obtenerColorInactivo(),
+            fontFamily: "Lato",
           ),
         ),
       );
@@ -827,10 +916,13 @@ class _InterfazAgregarRutina extends State<InterfazAgregarRutina> with Restorati
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
+                  label("Nombre y Activar"),
                   _primeraFila(),
+                  label("Dispositivo"),
                   _segundaFila(),
+                  label("Dias de la semana"),
                   _terceraFila(),
-                  _cuartaFila(),
+                  label("Hora"),
                   _ultimaCarta(),
                 ],
               ),

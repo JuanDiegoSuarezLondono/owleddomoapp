@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/shared/nuevos_iconos_icons.dart';
-
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
 
 ///Esta clase se encarga de seleccionar un icono según el string suministrado.
 ///@version 1.0, 06/04/21.

@@ -1,27 +1,24 @@
 ///@version 1.0, 06/04/21.
 ///@author Juan Diego Suárez Londoño.
-///@param persona_id id única de la persona.
-///@param nombres primer y segundo nombre de la persona.
-///@param apellidos primer y segundo apellido de la persona.
-///@param telefono numero telefónico de la persona.
-///@param fecha_nacimiento fecha de nacimiento de la persona.
-///@param correo_electronico correo electrónico asociado a la cuenta.
-///@param url_foto direccion de almacenamiento de la foto de perfil de la cuenta.
-///@param rol papel que desempeña esa cuenta.
-///@param apodo mute con el que desea ser reconocida la persona en la cuenta.
-///@see owleddomo_app/cuartos/DisporitivoTabla/DispositivosLista.dart#class().
-///@see owleddomo_app/cuartos/DispositivoTabla/ServiciosDispositivo.dart#class().
+///@param territorio_id id única del territorio.
+///@param nombre nombre del territorio.
+///@param codigo_caracteristica codigo del tipo de territorio.
+///@param codigo_pais codigo del pais.
+///@param codigo_admin_uno codigo de la provincia.
+///@param codigo_admin_dos codigo de la ciudad.
+///@see owleddomo_app/login/LoginMain.dart#class().
+///@see owleddomo_app/login/territorio/ServiciosTerritorio.dart#class().
 class Territorio {
-  int territorio_id = 0;
-  String nombre = "No hay nombre"; //Primer y segundo nombre de la persona.
-  String codigo_caracteristica = "No hay codigo caracteristico"; //Primer y segundo apellido de la persona.
-  String codigo_pais = "No hay nivel administrativo"; //Numero telefónico de la persona.
-  String codigo_admin_uno = "No pertenece a nada"; //Fecha de nacimiento de la persona.
-  String codigo_admin_dos = "No hay nivel administrativo"; //Numero telefónico de la persona.
+  int territorio_id = 0; //Id única del territorio.
+  String nombre = "No hay nombre"; //Nombre del territorio.
+  String codigo_caracteristica = "No hay codigo caracteristico"; //Codigo del tipo de territorio.
+  String codigo_pais = "No hay nivel administrativo"; //Codigo del pais.
+  String codigo_admin_uno = "No pertenece a nada"; //Codigo de la provincia.
+  String codigo_admin_dos = "No hay nivel administrativo"; //Codigo de la ciudad.
   Territorio({this.territorio_id, this.nombre, this.codigo_caracteristica, this.codigo_pais,
               this.codigo_admin_uno, this.codigo_admin_dos}); //Constructor de la clase.
 
-  ///Recibe un dispositivo en formato json y se encarga de transformarlo una
+  ///Recibe un territorio en formato json y se encarga de transformarlo una
   ///instancia de esta clase.
   ///@param json dispositivo en formato json.
 

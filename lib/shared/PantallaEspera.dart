@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-final PaletaColores colores = new PaletaColores();
-
 class PantallaEspera extends StatelessWidget {
 
   @override
@@ -14,12 +12,12 @@ class PantallaEspera extends StatelessWidget {
 
     spinkit() {
       return SpinKitPumpingHeart(
-        color: colores.obtenerColorCuatro(),
+        color: PaletaColores().obtenerCuaternario(),
         size: height/7.92,
       );
     };
 
-    return AlertDialog(backgroundColor: colores.obtenerColorUno(),
+    return AlertDialog(backgroundColor: PaletaColores().obtenerPrimario(),
       content: SizedBox(
         width: width/3.6,
         height: height/3.96,

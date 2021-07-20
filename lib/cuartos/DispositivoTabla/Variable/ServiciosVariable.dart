@@ -8,6 +8,9 @@ import 'package:http/http.dart'as http;
 ///@author Juan Diego Suárez Londoño.
 ///@param URL dirección principal de la API.
 ///@see owleddomo_app/cuartos/DispositivoTabla/InterfazInformacionDispositivo.dart#class().
+///@see owleddomo_app/cuartos/DispositivoTabla/Variable/AbiertoCerrado.dart#class().
+///@see owleddomo_app/cuartos/DispositivoTabla/Variable/Alerta.dart#class().
+///@see owleddomo_app/cuartos/DispositivoTabla/Variable/Golpe.dart#class().
 ///@see owleddomo_app/cuartos/DispositivoTabla/Variable/InterruptorLuz.dart#class().
 ///@see owleddomo_app/cuartos/DispositivoTabla/Variable/LuzRGB.dart#class().
 
@@ -27,36 +30,31 @@ class ServiciosVariable{
   }
 
   ///Obtiene las variables relacionadas a un dispositivo.
-  ///@param resultado lista de los resultados y la flag del estado.
+  ///@param MAC identificador del dispositivo de las variables.
+  ///@param usuario identificador del dueño.
+  ///@param getConsult construye el cuerpo de la petición y lo parcea a URI.
+  ///@param resultado lista de los resultados.
   ///@param respuesta datos sin parecear de la consulta http.
+  ///@param body cuerpo de la consulta decodificado a utf8.
   ///@param lista lista parseada de las variables.
   ///@param MAC identificador del dispositivo.
   ///@param getConsult construye el cuerpo de la petición y lo parcea a URI.
-  ///@return lista de variables y un flag de "EXITO" en la primera posición
-  ///en caso de recibir datos, solo un flag de "VACIO" en caso de no tener
-  ///datos o solo un mensaje de error ("LOCAL/SERVIDOR/OTRO") en caso de presentarse.
+  ///@return lista con los datos de la consulta o un error.
 
   static Future<List> variableByMAC(String MAC, String usuario) async {
     var getConsult = Uri.parse(URL+"?"+"MAC="+MAC+"&persona_id="+usuario); //Construye el cuerpo de la petición y lo parcea a URI.
     List resultado = []; //Lista de los resultados y la flag del estado.
     try {
       final respuesta = await http.get(getConsult); //Datos sin parecear de la consulta http.
-      if (respuesta.statusCode >= 200 && respuesta.statusCode < 300 && respuesta.body != "[]") {
-        List<Variable> lista = parsearRespuesta(respuesta.body); //Lista lista parseada de las variables.
-        resultado.add("EXITO");
+      if (respuesta.statusCode >= 200 && respuesta.statusCode < 300) {
+        String body = utf8.decode(respuesta.bodyBytes); //Body cuerpo de la consulta decodificado a utf8.
+        List<Variable> lista = parsearRespuesta(body); //Lista lista parseada de las variables.
+        resultado.add(respuesta.statusCode);
         resultado.add(lista);
         return resultado;
-      } else if (respuesta.statusCode >= 200 && respuesta.statusCode < 300) {
-        resultado.add("VACIO");
-        return resultado;
-      } else if (respuesta.statusCode >= 400 && respuesta.statusCode < 500 ) {
-        resultado.add("LOCAL");
-        return resultado;
-      } else if (respuesta.statusCode >= 500 && respuesta.statusCode < 600 ) {
-        resultado.add("SERVIDOR");
-        return resultado;
       } else {
-        resultado.add("OTRO");
+        resultado.add(respuesta.statusCode);
+        resultado.add(respuesta.body);
         return resultado;
       }
     } catch (e) {
@@ -70,32 +68,29 @@ class ServiciosVariable{
   ///@param valor nuevo valor a actualizar.
   ///@param MAC identificador del producto de la variable.
   ///@param relacion_dispositivo diferenciador de la variable en el hardware.
+  ///@param getConsult construye el cuerpo de la petición y lo parcea a URI.
+  ///@param resultado lista de los resultados.
   ///@param map mapeo de las variables a enviar.
   ///@param respuesta datos sin parecear de la consulta http.
-  ///@param getConsult construye el cuerpo de la petición y lo parcea a URI.
-  ///@return un flag de "EXITO" en caso que todo vaya bien o un mensaje de error
-  ///("LOCAL/SERVIDOR/OTRO") en caso de presentarse.
+  ///@return lista con los datos de la consulta o un error.
 
-  static Future<String> actualizarVariable( String relacionId, String valor, String MAC, String relacion_dispositivo) async {
+  static Future<List> actualizarVariable( String relacionId, String valor, String MAC,
+                                          String relacion_dispositivo) async {
     var getConsult = Uri.parse(URL); //Construye el cuerpo de la petición y lo parcea a URI.
+    List resultado = []; //Lista de los resultados.
     try {
-      var map = Map<String, dynamic>();
+      var map = Map<String, dynamic>(); //Mapeo de las variables a enviar.
       map['relacion_id'] = relacionId;
       map['valor'] = valor;
       map['MAC'] = MAC;
       map[relacion_dispositivo] = valor;
       final respuesta = await http.patch(getConsult, body: map); //Respuesta datos sin parecear de la consulta http.
-      if (respuesta.statusCode >= 200 && respuesta.statusCode < 300) {
-        return "EXITO";
-      } else if (respuesta.statusCode >= 400 && respuesta.statusCode < 500 ) {
-        return "LOCAL";
-      } else if (respuesta.statusCode >= 500 && respuesta.statusCode < 600 ) {
-        return "SERVIDOR";
-      } else {
-        return "OTRO";
-      }
+      resultado.add(respuesta.statusCode);
+      resultado.add(respuesta.body);
+      return resultado;
     } catch (e) {
-      return e.message;
+      resultado.add(e.message);
+      return resultado;
     }
   }
 }

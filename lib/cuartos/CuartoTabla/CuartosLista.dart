@@ -9,8 +9,8 @@ import 'package:owleddomoapp/shared/SubPantallaUno.dart';
 import 'package:owleddomoapp/shared/PantallaSinRed.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
-import 'package:avatar_glow/avatar_glow.dart';
 import 'package:owleddomoapp/login/Persona.dart';
+import 'package:avatar_glow/avatar_glow.dart';
 
 ///Esta clase se encarga de manejar la pantalla del despliegue de la lista de los
 ///cuartos y su lógica.
@@ -98,7 +98,6 @@ class _CuartosLista extends State<CuartosLista> {
       setState(() {
         _obtenerCuartos(); //Vuelve a cargar la lista luego de agregar el cuarto.
       }),
-
     });
   }
 
@@ -113,11 +112,11 @@ class _CuartosLista extends State<CuartosLista> {
         SubPantallaUno(InterfazInformacionCuarto(cuarto.cuarto_id,
                                                  cuarto.nombre,
                                                  cuarto.pathImagen,
-                                                 cuarto.descripcion,_usuario),"Cuarto"));
+                                                 cuarto.descripcion,_usuario),
+                                                 "Cuarto"));
     Navigator.push(context, route).then((value)=>{
       if(mounted) {
         setState(() {
-
           _estado = 8; //Al regresar a la lista, hace que se actualice.
         }),
       },
@@ -147,6 +146,15 @@ class _CuartosLista extends State<CuartosLista> {
           child: Center(
             child: Stack(
               children: <Widget>[
+                Container(
+                  margin: EdgeInsets.only(
+                    top: _height/31.68,
+                    left: _width/8.779,
+                  ),
+                  color: PaletaColores().obtenerColorFondo(),
+                  width: _height/19.8,
+                  height: _height/19.8,
+                ),
                 MaterialButton(
                   onPressed: () {
                     _alPresionarAgregarCuarto();
@@ -177,21 +185,22 @@ class _CuartosLista extends State<CuartosLista> {
     }
 
     ///Construye el Widget de la carta de los cuartos.
-    ///@param _cuarto datos del cuarto para armar la carta.
+    ///@param cuarto datos del cuarto para armar la carta.
     ///@return un Center que contiene una carta con la imagen, el nombre y el numero
     ///de dispositivos que tiene el cuarto.
 
-    Widget _botonCarta(Cuarto _cuarto) {
+    Widget _botonCarta(Cuarto cuarto) {
       return Center(
         child: Card(
           margin: EdgeInsets.symmetric(vertical: _height/79.2),
           color: PaletaColores().obtenerSecundario(),
           child: InkWell(
             splashColor: PaletaColores().obtenerCuaternario(),
+            highlightColor: Colors.transparent,
             onTap: () {
-              _alPresionarCarta (_cuarto);
+              _alPresionarCarta (cuarto);
             },
-            child: CartaCuarto(_cuarto.cuarto_id, _cuarto.nombre, _cuarto.pathImagen, _usuario),
+            child: CartaCuarto(cuarto.cuarto_id, cuarto.nombre, cuarto.pathImagen, _usuario),
           ),
         ),
       );
@@ -279,7 +288,7 @@ class _CuartosLista extends State<CuartosLista> {
             Text(
               "¡Añadamos un Cuarto!",
               style: TextStyle(
-                color: PaletaColores().obtenerLetraContraseteSecundario(),
+                color: PaletaColores().obtenerLetraContrasteSecundario(),
                 fontSize: _height/26.4,
                 fontFamily: "Lato",
               ),
@@ -537,7 +546,7 @@ class _CuartosLista extends State<CuartosLista> {
                       children: children,
                     ),
                   );
-                },
+                  },
               ),
             ],
           ),

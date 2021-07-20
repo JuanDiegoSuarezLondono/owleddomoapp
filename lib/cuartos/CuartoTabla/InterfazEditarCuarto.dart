@@ -163,15 +163,16 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
 
       String respuesta = TratarError().tarjetaDeEstado( result, [_nombreCampo.text,
                         _imagenFinal, _descripcionCampo.text], context).first.toString();
-
-      if ( respuesta == "2") {
-        setState(() {
-          _estadoBoton = ButtonState.success;
-        });
-      } else {
-        setState(() {
-          _estadoBoton = ButtonState.fail;
-        });
+      if(mounted) {
+        if ( respuesta == "2") {
+          setState(() {
+            _estadoBoton = ButtonState.success;
+          });
+        } else {
+          setState(() {
+            _estadoBoton = ButtonState.fail;
+          });
+        }
       }
     });
   }
@@ -200,7 +201,7 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
                 color: PaletaColores().obtenerColorInactivo(),
                 width: _height/300,
               ),
-              color: PaletaColores().obtenerSecundario(),
+              color: PaletaColores().obtenerContrasteInactivo(),
               borderRadius: BorderRadius.circular(150),
             ),
             height: _height/11.31428571428571,
@@ -256,7 +257,7 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
                 color: _bordeImagen,
                 width: _height/300,
               ),
-              color: PaletaColores().obtenerSecundario(),
+              color: PaletaColores().obtenerContrasteInactivo(),
               borderRadius: BorderRadius.circular(150),
             ),
             child: Icon(
@@ -285,7 +286,7 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
           child: TextFormField(
             controller: _nombreCampo,
             style: TextStyle(
-              color: PaletaColores().obtenerLetraContraseteSecundario(),
+              color: PaletaColores().obtenerLetraContrasteSecundario(),
               fontFamily: "Lato",
             ),
             maxLength: 50,
@@ -293,6 +294,10 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
               filled: true,
               fillColor: PaletaColores().obtenerSecundario(),
               border: const OutlineInputBorder(),
+              counterStyle: TextStyle(
+                color: PaletaColores().obtenerLetraContrasteSecundario(),
+                fontFamily: "Lato",
+              ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
                   color: PaletaColores().obtenerCuaternario(),
@@ -345,7 +350,7 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
           child: TextFormField(
             controller: _descripcionCampo,
             style: TextStyle(
-              color: PaletaColores().obtenerLetraContraseteSecundario(),
+              color: PaletaColores().obtenerLetraContrasteSecundario(),
               fontFamily: "Lato",
             ),
             maxLength: 500,
@@ -353,6 +358,10 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
               filled: true,
               fillColor: PaletaColores().obtenerSecundario(),
               border: const OutlineInputBorder(),
+              counterStyle: TextStyle(
+                color: PaletaColores().obtenerLetraContrasteSecundario(),
+                fontFamily: "Lato",
+              ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
                   color: PaletaColores().obtenerCuaternario(),
@@ -391,8 +400,8 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
     ///@return un retorno vaico.
 
     void _alPresionarBoton() {
-      if ( _usuario.isEmpty || (_imagen == null && _imagenCamara == null) ||
-          _nombreCampo.text.isEmpty || _descripcionCampo.text.isEmpty) {
+      if ( (_usuario.isEmpty || (_imagen == null && _imagenCamara == null) ||
+          _nombreCampo.text.isEmpty || _descripcionCampo.text.isEmpty) && mounted) {
         if (_estadoBoton == ButtonState.fail) {
           setState(() {
             _estadoBoton = ButtonState.idle;
@@ -422,9 +431,11 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
           _estadoBoton = ButtonState.idle;
           break;
       }
-      setState(() {
-        _estadoBoton = _estadoBoton;
-      });
+      if(mounted) {
+        setState(() {
+          _estadoBoton = _estadoBoton;
+        });
+      }
     }
 
     ///Construye el Widget que maneja el botón para suministrar los datos del formulario.
@@ -435,14 +446,14 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
         width: _width/3.6,
         child: ProgressButton.icon(
             textStyle: TextStyle(
-              color: PaletaColores().obtenerLetraContrasetePrimario(),
+              color: PaletaColores().obtenerLetraContrastePrimario(),
             ),
             iconedButtons: {
               ButtonState.idle: IconedButton(
                   text: "Enviar",
                   icon: Icon(
                     Icons.send,
-                    color: PaletaColores().obtenerLetraContrasetePrimario(),
+                    color: PaletaColores().obtenerLetraContrastePrimario(),
                   ),
                   color: PaletaColores().obtenerColorInactivo(),
               ),
@@ -454,7 +465,7 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
               ButtonState.fail: IconedButton(
                 icon: Icon(
                   Icons.cancel,
-                  color: PaletaColores().obtenerLetraContrasetePrimario(),
+                  color: PaletaColores().obtenerLetraContrastePrimario(),
                 ),
                 color: PaletaColores().obtenerColorRiesgo(),
               ),
@@ -462,7 +473,7 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
                   text: "Exito",
                   icon: Icon(
                     Icons.check_circle,
-                    color: PaletaColores().obtenerLetraContrasetePrimario(),
+                    color: PaletaColores().obtenerLetraContrastePrimario(),
                   ),
                   color: PaletaColores().obtenerTerciario(),
               ),

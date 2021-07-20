@@ -19,7 +19,7 @@ class Dispositivo {
   Dispositivo({this.relacion_id, this.persona_id, this.nombre, this.url_foto,
                this.fecha_modificacion}); //Constructor de la clase.
 
-  ///Recibe un dispositivo en formato json y se encarga de transformarlo una
+  ///Recibe un dispositivo en formato json y se encarga de transformarlo a una
   ///instancia de esta clase.
   ///@param json dispositivo en formato json.
 

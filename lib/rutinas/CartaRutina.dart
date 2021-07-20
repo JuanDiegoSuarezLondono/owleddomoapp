@@ -4,9 +4,6 @@ import 'package:owleddomoapp/rutinas/ServiciosRutina.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
 
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
-
 ///Esta clase se encarga de construir la vista dentro de la carta de una
 ///rutina, dotándola de un nombre, un botón para activarla o desactivarla,
 ///el nombre del dispositivo al que pertenece y una leyenda que indica la hora a
@@ -88,14 +85,18 @@ class _CartaRutina extends State<CartaRutina> {
 
   _actualizarRutina() {
     ServiciosRutina.activarRutina(_usuario, _rutina_id, _persona_producto_id,
-                                  _activo.toString(),_relacionDispositivo )
-        .then((result) {
-      String respuesta = tratarError.estadoServicioActualizarSnackbar (result, context);
-      if ( respuesta != "EXITO") {
-        setState(() {
-          _activo = _activo == 0 ? 1 : 0;
-        });
+                                  _activo.toString(),_relacionDispositivo ).then((result) {
+
+      String respuesta =  TratarError().estadoSnackbar(result, context).first.toString();
+
+      if ( respuesta[0] != "2") {
+        if(mounted) {
+          setState(() {
+            _activo = _activo == 0 ? 1 : 0;
+          });
+        }
       }
+
     });
   }
 
@@ -131,15 +132,17 @@ class _CartaRutina extends State<CartaRutina> {
     Widget _botonActivo () {
       return InkWell(
         onTap: () {
-          setState(() {
-            _activo = _activo == 0 ? 1 : 0;
-          });
+          if(mounted) {
+            setState(() {
+              _activo = _activo == 0 ? 1 : 0;
+            });
+          }
           _actualizarRutina();
         },
         splashColor: Colors.transparent,
         child: Container(
           alignment: Alignment.center,
-          margin: EdgeInsets.only(left: 20),
+          margin: EdgeInsets.only(left: _width/18),
           width: _width/12,
           height: _width/12,
           child: Container(
@@ -147,12 +150,12 @@ class _CartaRutina extends State<CartaRutina> {
             height: _width/25.71428571428571,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: _activo == 0 ? colores.obtenerColorInactivo()
-                  : colores.obtenerColorTres(),
+              color: _activo == 0 ? PaletaColores().obtenerColorInactivo()
+                  : PaletaColores().obtenerTerciario(),
               boxShadow: [
                 BoxShadow(
-                  color: _activo == 0 ? colores.obtenerColorInactivo()
-                      : colores.obtenerColorTres(),
+                  color: _activo == 0 ? PaletaColores().obtenerColorInactivo()
+                      : PaletaColores().obtenerTerciario(),
                   spreadRadius: _activo == 0 ? 0 : 5,
                   blurRadius: _activo == 0 ? 0 : 7,
                 ),
@@ -161,7 +164,6 @@ class _CartaRutina extends State<CartaRutina> {
           ),
         ),
       );
-
     }
 
     ///Construye el Widget encargado del título.
@@ -196,7 +198,7 @@ class _CartaRutina extends State<CartaRutina> {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: _height/79.2,
-            color: colores.obtenerColorInactivo(),
+            color: PaletaColores().obtenerColorInactivo(),
             fontFamily: "Lato",
           ),
         ),

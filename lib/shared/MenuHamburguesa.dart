@@ -114,7 +114,13 @@ class _MenuHamburguesa extends State<MenuHamburguesa> {
             },
           ),
           ListTile(
-            title: Text('Solicitudes para compartir                 +${_numeroPeticiones}'),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget> [
+                Text('Solicitudes para compartir'),
+                Text('+${_numeroPeticiones}'),
+              ],
+            ),
             onTap: () {
               Route route = MaterialPageRoute (
                 builder: (context) => SubPantallaUno(SolicitudMain(_usuario), "Lista Solicitudes"),

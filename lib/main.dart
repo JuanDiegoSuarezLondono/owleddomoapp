@@ -103,9 +103,9 @@ class _MyHomePageState extends State<MyHomePage> {
             });
       }
     });
-    SystemChrome.setPreferredOrientations([
+    /*SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
-    ]);
+    ]);*/
   }
 
   /*void showNotification() {

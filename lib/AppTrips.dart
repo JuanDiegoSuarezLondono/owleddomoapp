@@ -116,13 +116,16 @@ class _AppTrips extends State<AppTrips> {
       return Scaffold(
         body: tabs[actualIndex],
         bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: PaletaColores().obtenerSecundario(),
-          selectedItemColor: PaletaColores().obtenerCuaternario(),
+            backgroundColor: PaletaColores().obtenerSecundario(),
+            selectedItemColor: PaletaColores().obtenerCuaternario(),
+            unselectedItemColor: PaletaColores().obtenerColorInactivo(),
             currentIndex: actualIndex,
             onTap: onTapped,
             items: <BottomNavigationBarItem> [
               BottomNavigationBarItem(
-                icon: Icon(Icons.home_rounded,),
+                icon: Icon(
+                  Icons.home_rounded,
+                ),
                 // ignore: deprecated_member_use
                 title: Text(
                   "Cuartos",

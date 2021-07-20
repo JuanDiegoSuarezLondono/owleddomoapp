@@ -7,8 +7,14 @@ import 'package:owleddomoapp/shared/MenuHamburguesa.dart';
 
 final PaletaColores colores = new PaletaColores();
 
-///Construye el Widget que despliega una ventana emergente para confirmar el
-///borrar el cuarto.
+///Esta clase se encarga de la pantalla donde se direcciona la barra cupertino al
+///ir hacia los cuartos, contiene todo lo concerniente a los cuartos y los dispositivos.
+///@version 1.0, 06/04/21
+///@author Juan Diego Suárez Londoño
+///@param usuario identificador del usuario.
+///@see owleddomo_app/AppTrips.dart#class().
+///return un Widget SafeArea con un Scaffold que contendrá toda la información
+///de los cuartos y los dispositivos, además posee un menú en la barra del título.
 
 class CuartosMain extends StatelessWidget {
 
@@ -28,7 +34,7 @@ class CuartosMain extends StatelessWidget {
       width: height/19.8,
       height: height/19.8,
       decoration: BoxDecoration(
-        color: colores.obtenerColorDos(),
+        color: PaletaColores().obtenerPrimario(),
         shape: BoxShape.circle,
         image: DecorationImage(
           fit: BoxFit.cover,
@@ -45,7 +51,7 @@ class CuartosMain extends StatelessWidget {
         "Cuartos",
         style: TextStyle(
           fontFamily: 'Lato',
-          color: colores.obtenerColorDos(),
+          color: PaletaColores().obtenerLetraContrastePrimario(),
           fontSize: height/31.68,
           fontWeight: FontWeight.bold,
         ),
@@ -55,13 +61,13 @@ class CuartosMain extends StatelessWidget {
     final tabs = [
       Text('CUARTOS',
         style: TextStyle(
-          fontSize: 18.0,
+          fontSize: height/44,
           fontFamily: 'Lato',
         ),
       ),
       Text('DISPOSITIVOS',
         style: TextStyle(
-          fontSize: 18.0,
+          fontSize: height/44,
           fontFamily: 'Lato',
         ),
       ),
@@ -71,11 +77,11 @@ class CuartosMain extends StatelessWidget {
       length: tabs.length,
       child: SafeArea(
         child: Scaffold(
-          backgroundColor: colores.obtenerColorFondo(),
+          backgroundColor: PaletaColores().obtenerColorFondo(),
           appBar: AppBar(
             actions: [Text("")],
             automaticallyImplyLeading: false,
-            backgroundColor: colores.obtenerColorUno(),
+            backgroundColor: PaletaColores().obtenerPrimario(),
             flexibleSpace: Container(
               height: height/14.14285714285714,
               child: Row (

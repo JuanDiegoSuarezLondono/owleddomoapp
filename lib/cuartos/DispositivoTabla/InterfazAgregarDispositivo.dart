@@ -9,9 +9,6 @@ import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 import 'package:owleddomoapp/login/Persona.dart';
 
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
-
 ///Esta clase se encarga de manejar la pantalla del formulario para agregar un dispositivo.
 ///@version 1.0, 06/04/21.
 ///@author Juan Diego Suárez Londoño.
@@ -70,9 +67,9 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
     _qrResultado = "Vacio"; //Se indica que al inicio no hay codigo qr.
     _textoBotonQR = "¡Escanealo!";
     _imagen = null; //Se indica que no hay imagen por parte de la lista.
-    _bordeImagen = colores.obtenerColorInactivo();
-    _bordeQR = colores.obtenerColorDos();
-    _letrasEscanealo = colores.obtenerColorInactivo();
+    _bordeImagen = PaletaColores().obtenerColorInactivo();
+    _bordeQR = PaletaColores().obtenerColorInactivo();
+    _letrasEscanealo = PaletaColores().obtenerPrimario();
     _estadoBoton = ButtonState.idle;
   }
 
@@ -81,15 +78,15 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
 
   _validar() {
     setState(() {
-      _bordeImagen = _imagen == null ? colores.obtenerColorRiesgo()
-                                     : colores.obtenerColorInactivo();
+      _bordeImagen = _imagen == null ? PaletaColores().obtenerColorRiesgo()
+                                     : PaletaColores().obtenerColorInactivo();
       if (_qrResultado == "Vacio") {
-        _bordeQR = colores.obtenerColorRiesgo();
-        _letrasEscanealo = colores.obtenerColorRiesgo();
+        _bordeQR = PaletaColores().obtenerColorRiesgo();
+        _letrasEscanealo = PaletaColores().obtenerColorRiesgo();
         _textoBotonQR = "¡Escanealo!";
       } else {
-        _bordeQR = colores.obtenerColorCuatro();
-        _letrasEscanealo = colores.obtenerColorCuatro();
+        _bordeQR = PaletaColores().obtenerCuaternario();
+        _letrasEscanealo = PaletaColores().obtenerCuaternario();
         _textoBotonQR = "¡Perfecto!";
       }
     });
@@ -112,6 +109,35 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
     });
   }
 
+  ///Agrega el dispositivo o genera un error en caso de cualquier eventualidad.
+  ///@see owleddomo_app/cuartos/DisporitivoTabla/ServiciosDispositivo.agregarDispositivo#method().
+  ///@see owleddomo_app/shared/TratarError.estadoServicioActualizar#method().
+  ///@return no retorna nada en caso de no obtener una validación positiva de los campos.
+
+  _agregarDispositivo() {
+    ServiciosDispositivo.agregarDispositivo( _qrResultado, _usuario.persona_id,
+                                             _nombre.text, _imagen)
+        .then((result) {
+
+      String respuesta = TratarError().tarjetaDeEstado(result,[_nombre.text,_imagen]
+                                                      ,context).first.toString();
+      if(mounted) {
+        if ( respuesta == "2") {
+          setState(() {
+            _estadoBoton = ButtonState.success;
+          });
+        } else {
+          setState(() {
+            _bordeQR = PaletaColores().obtenerColorRiesgo();
+            _letrasEscanealo = PaletaColores().obtenerColorRiesgo();
+            _textoBotonQR = "Ya en uso";
+            _estadoBoton = ButtonState.fail;
+          });
+        }
+      }
+    });
+  }
+
   Widget build(BuildContext context) {
 
     double _width = MediaQuery.of(context).size.width; //Obtiene el ancho de la pantalla del dispositivo.
@@ -123,7 +149,7 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
     Widget _particulas() {
       return Particles(
         20,
-        colores.obtenerColorCuatro(),
+        PaletaColores().obtenerCuaternario(),
       );
     }
 
@@ -146,10 +172,10 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
               height: _height/5.28,
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: colores.obtenerColorCuatro(),
+                  color: PaletaColores().obtenerCuaternario(),
                   width: _height/300,
                 ),
-                color: colores.obtenerColorCuatro(),
+                color: PaletaColores().obtenerCuaternario(),
                 borderRadius: BorderRadius.circular(150),
                 image: DecorationImage(
                   fit: BoxFit.cover,
@@ -163,7 +189,7 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
                   color: _bordeImagen,
                   width: _height/300,
                 ),
-                color: colores.obtenerColorDos(),
+                color: PaletaColores().obtenerContrasteInactivo(),
                 borderRadius: BorderRadius.circular(150),
               ),
               width: _width/2.25,
@@ -171,7 +197,7 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
               child: Icon(
                 Icons.image,
                 size: _height/8.0923,
-                color: colores.obtenerColorInactivo(),
+                color: PaletaColores().obtenerColorInactivo(),
               ),
             ),
           ),
@@ -192,7 +218,7 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
           children: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                primary: colores.obtenerColorUno(),
+                primary: PaletaColores().obtenerPrimario(),
                 padding: EdgeInsets.all(_height/39.6),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.0),
@@ -208,7 +234,7 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
               child: Icon(
                 Icons.qr_code_scanner_rounded,
                 size: _height/15.84,
-                color: colores.obtenerColorTres(),
+                color: PaletaColores().obtenerTerciario(),
               ),
             ),
             Text(
@@ -242,7 +268,7 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
           ),
           borderRadius: BorderRadius.circular(25.0),
         ),
-          color: colores.obtenerColorDos(),
+          color: PaletaColores().obtenerLetraContrastePrimario(),
           child: _escanearProducto(),
         ),
       );
@@ -259,17 +285,45 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: colores.obtenerColorCuatro(),
+            primaryColor: PaletaColores().obtenerCuaternario(),
           ),
           child: TextFormField(
             controller: _nombre,
+            style: TextStyle(
+              color: PaletaColores().obtenerLetraContrasteSecundario(),
+              fontFamily: "Lato",
+            ),
             maxLength: 50,
             decoration: InputDecoration(
               filled: true,
-              fillColor: colores.obtenerColorDos(),
+              fillColor: PaletaColores().obtenerSecundario(),
               border: const OutlineInputBorder(),
+              counterStyle: TextStyle(
+                color: PaletaColores().obtenerLetraContrasteSecundario(),
+                fontFamily: "Lato",
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: PaletaColores().obtenerCuaternario(),
+                  width: 2.0,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: PaletaColores().obtenerColorInactivo(),
+                  width: 2.0,
+                ),
+              ),
               hintText: '¿Como va a llamar a este dispositivo?',
+              hintStyle: TextStyle(
+                color: PaletaColores().obtenerColorInactivo(),
+                fontFamily: "Lato",
+              ),
               labelText: 'Nombre',
+              labelStyle: TextStyle(
+                color: PaletaColores().obtenerColorInactivo(),
+                fontFamily: "Lato",
+              ),
             ),
             autofocus: true,
             validator: (value) {
@@ -282,31 +336,6 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
           ),
         ),
       );
-    }
-
-    ///Agrega el dispositivo o genera un error en caso de cualquier eventualidad.
-    ///@see owleddomo_app/cuartos/DisporitivoTabla/ServiciosDispositivo.agregarDispositivo#method().
-    ///@see owleddomo_app/shared/TratarError.estadoServicioActualizar#method().
-    ///@return no retorna nada en caso de no obtener una validación positiva de los campos.
-
-    _agregarDispositivo() {
-      ServiciosDispositivo.agregarDispositivo( _qrResultado, _usuario.persona_id,
-                                               _nombre.text, _imagen)
-          .then((result) {
-            String respuesta = tratarError.estadoServicioActualizar( result, [_nombre.text, _imagen] , context);
-            if ( respuesta == "EXITO") {
-              setState(() {
-                _estadoBoton = ButtonState.success;
-              });
-            } else {
-              setState(() {
-                _bordeQR = colores.obtenerColorRiesgo();
-                _letrasEscanealo = colores.obtenerColorRiesgo();
-                _textoBotonQR = "Ya en uso";
-                _estadoBoton = ButtonState.fail;
-              });
-            }
-          });
     }
 
     ///Maneja el comportamiento al presionar el botón.
@@ -338,9 +367,11 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
           _estadoBoton = ButtonState.idle;
           break;
       }
-      setState(() {
-        _estadoBoton = _estadoBoton;
-      });
+      if(mounted) {
+        setState(() {
+          _estadoBoton = _estadoBoton;
+        });
+      }
     }
 
     ///Construye el Widget que maneja el botón para suministrar los datos del formulario.
@@ -349,27 +380,42 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
     Widget _boton() {
       return Container(
         width: _width/3.6,
-        child: ProgressButton.icon(iconedButtons: {
-          ButtonState.idle: IconedButton(
-              text: "Enviar",
-              icon: Icon(Icons.send, color: Colors.white),
-              color: colores.obtenerColorInactivo()),
-          ButtonState.loading:
-          IconedButton(text: "Cargando", color: colores.obtenerColorUno()),
-          ButtonState.fail: IconedButton(
-              icon: Icon(Icons.cancel, color: Colors.white),
-              color: colores.obtenerColorRiesgo()),
-          ButtonState.success: IconedButton(
+        child: ProgressButton.icon(
+            textStyle: TextStyle(
+              color: PaletaColores().obtenerContrasteInactivo(),
+            ),
+            iconedButtons: {
+              ButtonState.idle: IconedButton(
+                text: "Enviar",
+                icon: Icon(
+                  Icons.send,
+                  color: PaletaColores().obtenerContrasteInactivo(),
+                ),
+                color: PaletaColores().obtenerColorInactivo(),
+              ),
+              ButtonState.loading: IconedButton(
+                text: "Cargando",
+                color: PaletaColores().obtenerPrimario(),
+              ),
+              ButtonState.fail: IconedButton(
+                icon: Icon(
+                  Icons.cancel,
+                  color: PaletaColores().obtenerContrasteRiesgo(),
+                ),
+                color: PaletaColores().obtenerColorRiesgo(),
+              ),
+              ButtonState.success: IconedButton(
               text: "Exito",
               icon: Icon(
                 Icons.check_circle,
-                color: Colors.white,
+                color: PaletaColores().obtenerContrasteRiesgo(),
               ),
-              color: colores.obtenerColorTres())
-        }, onPressed: () {
+                color: PaletaColores().obtenerTerciario(),
+              ),
+            }, onPressed: () {
           if (_formKey.currentState.validate()) {
             _alPresionarBoton();
-          } else if (_estadoBoton == ButtonState.fail){
+          } else if (_estadoBoton == ButtonState.fail) {
             _estadoBoton = ButtonState.idle;
           }
         },
@@ -423,10 +469,19 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
       );
     }
 
-    return Stack(
-      children: <Widget>[
-        _particulas(),
-        _pantallaFrontal(),
+    return ListView(
+      physics: BouncingScrollPhysics(),
+      children: [
+        Container(
+          color: PaletaColores().obtenerColorFondo(),
+          height: _height/1.161290322580645,
+          child: Stack(
+            children: <Widget>[
+              _particulas(),
+              _pantallaFrontal(),
+            ],
+          ),
+        ),
       ],
     );
   }

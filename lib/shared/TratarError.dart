@@ -34,6 +34,10 @@ class TratarError {
         respuestaError.add(null);
         respuestaError.add('${textos[4]}');
         break;
+      case "416":
+        respuestaError.add(null);
+        respuestaError.add('${textos[4]}');
+        break;
       case "421":
         respuestaError.add(null);
         respuestaError.add('${textos[4]}');
@@ -75,6 +79,9 @@ class TratarError {
         numeroEstado = 3;
         break;
       case "409":
+        numeroEstado = 4;
+        break;
+      case "416":
         numeroEstado = 4;
         break;
       case "421":
@@ -127,32 +134,37 @@ class TratarError {
         texto = "No te identificamos...\n¿Esto es tuyo?";
         break;
       case "409":
-        color = colores.obtenerColorCuatro();
+        color = PaletaColores().obtenerCuaternario();
         icono = Icons.cloud_off_rounded;
         texto = "Un avión tumbo nuestra nube...\nEstamos trabajando en ello :)";
         break;
+      case "416":
+        color = PaletaColores().obtenerColorRiesgo();
+        icono = Icons.visibility_off_rounded;
+        texto = "No se encontró nada...\n¿Lo escribiste bien?";
+        break;
       case "421":
-        color = colores.obtenerColorCuatro();
+        color = PaletaColores().obtenerCuaternario();
         icono = Icons.cloud_off_rounded;
         texto = "Un avión tumbo nuestra nube...\nEstamos trabajando en ello :)";
         break;
       case "422":
-        color = colores.obtenerColorCuatro();
+        color = PaletaColores().obtenerCuaternario();
         icono = Icons.cloud_off_rounded;
         texto = "Un avión tumbo nuestra nube...\nEstamos trabajando en ello :)";
         break;
       case "502":
-        color = colores.obtenerColorRiesgo();
+        color = PaletaColores().obtenerColorRiesgo();
         icono = Icons.precision_manufacturing_sharp;
         texto = "¡Rayos! Algo pasa con la app...";
         break;
       case "Failed host lookup: 'zmyanb1bc1.execute-api.sa-east-1.amazonaws.com'":
-        color = colores.obtenerColorInactivo();
+        color = PaletaColores().obtenerColorInactivo();
         icono = Icons.wifi_off_outlined;
         texto = "Si la vida te da internet, has limonada";
         break;
       default:
-        color = colores.obtenerColorRiesgo();
+        color = PaletaColores().obtenerColorRiesgo();
         icono = Icons.error_rounded;
         texto = "Ups... Algo salio mal";
         break;
@@ -196,6 +208,102 @@ class TratarError {
     return estado;
   }
 
+  List estadoSnackbar (List estado, BuildContext context) {
+    double _height = MediaQuery.of(context).size.height; //Obtiene el alto de la pantalla del dispositivo.
+    double _width = MediaQuery.of(context).size.width; //Obtiene el ancho de la pantalla del dispositivo.
+    Color color = PaletaColores().obtenerColorInactivo();
+    IconData icono = Icons.star;
+    String texto = "Estrella";
+
+    switch (estado.first.toString()) {
+      case "200":
+        color = PaletaColores().obtenerTerciario();
+        icono = Icons.check_circle;
+        texto = "¡Exito!";
+        break;
+      case "201":
+        color = PaletaColores().obtenerTerciario();
+        icono = Icons.check_circle;
+        texto = "¡Creado!";
+        break;
+      case "400":
+        color = PaletaColores().obtenerColorRiesgo();
+        icono = Icons.device_unknown_rounded;
+        texto = "¿Dispositivo?";
+        break;
+      case "401":
+        color = PaletaColores().obtenerColorRiesgo();
+        icono = Icons.local_police_rounded;
+        texto = "No te identificamos";
+        break;
+      case "409":
+        color = PaletaColores().obtenerCuaternario();
+        icono = Icons.cloud_off_rounded;
+        texto = "¡Antena rota!\nBuscaremos la cinta :)";
+        break;
+      case "416":
+        color = PaletaColores().obtenerColorRiesgo();
+        icono = Icons.visibility_off_rounded;
+        texto = "No se encontró nada...\n¿Lo escribiste bien?";
+        break;
+      case "421":
+        color = PaletaColores().obtenerCuaternario();
+        icono = Icons.cloud_off_rounded;
+        texto = "¡Antena rota!\nBuscaremos la cinta :)";
+        break;
+      case "422":
+        color = PaletaColores().obtenerCuaternario();
+        icono = Icons.cloud_off_rounded;
+        texto = "¡Antena rota!\nBuscaremos la cinta :)";
+        break;
+      case "502":
+        color = PaletaColores().obtenerColorRiesgo();
+        icono = Icons.precision_manufacturing_sharp;
+        texto = "¡Rayos!\nAlgo pasa con la app...";
+        break;
+      case "Failed host lookup: 'zmyanb1bc1.execute-api.sa-east-1.amazonaws.com'":
+        color = PaletaColores().obtenerColorInactivo();
+        icono = Icons.wifi_off_outlined;
+        texto = "Si la vida te da internet,\nhas limonada";
+        break;
+      default:
+        color = PaletaColores().obtenerColorRiesgo();
+        icono = Icons.error_rounded;
+        texto = "Ups... Algo salio mal";
+        break;
+    }
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: PaletaColores().obtenerPrimario(),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
+        behavior: SnackBarBehavior.floating,
+        width: _width/1.8,
+        duration: const Duration(milliseconds: 2500),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text(
+              texto,
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: color,
+                fontFamily: "Lato",
+              ),
+            ),
+            Icon(
+              icono,
+              size: _height/39.6,
+              color: color,
+            ),
+          ],
+        ),
+      ),
+    );
+    return estado;
+  }
 
   String estadoServicioActualizar (String estado,List<String> alRegresar, BuildContext context) {
     final PaletaColores colores = new PaletaColores(); //Colores predeterminados.

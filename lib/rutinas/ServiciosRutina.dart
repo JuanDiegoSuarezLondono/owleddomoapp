@@ -28,34 +28,28 @@ class ServiciosRutina {
   }
 
   ///Obtiene las rutinas relacionadas a una persona.
+  ///@param usuario identificador del usuario dueño de las rutinas a consutlar.
+  ///@param getConsult construye el cuerpo de la petición y lo parcea a URI.
   ///@param resultado lista de los resultados y la flag del estado.
   ///@param respuesta datos sin parecear de la consulta http.
+  ///@param body cuerpo de la consulta decodificado a utf8.
   ///@param lista lista parseada de las rutinas.
-  ///@return lista de variables y un flag de "EXITO" en la primera posición
-  ///en caso de recibir datos, solo un flag de "VACIO" en caso de no tener
-  ///datos o solo un mensaje de error ("LOCAL/SERVIDOR/OTRO") en caso de presentarse.
+  ///@return lista con los datos de la consulta o un error.
 
   static Future<List> todasRutinas(String usuario) async {
     var getConsult = Uri.parse(URL+"?persona_id="+usuario); //Construye el cuerpo de la petición y lo parcea a URI.
     List resultado = []; //Lista de los resultados y la flag del estado.
     try {
       final respuesta = await http.get(getConsult); //Datos sin parecear de la consulta http.
-      if (respuesta.statusCode >= 200 && respuesta.statusCode < 300 && respuesta.body != "[]") {
-        List<Rutina> lista = parsearRespuesta(respuesta.body); //Lista parseada de las rutinas.
-        resultado.add("EXITO");
+      if ( respuesta.statusCode >= 200 && respuesta.statusCode < 300 ) {
+        String body = utf8.decode(respuesta.bodyBytes); //Body cuerpo de la consulta decodificado a utf8.
+        List<Rutina> lista = parsearRespuesta(body); //Lista parseada de las rutinas.
+        resultado.add(respuesta.statusCode);
         resultado.add(lista);
         return resultado;
-      } else if (respuesta.statusCode >= 200 && respuesta.statusCode < 300) {
-        resultado.add("VACIO");
-        return resultado;
-      } else if (respuesta.statusCode >= 400 && respuesta.statusCode < 500 ) {
-        resultado.add("LOCAL");
-        return resultado;
-      } else if (respuesta.statusCode >= 500 && respuesta.statusCode < 600 ) {
-        resultado.add("SERVIDOR");
-        return resultado;
       } else {
-        resultado.add("OTRO");
+        resultado.add(respuesta.statusCode);
+        resultado.add(respuesta.body);
         return resultado;
       }
     } catch (e) {
@@ -74,18 +68,18 @@ class ServiciosRutina {
   ///indicando cuales está activa la rutina.
   ///@param tiempo hora y minutos en los que la rutina ejecuta la acción.
   ///@param acciones acciónes a ejecutarse en cada variable cuando el tiempo se cumpla.
+  ///@param getConsult construye el cuerpo de la petición y lo parcea a URI.
+  ///@param resultado lista de los resultados.
   ///@param map mapeo de las variables a enviar.
-  ///@param getConsult construye el cuerpo de las peticiones y las parcea a URI.
-  ///@param respuesta respuesta datos sin parecear del dispositivo consulta http.
+  ///@param respuestaHW respuesta datos sin parecear del dispositivo consulta http.
   ///@param respuestaDB respuesta datos sin parecear de la base de datos consulta http.
-  ///@return un flag de "EXITO" en caso que todo vaya bien, un flag de "NEL PASTEL"
-  ///en caso de que el dispositivo ya esté en uso o un mensaje de error
-  ///("LOCAL/SERVIDOR/OTRO") en caso de presentarse.
+  ///@return lista con los datos de la consulta o un error.
 
-  static Future<String> agregarRutina(String usuario, String producto, String nombre,
+  static Future<List> agregarRutina(String usuario, String producto, String nombre,
                                       String activo, String relacionDispositivo,
                                       String dias, String tiempo, String acciones) async {
     var getConsult = Uri.parse(URL+"/hardware"); //Construye el cuerpo de las peticiones y las parcea a URI.
+    List resultado = []; //Lista de los resultados.
     try {
       var map = Map<String, dynamic>(); //Mapeo de las variables a enviar.
       map['persona_id'] = usuario;
@@ -97,36 +91,27 @@ class ServiciosRutina {
       map['Dato14'] = dias;
       map['Dato13'] = tiempo  ;
       map['Dato15'] = acciones;
-      final respuesta = await http.post(getConsult, body: map); //Respuesta datos sin parecear del dispositivo consulta http.
-      if (respuesta.statusCode >= 200 && respuesta.statusCode < 300 && respuesta.body != "Ocupado") {
-        getConsult = Uri.parse(URL+"/db");
+      final respuestaHW = await http.post(getConsult, body: map); //Respuesta datos sin parecear del dispositivo consulta http.
+      getConsult = Uri.parse(URL+"/db"); //Remapea la consulta para realizarla ahora a la base de datos.
+      if(respuestaHW.statusCode.toString() == "200") {
         try {
           final respuestaDB = await http.post(getConsult, body: map); //Respuesta datos sin parecear de la base de datos consulta http.
-          if (respuestaDB.statusCode >= 200 && respuestaDB.statusCode < 300 && respuestaDB.body != "Ocupado") {
-            return "EXITO";
-          } else if (respuestaDB.statusCode >= 200 && respuestaDB.body == "Ocupado" ) {
-            return "NEL PASTEL";
-          } else if (respuestaDB.statusCode >= 400 && respuestaDB.statusCode < 500 ) {
-            return "LOCAL";
-          } else if (respuestaDB.statusCode >= 500 && respuestaDB.statusCode < 600 ) {
-            return "SERVIDOR";
-          } else {
-            return "OTRO";
-          }
+          resultado.add(respuestaDB.statusCode);
+          resultado.add(respuestaDB.body);
+          return resultado;
         } catch (e) {
-          return e.message;
+          resultado.add(e.message);
+          return resultado;
         }
-      } else if (respuesta.statusCode >= 200 && respuesta.body == "Ocupado" ) {
-        return "NEL PASTEL";
-      } else if (respuesta.statusCode >= 400 && respuesta.statusCode < 500 ) {
-        return "LOCAL";
-      } else if (respuesta.statusCode >= 500 && respuesta.statusCode < 600 ) {
-        return "SERVIDOR";
       } else {
-        return "OTRO";
+        resultado.add(respuestaHW.statusCode);
+        resultado.add(respuestaHW.body);
+        return resultado;
       }
+
     } catch (e) {
-      return e.message;
+      resultado.add(e.message);
+      return resultado;
     }
   }
 
@@ -139,18 +124,18 @@ class ServiciosRutina {
   ///indicando cuales está activa la rutina.
   ///@param tiempo hora y minutos en los que la rutina ejecuta la acción.
   ///@param acciones acciónes a ejecutarse en cada variable cuando el tiempo se cumpla.
-  ///@param map mapeo de las variables a enviar.
   ///@param getConsult construye el cuerpo de las peticiones y las parcea a URI.
-  ///@param respuesta respuesta datos sin parecear del dispositivo consulta http.
+  ///@param resultado lista de los resultados.
+  ///@param map mapeo de las variables a enviar.
+  ///@param respuestaHW respuesta datos sin parecear del dispositivo consulta http.
   ///@param respuestaDB respuesta datos sin parecear de la base de datos consulta http.
-  ///@return un flag de "EXITO" en caso que todo vaya bien, un flag de "NEL PASTEL"
-  ///en caso de que el dispositivo sea de otro usuario o un mensaje de error
-  ///("LOCAL/SERVIDOR/OTRO") en caso de presentarse.
+  ///@return lista con los datos de la consulta o un error.
 
-  static Future<String> actualizarRutina( String usuario, String rutina_id,
+  static Future<List> actualizarRutina( String usuario, String rutina_id,
                                           String producto, String relacionDispositivo,
                                           String dias, String tiempo, String acciones) async {
     var getConsult = Uri.parse(URL+"/hardware"); //Construye el cuerpo de las peticiones y las parcea a URI.
+    List resultado = []; //Lista de los resultados.
     try {
       var map = Map<String, dynamic>(); //Mapeo de las variables a enviar.
       map['rutina_id'] = rutina_id;
@@ -160,36 +145,27 @@ class ServiciosRutina {
       map['Dato14'] = dias;
       map['Dato13'] = tiempo  ;
       map['Dato15'] = acciones;
-      final respuesta = await http.patch(getConsult, body: map); //Respuesta datos sin parecear del dispositivo consulta http.
-      if (respuesta.statusCode >= 200 && respuesta.statusCode < 300 && respuesta.body != "Ocupado") {
-        getConsult = Uri.parse(URL+"/db");
+      final respuestaHW = await http.patch(getConsult, body: map); //Respuesta datos sin parecear del dispositivo consulta http.
+      getConsult = Uri.parse(URL+"/db"); //Remapea la consulta para realizarla ahora a la base de datos.
+      if( respuestaHW.statusCode.toString() == "200" ) {
         try {
           final respuestaDB = await http.patch(getConsult, body: map); //Respuesta datos sin parecear de la base de datos consulta http.
-          if (respuestaDB.statusCode >= 200 && respuestaDB.statusCode < 300 && respuestaDB.body != "Ocupado") {
-            return "EXITO";
-          } else if (respuestaDB.statusCode >= 200 && respuestaDB.body == "Ocupado" ) {
-            return "NEL PASTEL";
-          } else if (respuestaDB.statusCode >= 400 && respuestaDB.statusCode < 500 ) {
-            return "LOCAL";
-          } else if (respuestaDB.statusCode >= 500 && respuestaDB.statusCode < 600 ) {
-            return "SERVIDOR";
-          } else {
-            return "OTRO";
-          }
+          resultado.add(respuestaDB.statusCode);
+          resultado.add(respuestaDB.body);
+          return resultado;
         } catch (e) {
-          return e.message;
+          resultado.add(e.message);
+          return resultado;
         }
-      } else if (respuesta.statusCode >= 200 && respuesta.body == "Ocupado" ) {
-        return "NEL PASTEL";
-      } else if (respuesta.statusCode >= 400 && respuesta.statusCode < 500 ) {
-        return "LOCAL";
-      } else if (respuesta.statusCode >= 500 && respuesta.statusCode < 600 ) {
-        return "SERVIDOR";
       } else {
-        return "OTRO";
+        resultado.add(respuestaHW.statusCode);
+        resultado.add(respuestaHW.body);
+        return resultado;
       }
+
     } catch (e) {
-      return e.message;
+      resultado.add(e.message);
+      return resultado;
     }
   }
 
@@ -197,19 +173,19 @@ class ServiciosRutina {
   ///@param usuario identificador del dueño.
   ///@param rutina_id id de la rutina a actualizar.
   ///@param producto el id del producto relacionado a la rutina.
-  ///@param relacionDispositivo identificador unico de la rutina en el hardware.
   ///@param activo si la rutina esta activada o no.
-  ///@param map mapeo de las variables a enviar.
+  ///@param relacionDispositivo identificador unico de la rutina en el hardware.
   ///@param getConsult construye el cuerpo de las peticiones y las parcea a URI.
-  ///@param respuesta respuesta datos sin parecear del dispositivo consulta http.
+  ///@param resultado lista de los resultados.
+  ///@param map mapeo de las variables a enviar.
+  ///@param respuestaHW respuesta datos sin parecear del dispositivo consulta http.
   ///@param respuestaDB respuesta datos sin parecear de la base de datos consulta http.
-  ///@return un flag de "EXITO" en caso que todo vaya bien, un flag de "NEL PASTEL"
-  ///en caso de que el dispositivo sea de otro usuario o un mensaje de error
-  ///("LOCAL/SERVIDOR/OTRO") en caso de presentarse.
+  ///@return lista con los datos de la consulta o un error.
 
-  static Future<String> activarRutina( String usuario, String rutina_id,
-                                       String producto, String activo, String relacionDispositivo) async {
+  static Future<List> activarRutina( String usuario, String rutina_id, String producto,
+                                     String activo, String relacionDispositivo) async {
     var getConsult = Uri.parse(URL+"/hardware/activar"); //Construye el cuerpo de las peticiones y las parcea a URI.
+    List resultado = []; //Lista de los resultados.
     try {
       var map = Map<String, dynamic>(); //Mapeo de las variables a enviar.
       map['rutina_id'] = rutina_id;
@@ -217,36 +193,26 @@ class ServiciosRutina {
       map['persona_id'] = usuario;
       map['Dato10'] = relacionDispositivo;
       map['Dato12'] = activo;
-      final respuesta = await http.patch(getConsult, body: map); //Respuesta datos sin parecear del dispositivo consulta http.
-      if (respuesta.statusCode >= 200 && respuesta.statusCode < 300 && respuesta.body != "Ocupado") {
-        getConsult = Uri.parse(URL+"/db/activar");
+      final respuestaHW = await http.patch(getConsult, body: map); //Respuesta datos sin parecear del dispositivo consulta http.
+      getConsult = Uri.parse(URL+"/db/activar"); //Remapea la consulta para realizarla ahora a la base de datos.
+      if(respuestaHW.statusCode.toString() == "200") {
         try {
           final respuestaDB = await http.patch(getConsult, body: map); //Respuesta datos sin parecear de la base de datos consulta http.
-          if (respuestaDB.statusCode >= 200 && respuestaDB.statusCode < 300 && respuestaDB.body != "Ocupado") {
-            return "EXITO";
-          } else if (respuestaDB.statusCode >= 200 && respuestaDB.body == "Ocupado" ) {
-            return "NEL PASTEL";
-          } else if (respuestaDB.statusCode >= 400 && respuestaDB.statusCode < 500 ) {
-            return "LOCAL";
-          } else if (respuestaDB.statusCode >= 500 && respuestaDB.statusCode < 600 ) {
-            return "SERVIDOR";
-          } else {
-            return "OTRO";
-          }
+          resultado.add(respuestaDB.statusCode);
+          resultado.add(respuestaDB.body);
+          return resultado;
         } catch (e) {
-          return e.message;
+          resultado.add(e.message);
+          return resultado;
         }
-      } else if (respuesta.statusCode >= 200 && respuesta.body == "Ocupado" ) {
-        return "NEL PASTEL";
-      } else if (respuesta.statusCode >= 400 && respuesta.statusCode < 500 ) {
-        return "LOCAL";
-      } else if (respuesta.statusCode >= 500 && respuesta.statusCode < 600 ) {
-        return "SERVIDOR";
       } else {
-        return "OTRO";
+        resultado.add(respuestaHW.statusCode);
+        resultado.add(respuestaHW.body);
+        return resultado;
       }
     } catch (e) {
-      return e.message;
+      resultado.add(e.message);
+      return resultado;
     }
   }
 
@@ -255,50 +221,39 @@ class ServiciosRutina {
   ///@param rutina_id id de la rutina a actualizar.
   ///@param producto el id del producto relacionado a la rutina.
   ///@param relacionDispositivo identificador de la rutina en el dispositivo.
-  ///@param map mapeo de las variables a enviar.
   ///@param getConsult construye el cuerpo de las peticiones y las parcea a URI.
-  ///@param respuesta respuesta datos sin parecear del dispositivo consulta http.
+  ///@param resultado lista de los resultados.
+  ///@param respuestaHW respuesta datos sin parecear del dispositivo consulta http.
   ///@param respuestaDB respuesta datos sin parecear de la base de datos consulta http
-  ///@return un flag de "EXITO" en caso que todo vaya bien, un flag de "NEL PASTEL"
-  ///en caso de que el dispositivo sea de otro usuario o un mensaje de error
-  ///("LOCAL/SERVIDOR/OTRO") en caso de presentarse.
+  ///@return lista con los datos de la consulta o un error.
 
-  static Future<String> borrarRutina(String usuario, String rutina_id, String producto,
+  static Future<List> borrarRutina(String usuario, String rutina_id, String producto,
                                      String relacionDispositivo) async {
     var getConsult = Uri.parse(URL+"/hardware?rutina_id="+rutina_id+"&persona_id="+usuario
                                +"&MAC="+producto+"&Dato10="+relacionDispositivo+"&Dato11=0"); //Construye el cuerpo de las peticiones y las parcea a URI.
+    List resultado = []; //Lista de los resultados.
     try {
-      final respuesta = await http.delete(getConsult); //Respuesta datos sin parecear del dispositivo consulta http.
-      if (respuesta.statusCode >= 200 && respuesta.statusCode < 300 && respuesta.body != "Ocupado") {
-        getConsult = Uri.parse(URL+"/db?rutina_id="+rutina_id+"&persona_id="+usuario
-                               +"&MAC="+producto+"&Dato10="+relacionDispositivo+"&Dato11=0");
+      final respuestaHW = await http.delete(getConsult); //Respuesta datos sin parecear del dispositivo consulta http.
+      getConsult = Uri.parse(URL+"/db?rutina_id="+rutina_id+"&persona_id="+usuario
+                             +"&MAC="+producto+"&Dato10="+relacionDispositivo+"&Dato11=0"); //Remapea la consulta para realizarla ahora a la base de datos.
+      if(respuestaHW.statusCode.toString() == "200") {
         try {
           final respuestaDB = await http.delete(getConsult); //Respuesta datos sin parecear de la base de datos consulta http.
-          if (respuestaDB.statusCode >= 200 && respuestaDB.statusCode < 300 && respuestaDB.body != "Ocupado") {
-            return "EXITO";
-          } else if (respuestaDB.statusCode >= 200 && respuestaDB.body == "Ocupado" ) {
-            return "NEL PASTEL";
-          } else if (respuestaDB.statusCode >= 400 && respuestaDB.statusCode < 500 ) {
-            return "LOCAL";
-          } else if (respuestaDB.statusCode >= 500 && respuestaDB.statusCode < 600 ) {
-            return "SERVIDOR";
-          } else {
-            return "OTRO";
-          }
+          resultado.add(respuestaDB.statusCode);
+          resultado.add(respuestaDB.body);
+          return resultado;
         } catch (e) {
-          return e.message;
+          resultado.add(e.message);
+          return resultado;
         }
-      } else if (respuesta.statusCode >= 200 && respuesta.body == "Ocupado" ) {
-        return "NEL PASTEL";
-      } else if (respuesta.statusCode >= 400 && respuesta.statusCode < 500 ) {
-        return "LOCAL";
-      } else if (respuesta.statusCode >= 500 && respuesta.statusCode < 600 ) {
-        return "SERVIDOR";
       } else {
-        return "OTRO";
+        resultado.add(respuestaHW.statusCode);
+        resultado.add(respuestaHW.body);
+        return resultado;
       }
     } catch (e) {
-      return e.message;
+      resultado.add(e.message);
+      return resultado;
     }
   }
 

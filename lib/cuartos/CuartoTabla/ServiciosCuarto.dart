@@ -119,7 +119,7 @@ class ServiciosCuarto {
       return resultado;
     } catch (e) {
       resultado.add(e.message);
-      return e.message;
+      return resultado;
     }
   }
 
@@ -141,7 +141,7 @@ class ServiciosCuarto {
       return resultado;
     } catch (e) {
       resultado.add(e.message);
-      return e.message;
+      return resultado;
     }
   }
 }

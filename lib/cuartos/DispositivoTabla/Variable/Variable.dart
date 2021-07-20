@@ -20,9 +20,9 @@ class Variable {
   Variable({this.relacion_id, this.persona_producto_id, this.variable_id, this.valor,
             this.relacion_dispositivo}); //Constructor de la clase.
 
-  ///Recibe un dispositivo en formato json y se encarga de transformarlo una
+  ///Recibe una variable en formato json y se encarga de transformarla a una
   ///instancia de esta clase.
-  ///@param json dispositivo en formato json.
+  ///@param json variable en formato json.
 
   factory Variable.fromJson(Map<String, dynamic> json) {
     return Variable(

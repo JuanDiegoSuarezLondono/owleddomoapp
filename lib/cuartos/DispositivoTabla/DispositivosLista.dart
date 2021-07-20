@@ -12,9 +12,6 @@ import 'package:owleddomoapp/shared/TratarError.dart';
 import 'package:owleddomoapp/login/Persona.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
-
 ///Esta clase se encarga de manejar la pantalla del despliegue de la lista de los
 ///dispositivos y su lógica.
 ///@version 1.0, 06/04/21.
@@ -62,6 +59,7 @@ class _DispositivosLista extends State<DispositivosLista> {
     _dispositivosLista = [];
     _estado = 0;
     _refrescar = false; //Inicializa este valor para que no haga un Navigator.pop al no tener pantalla de carga.
+    _dispositivosObtenidos = _obtenerDispositivos();
   }
 
   ///Hace una petición para conseguir un mapeo con la lista de los parámetros de
@@ -72,11 +70,13 @@ class _DispositivosLista extends State<DispositivosLista> {
   ///@return un mapeo con los dispositivos.
 
   Future<List> _obtenerDispositivos() async {
-    setState(() {
-      _dispositivosObtenidos =  ServiciosDispositivo.todosDispositivo(_usuario.persona_id);
-    });
-    _dispositivosObtenidos.then((value) => {
-      _estado = tratarError.estadoServicioLeer(value.first),
+    _dispositivosObtenidos =  ServiciosDispositivo.todosDispositivo(_usuario.persona_id);
+    _dispositivosObtenidos.then((result) {
+      if (mounted) {
+        setState(() {
+          _estado = TratarError().estadoServicioLeer(result);
+        });
+      }
     });
     return _dispositivosObtenidos;
   }
@@ -91,9 +91,11 @@ class _DispositivosLista extends State<DispositivosLista> {
         SubPantallaUno(InterfazAgregarDispositivo(_usuario),"Añadir Dispositivo")
     ); //Especifica la ruta hacia la interfaz para agregar un dispositivo.
     Navigator.push(context, route).then((value)=>{
-      setState(() {
-        _estado = 5; //Al regresar a la lista, hace que se actualice.
-      }),
+      if(mounted) {
+        setState(() {
+          _estado = 8; //Al regresar a la lista, hace que se actualice.
+        }),
+      },
       _obtenerDispositivos(), //Vuelve a cargar la lista luego de agregar el dispositivo.
     });
   }
@@ -112,10 +114,12 @@ class _DispositivosLista extends State<DispositivosLista> {
                                                       dispositivo.fecha_modificacion,
                                                       _usuario),"Dispositivo"));
     Navigator.push(context, route).then((value)=>{
-      setState(() {
-        _estado = 5; //Al regresar a la lista, hace que se actualice.
-      }),
-      _obtenerDispositivos(), //Vuelve a cargar la lista luego de agregar dispositivo.
+      if(mounted) {
+        setState(() {
+          _estado = 8; //Al regresar a la lista, hace que se actualice.
+        }),
+      },
+      _obtenerDispositivos(), //Vuelve a cargar la lista luego de agregar el dispositivo.
     });
   }
 
@@ -129,33 +133,41 @@ class _DispositivosLista extends State<DispositivosLista> {
 
     Widget _botonAgregarDispositivo() {
       return AvatarGlow(
-        glowColor: colores.obtenerColorTres(),
+        glowColor: PaletaColores().obtenerTerciario(),
         endRadius: 90.0,
         duration: Duration(milliseconds: 2000),
         repeat: true,
         showTwoGlows: true,
         repeatPauseDuration: Duration(seconds: 2),
-        child: Stack(
-          children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(
-                top: _height/31.68,
-                left: _width/8.779,
-              ),
-              color: colores.obtenerColorFondo(),
-              width: _height/19.8,
-              height: _height/19.8,
+        child: Container (
+          height: _height/5.617,
+          width: _width/2.553,
+          child: Center(
+            child: Stack(
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.only(
+                    top: _height/31.68,
+                    left: _width/8.779,
+                  ),
+                  color: PaletaColores().obtenerColorFondo(),
+                  width: _height/19.8,
+                  height: _height/19.8,
+                ),
+                MaterialButton(
+                  onPressed: () {
+                    _alPresionarAgregarDispositivo();
+                  },
+                  shape: CircleBorder(),
+                  child: Icon(
+                    Icons.add_circle,
+                    size: _height/8.799,
+                    color: PaletaColores().obtenerTerciario(),
+                  ),
+                ),
+              ],
             ),
-            MaterialButton(
-              onPressed: _alPresionarAgregarDispositivo,
-              shape: CircleBorder(),
-              child: Icon(
-                Icons.add_circle,
-                size: _height/8.799,
-                color: colores.obtenerColorTres(),
-              ),
-            ),
-          ],
+          ),
         ),
       );
     }
@@ -179,12 +191,18 @@ class _DispositivosLista extends State<DispositivosLista> {
       return Center(
         child: Card(
           margin: EdgeInsets.symmetric(vertical: _height/79.2),
-          color: Color.fromRGBO(colores.obtenerColorCuatro().red,colores.obtenerColorCuatro().green, colores.obtenerColorCuatro().blue, 0.6),
+          color: Color.fromRGBO(
+              PaletaColores().obtenerCuaternario().red,
+              PaletaColores().obtenerCuaternario().green,
+              PaletaColores().obtenerCuaternario().blue,
+              0.6
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
           child: InkWell(
-            splashColor: colores.obtenerColorCuatro(),
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
             onTap: () {
               _alPresionarCarta (dispositivo);
             },
@@ -304,8 +322,10 @@ class _DispositivosLista extends State<DispositivosLista> {
     ///@return un texto vacío.
 
     Widget _cargando() {
+      if (!_refrescar) {
+        _plantillaCarga(context);
+      }
       _refrescar = true; //Indica que se ha desplegado una pantalla de carga.
-      _plantillaCarga(context);
       return  Text("");
     }
 
@@ -324,8 +344,8 @@ class _DispositivosLista extends State<DispositivosLista> {
             shrinkWrap: true,
             children: <Widget> [
               FutureBuilder<List>(
-                future: _obtenerDispositivos(),
-                builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
+                future: _dispositivosObtenidos,
+                builder: (context, AsyncSnapshot<List> snapshot) {
                   List<Widget> children;
                   if (snapshot.hasData) {
                     if (_refrescar) {
@@ -348,17 +368,21 @@ class _DispositivosLista extends State<DispositivosLista> {
                               child: Icon(
                                 Icons.precision_manufacturing_sharp,
                                 size: _height/7.92,
-                                color: colores.obtenerColorRiesgo(),
+                                color: PaletaColores().obtenerColorRiesgo(),
                               ),
                             ),
-                            Text(
-                              "¡Rayos! Algo pasa con la app...",
-                              maxLines: 2,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: colores.obtenerColorRiesgo(),
-                                fontFamily: "Lato",
+                            Container(
+                              child: Text(
+                                "No se pudo conectar con el dispositivo",
+                                maxLines: 2,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: _width/16.36363636363636,
+                                  color: PaletaColores().obtenerColorRiesgo(),
+                                  fontFamily: "Lato",
+                                ),
                               ),
+                              width: _width/1.2,
                             ),
                           ],
                         ),
@@ -371,31 +395,90 @@ class _DispositivosLista extends State<DispositivosLista> {
                             Container(
                               alignment: Alignment.center,
                               child: Icon(
-                                Icons.cloud_off_rounded,
+                                Icons.local_police_rounded,
                                 size: _height/7.92,
-                                color: colores.obtenerColorCuatro(),
+                                color: PaletaColores().obtenerColorRiesgo(),
                               ),
                             ),
-                            Text(
-                              "Un avión tumbo nuestra nube...\nEstamos trabajando en ello :)",
-                              maxLines: 2,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: colores.obtenerColorCuatro(),
-                                fontFamily: "Lato",
+                            Container(
+                              child: Text(
+                                "No te identificamos...\n¿Esto es tuyo?",
+                                maxLines: 3,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: _width/16.36363636363636,
+                                  color: PaletaColores().obtenerColorRiesgo(),
+                                  fontFamily: "Lato",
+                                ),
                               ),
+                              width: _width/1.2,
                             ),
                           ],
                         ),
                       ];
                     } else if ( _estado == 4) {
                       children = <Widget>[
-                        Container(
-                          height: _height/1.427027027027027,
-                          child: PantallaCargaSinRed(),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              alignment: Alignment.center,
+                              child: Icon(
+                                Icons.cloud_off_rounded,
+                                size: _height/7.92,
+                                color: PaletaColores().obtenerCuaternario(),
+                              ),
+                            ),
+                            Container(
+                              child: Text(
+                                "Un avión tumbo nuestra nube...\nEstamos trabajando en ello :)",
+                                maxLines: 5,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: _width/16.36363636363636,
+                                  color: PaletaColores().obtenerCuaternario(),
+                                  fontFamily: "Lato",
+                                ),
+                              ),
+                              width: _width/1.2,
+                            ),
+                          ],
                         ),
                       ];
                     } else if ( _estado == 5) {
+                      children = <Widget>[
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              alignment: Alignment.center,
+                              child: Icon(
+                                Icons.device_unknown_rounded,
+                                size: _height/7.92,
+                                color: PaletaColores().obtenerColorRiesgo(),
+                              ),
+                            ),
+                            Text(
+                              "¡Rayos! Algo pasa con la app...",
+                              maxLines: 2,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: _width/16.36363636363636,
+                                color: PaletaColores().obtenerColorRiesgo(),
+                                fontFamily: "Lato",
+                              ),
+                            ),
+                          ],
+                        ),
+                      ];
+                    } else if ( _estado == 6) {
+                      children = <Widget>[
+                        Container(
+                          height: _height/1.36551724137931,
+                          child: PantallaCargaSinRed(),
+                        ),
+                      ];
+                    } else if ( _estado == 8) {
                       children = <Widget>[
                         _cargando(),
                       ];
@@ -409,7 +492,7 @@ class _DispositivosLista extends State<DispositivosLista> {
                               child: Icon(
                                 Icons.error_rounded,
                                 size: _height/7.92,
-                                color: colores.obtenerColorRiesgo(),
+                                color: PaletaColores().obtenerColorRiesgo(),
                               ),
                             ),
                             Text(
@@ -417,7 +500,8 @@ class _DispositivosLista extends State<DispositivosLista> {
                               maxLines: 2,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: colores.obtenerColorRiesgo(),
+                                fontSize: _width/16.36363636363636,
+                                color: PaletaColores().obtenerColorRiesgo(),
                                 fontFamily: "Lato",
                               ),
                             ),
@@ -439,7 +523,7 @@ class _DispositivosLista extends State<DispositivosLista> {
                             child: Icon(
                               Icons.error_rounded,
                               size: _height/7.92,
-                              color: colores.obtenerColorRiesgo(),
+                              color: PaletaColores().obtenerColorRiesgo(),
                             ),
                           ),
                           Text(
@@ -447,7 +531,8 @@ class _DispositivosLista extends State<DispositivosLista> {
                             maxLines: 2,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: colores.obtenerColorRiesgo(),
+                              fontSize: _width/16.36363636363636,
+                              color: PaletaColores().obtenerColorRiesgo(),
                               fontFamily: "Lato",
                             ),
                           ),

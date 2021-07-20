@@ -16,7 +16,7 @@ class Cuarto {
 
   Cuarto({this.cuarto_id, this.nombre, this.pathImagen, this.descripcion}); //Constructor de la clase.
 
-  ///Recibe un cuarto en formato json y se encarga de transformarlo una
+  ///Recibe un cuarto en formato json y se encarga de transformarlo a una
   ///instancia de esta clase.
   ///@param json cuarto en formato json.
 

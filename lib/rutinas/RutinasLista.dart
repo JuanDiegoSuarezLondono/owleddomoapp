@@ -13,9 +13,6 @@ import 'package:owleddomoapp/login/Persona.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:date_format/date_format.dart';
 
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
-
 ///Esta clase se encarga de manejar la pantalla del despliegue de la lista de las
 ///rutinas y su lógica.
 ///@version 1.0, 06/04/21.
@@ -96,14 +93,7 @@ class _RutinasLista extends State<RutinasLista> {
     _tiempoSeleccionado = [];
     _controladorReloj = [];
     _actualizarTiempo = false;
-    _obtenerRutinas().then((value) => {
-      if(value.first == "EXITO" && value.last != "EXITO" ) {
-        _rutinasLista.addAll(value.last),
-        _habilitarDias = false,
-      } else if (value.first == "EXITO") {
-        _estado = 1,
-      }
-    });
+    _rutinasObtenidas = _obtenerRutinas();
   }
 
   ///Actualiza la rutina o genera un error en caso de cualquier eventualidad.
@@ -112,19 +102,17 @@ class _RutinasLista extends State<RutinasLista> {
   ///@see owleddomo_app/rutinas/ServiciosRutina.actualizarRutina#method().
   ///@see owleddomo_app/shared/TratarError.estadoServicioActualizar#method().
   ///@return no retorna nada en caso de no obtener una validación positiva de los campos.
-
-  _actualizarRutina(Rutina rutina, String tiempo) {
+  _actualizarRutina(Rutina rutina, String tiempo) async {
     ServiciosRutina.actualizarRutina(_usuario.persona_id, rutina.rutina_id, rutina.persona_producto_id,
                                      rutina.relacion_dispositivo,rutina.dias, tiempo,
                                      rutina.nuevo_valor)
         .then((result) {
-          if ( result == "EXITO" && _actualizarTiempo == true) {
+          TratarError().estadoSnackbar(result, context).first.toString();
+          if ( result.first.toString() == "200" && _actualizarTiempo == true) {
             _actualizarTiempo = false;
-            setState(() {
-              _estado = 5;
-            });
           };
         });
+
   }
 
   ///Hace una petición para conseguir un mapeo con la lista de los parámetros
@@ -133,46 +121,47 @@ class _RutinasLista extends State<RutinasLista> {
   ///@return un mapeo con las rutinas.
 
   Future<List> _obtenerRutinas()  async {
-    print("TTTTTTTTT");
-      setState(() {
-        _rutinasObtenidas =  ServiciosRutina.todasRutinas(_usuario.persona_id);
-      });
-      _rutinasObtenidas.then((value) => {
-      _numeroRutinas = 0,
-        _estado = tratarError.estadoServicioLeer(value.first),
-        if(value.first == "EXITO" && value.last != "EXITO" ) {
-          _numeroRutinas = value.last.length,
-          _tiempo = [],
-          _tiempoSeleccionado = [],
-          _controladorReloj = [],
-          for(int i=0 ; i<value.last.length ; i++) {
-            _tiempo.add(value.last[i].tiempo.substring(0,2) + ':' + value.last[i].tiempo.substring(3,5)),
-            _tiempoSeleccionado.add(TimeOfDay(hour: int.parse(value.last[i].tiempo.substring(0,2)),
-                minute: int.parse(value.last[i].tiempo.substring(3,5)))),
-            _controladorReloj.add(TextEditingController()),
-            _controladorReloj[i].text = formatDate(
-                DateTime(2019, 08, 1, int.parse(value.last[i].tiempo.substring(0,2)),
-                    int.parse(value.last[i].tiempo.substring(3,5))),
-                [hh, ':', nn, " ", am]).toString(),
-            if(_habilitarDias) {
-              _rutinasLista = [],
-              _rutinasLista.addAll(value.last),
-              _dias.add([
-                _rutinasLista[i].dias.substring(0,1) == '0' ? false : true,
-                _rutinasLista[i].dias.substring(1,2) == '0' ? false : true,
-                _rutinasLista[i].dias.substring(2,3) == '0' ? false : true,
-                _rutinasLista[i].dias.substring(3,4) == '0' ? false : true,
-                _rutinasLista[i].dias.substring(4,5) == '0' ? false : true,
-                _rutinasLista[i].dias.substring(5,6) == '0' ? false : true,
-                _rutinasLista[i].dias.substring(6) == '0' ? false : true,
-              ]),
-            },
-          },
-        } else if (value.first == "EXITO") {
-          _estado = 1,
+      _rutinasObtenidas =  ServiciosRutina.todasRutinas(_usuario.persona_id);
+      _rutinasObtenidas.then((value) {
+        if (mounted) {
+          setState(() {
+            _numeroRutinas = 0;
+            _estado = TratarError().estadoServicioLeer(value);
+            if( value.first.toString() == "200" && value.last.toString() != "200" ) {
+              _numeroRutinas = value.last.length;
+              _tiempo = [];
+              _tiempoSeleccionado = [];
+              _controladorReloj = [];
+              for(int i=0 ; i<value.last.length ; i++) {
+                _tiempo.add(value.last[i].tiempo.substring(0,2) + ':' + value.last[i].tiempo.substring(3,5));
+                _tiempoSeleccionado.add(TimeOfDay(hour: int.parse(value.last[i].tiempo.substring(0,2)),
+                    minute: int.parse(value.last[i].tiempo.substring(3,5))));
+                _controladorReloj.add(TextEditingController());
+                _controladorReloj[i].text = formatDate(
+                    DateTime(2019, 08, 1, int.parse(value.last[i].tiempo.substring(0,2)),
+                        int.parse(value.last[i].tiempo.substring(3,5))),
+                    [hh, ':', nn, " ", am]).toString();
+                if(_habilitarDias) {
+                  _rutinasLista = [];
+                  _rutinasLista.addAll(value.last);
+                  _dias.add([
+                    _rutinasLista[i].dias.substring(0,1) == '0' ? false : true,
+                    _rutinasLista[i].dias.substring(1,2) == '0' ? false : true,
+                    _rutinasLista[i].dias.substring(2,3) == '0' ? false : true,
+                    _rutinasLista[i].dias.substring(3,4) == '0' ? false : true,
+                    _rutinasLista[i].dias.substring(4,5) == '0' ? false : true,
+                    _rutinasLista[i].dias.substring(5,6) == '0' ? false : true,
+                    _rutinasLista[i].dias.substring(6) == '0' ? false : true,
+                  ]);
+                };
+              };
+            } else if (value.first.toString() == "200") {
+              _estado = 1;
+            }
+          });
         }
       });
-      return _rutinasObtenidas;
+      return await _rutinasObtenidas;
   }
 
   ///Despliega una interfaz para poder seleccionar una hora y minuto del dia.
@@ -214,10 +203,12 @@ class _RutinasLista extends State<RutinasLista> {
     Navigator.push(context, route).then((valorUno)=>{
       _dias.clear(),
       _habilitarDias = true,
-      setState(() {
-        _estado = 5; //Al regresar a la lista, hace que se actualice.
-        _obtenerRutinas().then((valorDos) => _habilitarDias=false); //Vuelve a cargar la lista luego de agregar la rutina.
-      }),
+      if(mounted) {
+        setState(() {
+          _estado = 8; //Al regresar a la lista, hace que se actualice.
+          _obtenerRutinas().then((valorDos) => _habilitarDias=false); //Vuelve a cargar la lista luego de agregar la rutina.
+        }),
+      }
     });
   }
 
@@ -233,19 +224,21 @@ class _RutinasLista extends State<RutinasLista> {
       return Container (
         margin: EdgeInsets.only(top: _height/79.2),
         child: MaterialButton(
-          color: Colors.white60,
+          color: PaletaColores().obtenerSecundario().withOpacity(0.3),
           onPressed: _alPresionarAgregarRutina,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5.0),
-              side: BorderSide(color: Colors.white38)
+              side: BorderSide(
+                color: PaletaColores().obtenerSecundario().withOpacity(0.5),
+              )
           ),
           child: Container(
             alignment: Alignment.center,
             height: _height/15.84,
-            width: 270,
+            width: _width/1.333333333333333,
             child: AvatarGlow(
-              glowColor: colores.obtenerColorTres(),
-              endRadius: _width/1.333333333333333,
+              glowColor: PaletaColores().obtenerTerciario(),
+              endRadius: _width/12,
               duration: Duration(milliseconds: 2000),
               repeat: true,
               showTwoGlows: true,
@@ -257,14 +250,14 @@ class _RutinasLista extends State<RutinasLista> {
                       left: _height/79.2,
                       top: _height/79.2,
                     ),
-                    color: colores.obtenerColorTres(),
+                    color: PaletaColores().obtenerTerciario(),
                     width: _height/39.6,
                     height: _height/39.6,
                   ),
                   Icon(
                       Icons.add_circle,
                       size: _height/19.8,
-                      color: colores.obtenerColorInactivo(),
+                      color: PaletaColores().obtenerColorInactivo(),
                   ),
                 ],
               ),
@@ -276,7 +269,9 @@ class _RutinasLista extends State<RutinasLista> {
 
     ///Construye el Widget que contiene los elementos de la primera fila de los botones
     ///de los dias, es decir, los botones de "D" (domingo), "L" (lunes), "M" (martes) y "Mi" (miercoles).
-    ///@return Un Widget de Padding que contiene Row.
+    ///@param rutina parametros de la rutina a la cual se actualiza.
+    ///@param index posicion de las variables en cada variable tipo lista.
+    ///@return Un Widget de Container que posee un Row.
 
     Widget _filaUnoDias(Rutina rutina, int index) {
       return Container(
@@ -287,27 +282,30 @@ class _RutinasLista extends State<RutinasLista> {
         children: <Widget> [
           InkWell(
             onTap: () {
-              setState(() {
-                _dias[index][0] = !_dias[index][0];
-              });
+              if(mounted){
+                setState(() {
+                  _dias[index][0] = !_dias[index][0];
+                });
+              }
               _rutinasLista[index].dias = '${_dias[index][0] ? "1":"0"}${_rutinasLista[index].dias.substring(1)}';
               _actualizarRutina(_rutinasLista[index], _tiempo[index]);
             },
             child: Container(
               decoration: BoxDecoration(shape: BoxShape.circle, color: _dias[index][0]
-                                        ? colores.obtenerColorCuatro()
-                                        : colores.obtenerColorInactivo()),
+                                        ? PaletaColores().obtenerCuaternario()
+                                        : PaletaColores().obtenerColorInactivo()),
               child: Padding(
                 padding: EdgeInsets.all(_height/79.2),
                 child: Center(
                   heightFactor: 1,
-                  widthFactor: 2,
+                  widthFactor: 1.6,
                   child:Text(
                     "D",
                     style: TextStyle(
                       fontSize: _height/39.6,
-                      color: Colors.white,
+                      color: PaletaColores().obtenerContrasteInactivo(),
                       fontWeight: FontWeight.bold,
+                      fontFamily: "Lato",
                     ),
                   ),
                 ),
@@ -316,28 +314,31 @@ class _RutinasLista extends State<RutinasLista> {
           ),
           InkWell(
             onTap: () {
-              setState(() {
-                _dias[index][1] = !_dias[index][1];
-              });
+              if(mounted) {
+                setState(() {
+                  _dias[index][1] = !_dias[index][1];
+                });
+              }
               _rutinasLista[index].dias = '${_rutinasLista[index].dias.substring(0,1)}${_dias[index][1] ? "1":"0"}'
                                           '${_rutinasLista[index].dias.substring(2)}';
               _actualizarRutina(_rutinasLista[index], _tiempo[index]);
             },
             child: Container(
               decoration: BoxDecoration(shape: BoxShape.circle, color: _dias[index][1]
-                                        ? colores.obtenerColorCuatro()
-                                        : colores.obtenerColorInactivo()),
+                                        ? PaletaColores().obtenerCuaternario()
+                                        : PaletaColores().obtenerColorInactivo()),
               child: Padding(
                 padding: EdgeInsets.all(_height/79.2),
                 child: Center(
                   heightFactor: 1,
-                  widthFactor: 2,
+                  widthFactor: 2.5,
                   child:Text(
                     "L",
                     style: TextStyle(
                       fontSize: _height/39.6,
-                      color: Colors.white,
+                      color: PaletaColores().obtenerContrasteInactivo(),
                       fontWeight: FontWeight.bold,
+                      fontFamily: "Lato",
                     ),
                   ),
                 ),
@@ -346,9 +347,11 @@ class _RutinasLista extends State<RutinasLista> {
           ),
           InkWell(
             onTap: () {
-              setState(() {
-                _dias[index][2] = !_dias[index][2];
-              });
+              if(mounted) {
+                setState(() {
+                  _dias[index][2] = !_dias[index][2];
+                });
+              }
               _rutinasLista[index].dias = '${_rutinasLista[index].dias.substring(0,2)}'
                                           '${_dias[index][2] ? "1":"0"}'
                                           '${_rutinasLista[index].dias.substring(3)}';
@@ -356,8 +359,8 @@ class _RutinasLista extends State<RutinasLista> {
             },
             child: Container(
               decoration: BoxDecoration(shape: BoxShape.circle, color: _dias[index][2]
-                                        ? colores.obtenerColorCuatro()
-                                        : colores.obtenerColorInactivo()),
+                                        ? PaletaColores().obtenerCuaternario()
+                                        : PaletaColores().obtenerColorInactivo()),
               child: Padding(
                 padding: EdgeInsets.all(_height/79.2),
                 child: Center(
@@ -367,8 +370,9 @@ class _RutinasLista extends State<RutinasLista> {
                     "M",
                     style: TextStyle(
                       fontSize: _height/39.6,
-                      color: Colors.white,
+                      color: PaletaColores().obtenerContrasteInactivo(),
                       fontWeight: FontWeight.bold,
+                      fontFamily: "Lato",
                     ),
                   ),
                 ),
@@ -377,9 +381,11 @@ class _RutinasLista extends State<RutinasLista> {
           ),
           InkWell(
             onTap: () {
-              setState(() {
-                _dias[index][3] = !_dias[index][3];
-              });
+              if(mounted){
+                setState(() {
+                  _dias[index][3] = !_dias[index][3];
+                });
+              }
               _rutinasLista[index].dias = '${_rutinasLista[index].dias.substring(0,3)}'
                                           '${_dias[index][3] ? "1":"0"}'
                                           '${_rutinasLista[index].dias.substring(4)}';
@@ -387,8 +393,8 @@ class _RutinasLista extends State<RutinasLista> {
             },
             child: Container(
               decoration: BoxDecoration(shape: BoxShape.circle, color: _dias[index][3]
-                                        ? colores.obtenerColorCuatro()
-                                        : colores.obtenerColorInactivo()),
+                                        ? PaletaColores().obtenerCuaternario()
+                                        : PaletaColores().obtenerColorInactivo()),
               child: Padding(
                 padding: EdgeInsets.all(_height/79.2),
                 child: Center(
@@ -398,8 +404,9 @@ class _RutinasLista extends State<RutinasLista> {
                     "Mi",
                     style: TextStyle(
                       fontSize: _height/39.6,
-                      color: Colors.white,
+                      color: PaletaColores().obtenerContrasteInactivo(),
                       fontWeight: FontWeight.bold,
+                      fontFamily: "Lato",
                     ),
                   ),
                 ),
@@ -413,7 +420,9 @@ class _RutinasLista extends State<RutinasLista> {
 
     ///Construye el Widget que contiene los elementos de la segunda fila de los botones
     ///de los dias, es decir, los botones de "J" (jueves), "V" (viernes) y "S" (sabado).
-    ///@return Un Widget de Padding que contiene Row.
+    ///@param rutina parametros de la rutina a la cual se actualiza.
+    ///@param index posicion de las variables en cada variable tipo lista.
+    ///@return Un Widget de Container que posee un Row.
 
     Widget _filaDosDias(Rutina rutina, int index) {
       return Container(
@@ -424,9 +433,11 @@ class _RutinasLista extends State<RutinasLista> {
         children: <Widget> [
           InkWell(
             onTap: () {
-              setState(() {
-                _dias[index][4] = !_dias[index][4];
-              });
+              if(mounted) {
+                setState(() {
+                  _dias[index][4] = !_dias[index][4];
+                });
+              }
               _rutinasLista[index].dias = '${_rutinasLista[index].dias.substring(0,4)}'
                                           '${_dias[index][4] ? "1":"0"}'
                                           '${_rutinasLista[index].dias.substring(5)}';
@@ -434,19 +445,20 @@ class _RutinasLista extends State<RutinasLista> {
             },
             child: Container(
               decoration: BoxDecoration(shape: BoxShape.circle, color: _dias[index][4]
-                                        ? colores.obtenerColorCuatro()
-                                        : colores.obtenerColorInactivo()),
+                                        ? PaletaColores().obtenerCuaternario()
+                                        : PaletaColores().obtenerColorInactivo()),
               child: Padding(
                 padding: EdgeInsets.all(_height/79.2),
                 child: Center(
                   heightFactor: 1,
-                  widthFactor: 2,
+                  widthFactor: 2.6,
                   child:Text(
                     "J",
                     style: TextStyle(
                       fontSize: _height/39.6,
-                      color: Colors.white,
+                      color: PaletaColores().obtenerContrasteInactivo(),
                       fontWeight: FontWeight.bold,
+                      fontFamily: "Lato",
                     ),
                   ),
                 ),
@@ -455,9 +467,11 @@ class _RutinasLista extends State<RutinasLista> {
           ),
           InkWell(
             onTap: () {
-              setState(() {
-                _dias[index][5] = !_dias[index][5];
-              });
+              if(mounted) {
+                setState(() {
+                  _dias[index][5] = !_dias[index][5];
+                });
+              }
               _rutinasLista[index].dias = '${_rutinasLista[index].dias.substring(0,5)}'
                                           '${_dias[index][5] ? "1":"0"}'
                                           '${_rutinasLista[index].dias.substring(6)}';
@@ -465,8 +479,8 @@ class _RutinasLista extends State<RutinasLista> {
             },
             child: Container(
               decoration: BoxDecoration(shape: BoxShape.circle, color: _dias[index][5]
-                                        ? colores.obtenerColorCuatro()
-                                        : colores.obtenerColorInactivo()),
+                                        ? PaletaColores().obtenerCuaternario()
+                                        : PaletaColores().obtenerColorInactivo()),
               child: Padding(
                 padding: EdgeInsets.all(_height/79.2),
                 child: Center(
@@ -476,8 +490,9 @@ class _RutinasLista extends State<RutinasLista> {
                     "V",
                     style: TextStyle(
                       fontSize: _height/39.6,
-                      color: Colors.white,
+                      color: PaletaColores().obtenerContrasteInactivo(),
                       fontWeight: FontWeight.bold,
+                      fontFamily: "Lato",
                     ),
                   ),
                 ),
@@ -486,28 +501,31 @@ class _RutinasLista extends State<RutinasLista> {
           ),
           InkWell(
             onTap: () {
-              setState(() {
-                _dias[index][6] = !_dias[index][6];
-              });
+              if(mounted) {
+                setState(() {
+                  _dias[index][6] = !_dias[index][6];
+                });
+              }
               _rutinasLista[index].dias = '${_rutinasLista[index].dias.substring(0,6)}'
                                           '${_dias[index][6] ? "1":"0"}';
               _actualizarRutina(_rutinasLista[index], _tiempo[index]);
             },
             child: Container(
               decoration: BoxDecoration(shape: BoxShape.circle, color: _dias[index][6]
-                                        ? colores.obtenerColorCuatro()
-                                        : colores.obtenerColorInactivo()),
+                                        ? PaletaColores().obtenerCuaternario()
+                                        : PaletaColores().obtenerColorInactivo()),
               child: Padding(
                 padding: EdgeInsets.all(_height/79.2),
                 child: Center(
                   heightFactor: 1,
-                  widthFactor: 2,
+                  widthFactor: 2.2,
                   child:Text(
                     "S",
                     style: TextStyle(
                       fontSize: _height/39.6,
-                      color: Colors.white,
+                      color: PaletaColores().obtenerContrasteInactivo(),
                       fontWeight: FontWeight.bold,
+                      fontFamily: "Lato",
                     ),
                   ),
                 ),
@@ -519,21 +537,28 @@ class _RutinasLista extends State<RutinasLista> {
       );
     }
 
+    ///Construye el Widget que arma los botones para cambiar las acciones del dispositivo.
+    ///@param indexVariable posición de la rutina en la lista de rutinas.
+    ///@param indexAccion posición de la acción en la lista de las acciones en una rutina.
+    ///@return Un Widget que contiene un InkWell.
+
     Widget _botonAccion(int indexVariable, int indexAccion){
      List<String> cara;
      String nuevoValor = "";
       return
         InkWell(
         onTap: () {
-          setState(() {
-            cara = [];
-            cara.addAll(_rutinasLista[indexVariable].nuevo_valor.characters);
-            cara[indexAccion] = cara[indexAccion] == "0" ? '1' : '0' ;
-            for(int i=0 ; i<cara.length ; i++) {
-              nuevoValor = nuevoValor+cara[i];
-            }
-            _rutinasLista[indexVariable].nuevo_valor = nuevoValor;
-          });
+          if(mounted) {
+            setState(() {
+              cara = [];
+              cara.addAll(_rutinasLista[indexVariable].nuevo_valor.characters);
+              cara[indexAccion] = cara[indexAccion] == "0" ? '1' : '0' ;
+              for(int i=0 ; i<cara.length ; i++) {
+                nuevoValor = nuevoValor+cara[i];
+              }
+              _rutinasLista[indexVariable].nuevo_valor = nuevoValor;
+            });
+          }
           _actualizarRutina(_rutinasLista[indexVariable], _tiempo[indexVariable]);
         },
         child: Container(
@@ -544,12 +569,12 @@ class _RutinasLista extends State<RutinasLista> {
           ),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: _rutinasLista[indexVariable].nuevo_valor[indexAccion] == "1" ? colores.obtenerColorCuatro()
-                : colores.obtenerColorInactivo(),
+            color: _rutinasLista[indexVariable].nuevo_valor[indexAccion] == "1" ? PaletaColores().obtenerCuaternario()
+                : PaletaColores().obtenerColorInactivo(),
             boxShadow: [
               BoxShadow(
-                color: _rutinasLista[indexVariable].nuevo_valor[indexAccion] == "1" ? colores.obtenerColorCuatro()
-                    : colores.obtenerColorInactivo(),
+                color: _rutinasLista[indexVariable].nuevo_valor[indexAccion] == "1" ? PaletaColores().obtenerCuaternario()
+                    : PaletaColores().obtenerColorInactivo(),
                 spreadRadius: _rutinasLista[indexVariable].nuevo_valor[indexAccion] == "1" ? 5 : 0,
                 blurRadius: _rutinasLista[indexVariable].nuevo_valor[indexAccion] == "1" ? 7 : 0,
               ),
@@ -559,6 +584,11 @@ class _RutinasLista extends State<RutinasLista> {
       );
     }
 
+    ///Construye el Widget que contiene las acciones de la variable de la rutina.
+    ///@param rutina parametros de la rutina.
+    ///@param index posicion de las variables en cada variable tipo lista.
+    ///@return Un Widget de Container que posee un Row.
+
     Widget _filaTresAcciones(Rutina rutina, int index) {
       List<Widget> acciones = [];
       for(int i= 0; i < rutina.nuevo_valor.length; i++) {
@@ -566,9 +596,9 @@ class _RutinasLista extends State<RutinasLista> {
       }
       return Container(
         width: _width,
-        height: 50,
+        height: _height/15.84,
         alignment: Alignment.center,
-        margin: EdgeInsets.only(top: 30),
+        margin: EdgeInsets.only(top: _height/26.4),
         child: ListView(
           physics: BouncingScrollPhysics(),
           shrinkWrap: true,
@@ -607,23 +637,25 @@ class _RutinasLista extends State<RutinasLista> {
           barrierDismissible: false,
           builder: (buildcontext) {
             return AlertDialog(
-              backgroundColor: colores.obtenerColorUno(),
+              backgroundColor: PaletaColores().obtenerPrimario(),
               title: Text(
                 "¿Está seguro?",
                 style: TextStyle(
-                  color: colores.obtenerColorDos(),
+                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                  fontFamily: "Lato",
                 ),
               ),
               content: Text(
                 "Al eliminar esta rutina se perderá la configuración de la misma.",
                 style: TextStyle(
-                  color: colores.obtenerColorDos(),
+                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                  fontFamily: "Lato",
                 ),
               ),
               actions: <Widget>[
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: colores.obtenerColorTres(),
+                    primary: PaletaColores().obtenerTerciario(),
                   ),
                   child:Container (
                     width: _width/6.428571428571429,
@@ -632,13 +664,14 @@ class _RutinasLista extends State<RutinasLista> {
                       children: <Widget> [
                         Icon(
                           Icons.warning_rounded,
-                          color: colores.obtenerColorDos(),
+                          color: PaletaColores().obtenerContrasteRiesgo(),
                           size: _height/26.4,
                         ),
                         Text(
                           "OK",
                           style: TextStyle(
-                            color: colores.obtenerColorDos(),
+                            color: PaletaColores().obtenerContrasteRiesgo(),
+                            fontFamily: "Lato",
                           ),
                         ),
                       ],
@@ -650,17 +683,21 @@ class _RutinasLista extends State<RutinasLista> {
                     ServiciosRutina.borrarRutina(_usuario.persona_id, rutina.rutina_id, rutina.persona_producto_id,
                                                  rutina.relacion_dispositivo)
                         .then((result) {
-                          setState(() {
-                            Navigator.of(context).pop(false);
-                            _obtenerRutinas();
-                          });
-                          tratarError.estadoServicioActualizarSnackbar(result, context);
+                          if(mounted) {
+                            setState(() {
+                              Navigator.of(context).pop(false);
+                              _obtenerRutinas();
+                              _estado = 8;
+                            });
+                          }
+
+                          TratarError().estadoSnackbar(result, context);
                         });
                     },
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: colores.obtenerColorRiesgo(),
+                    primary: PaletaColores().obtenerColorRiesgo(),
                   ),
                   child:Container (
                     width: _width/6.428571428571429,
@@ -669,7 +706,9 @@ class _RutinasLista extends State<RutinasLista> {
                       children: <Widget> [
                         Text(
                           "Cancelar",
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(
+                            color: PaletaColores().obtenerContrasteRiesgo(),
+                          ),
                         ),
                       ],
                     ),
@@ -695,7 +734,7 @@ class _RutinasLista extends State<RutinasLista> {
           constraints: BoxConstraints.tightFor(height: _height/17.6),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              primary: colores.obtenerColorRiesgo(),
+              primary: PaletaColores().obtenerColorRiesgo(),
               shape: CircleBorder(),
             ),
             onPressed: () {
@@ -703,7 +742,7 @@ class _RutinasLista extends State<RutinasLista> {
             },
             child: Icon(
               Icons.delete_rounded,
-              color: colores.obtenerColorDos(),
+              color: PaletaColores().obtenerContrasteRiesgo(),
               size: _height/26.4,
             ),
           ),
@@ -719,7 +758,7 @@ class _RutinasLista extends State<RutinasLista> {
     Widget _botonCarta(Rutina rutina, int index) {
       return Card(
         margin: EdgeInsets.only(top: _height/79.2),
-        color: colores.obtenerColorDos(),
+        color: PaletaColores().obtenerSecundario(),
         child: Container(
           width: _width/1.2,
           child: ExpansionCard(
@@ -745,7 +784,10 @@ class _RutinasLista extends State<RutinasLista> {
                   height: _height/7.2,
                   alignment: Alignment.center,
                   child: TextFormField(
-                    style: TextStyle(fontSize: 50),
+                    style: TextStyle(
+                      fontSize: _height/15.84,
+                      color: PaletaColores().obtenerLetraContrasteSecundario(),
+                    ),
                     textAlign: TextAlign.center,
                     enabled: false,
                     keyboardType: TextInputType.text,
@@ -759,7 +801,7 @@ class _RutinasLista extends State<RutinasLista> {
                 ),
               ),
               Divider(
-                color: Colors.grey,
+                color: PaletaColores().obtenerColorInactivo(),
                 height: _height/39.6,
                 thickness: 1,
                 indent: _width/24,
@@ -814,6 +856,7 @@ class _RutinasLista extends State<RutinasLista> {
               style: TextStyle(
                 fontSize: _height/26.4,
                 fontFamily: "Lato",
+                color: PaletaColores().obtenerLetraContrasteSecundario(),
               ),
             ),
           ],
@@ -844,14 +887,14 @@ class _RutinasLista extends State<RutinasLista> {
           shrinkWrap: true,
           children: <Widget> [
             FutureBuilder<List>(
-              future: _obtenerRutinas(),
-              builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
+              future: _rutinasObtenidas,
+              builder: (context, AsyncSnapshot<List> snapshot) {
                 List<Widget> children;
                 if (snapshot.hasData) {
-                  /*if (_refrescar) {
+                  if (_refrescar) {
                     _refrescar = false;
                     Navigator.of(context).pop(null);
-                  }*/
+                  }
                   if ( _estado == 0 ) {
                       children = _obtenerFilas(_armarTarjetaRutina(snapshot.data));
                   } else if(  _estado == 1) {
@@ -868,17 +911,21 @@ class _RutinasLista extends State<RutinasLista> {
                             child: Icon(
                               Icons.precision_manufacturing_sharp,
                               size: _height/7.92,
-                              color: colores.obtenerColorRiesgo(),
+                              color: PaletaColores().obtenerColorRiesgo(),
                             ),
                           ),
-                          Text(
-                            "¡Rayos! Algo pasa con la app...",
-                            maxLines: 2,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: colores.obtenerColorRiesgo(),
-                              fontFamily: "Lato",
+                          Container(
+                            child: Text(
+                              "No se pudo conectar con el dispositivo",
+                              maxLines: 2,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: _width/16.36363636363636,
+                                color: PaletaColores().obtenerColorRiesgo(),
+                                fontFamily: "Lato",
+                              ),
                             ),
+                            width: _width/1.2,
                           ),
                         ],
                       ),
@@ -893,29 +940,88 @@ class _RutinasLista extends State<RutinasLista> {
                             child: Icon(
                               Icons.cloud_off_rounded,
                               size: _height/7.92,
-                              color: colores.obtenerColorCuatro(),
+                              color: PaletaColores().obtenerCuaternario(),
                             ),
                           ),
-                          Text(
-                            "Un avión tumbo nuestra nube...\nEstamos trabajando en ello :)",
-                            maxLines: 2,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: colores.obtenerColorCuatro(),
-                              fontFamily: "Lato",
+                          Container(
+                            child: Text(
+                              "No te identificamos...\n¿Esto es tuyo?",
+                              maxLines: 3,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: _width/16.36363636363636,
+                                color: PaletaColores().obtenerColorRiesgo(),
+                                fontFamily: "Lato",
+                              ),
                             ),
+                            width: _width/1.2,
                           ),
                         ],
                       ),
                     ];
                   } else if ( _estado == 4) {
                     children = <Widget>[
-                      Container(
-                        height: _height/1.427027027027027,
-                        child: PantallaCargaSinRed(),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            alignment: Alignment.center,
+                            child: Icon(
+                              Icons.cloud_off_rounded,
+                              size: _height/7.92,
+                              color: PaletaColores().obtenerCuaternario(),
+                            ),
+                          ),
+                          Container(
+                            child: Text(
+                              "Un avión tumbo nuestra nube...\nEstamos trabajando en ello :)",
+                              maxLines: 5,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: _width/16.36363636363636,
+                                color: PaletaColores().obtenerCuaternario(),
+                                fontFamily: "Lato",
+                              ),
+                            ),
+                            width: _width/1.2,
+                          ),
+                        ],
                       ),
                     ];
                   } else if ( _estado == 5) {
+                    children = <Widget>[
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            alignment: Alignment.center,
+                            child: Icon(
+                              Icons.device_unknown_rounded,
+                              size: _height/7.92,
+                              color: PaletaColores().obtenerColorRiesgo(),
+                            ),
+                          ),
+                          Text(
+                            "¡Rayos! Algo pasa con la app...",
+                            maxLines: 2,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: _width/16.36363636363636,
+                              color: PaletaColores().obtenerColorRiesgo(),
+                              fontFamily: "Lato",
+                            ),
+                          ),
+                        ],
+                      ),
+                    ];
+                  } else if ( _estado == 6) {
+                    children = <Widget>[
+                      Container(
+                        height: _height/1.36551724137931,
+                        child: PantallaCargaSinRed(),
+                      ),
+                    ];
+                  } else if ( _estado == 8) {
                     children = <Widget>[
                       _cargando(),
                     ];
@@ -924,20 +1030,21 @@ class _RutinasLista extends State<RutinasLista> {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                           Container(
-                             alignment: Alignment.center,
-                             child: Icon(
-                               Icons.error_rounded,
-                               size: _height/7.92,
-                               color: colores.obtenerColorRiesgo(),
-                             ),
-                           ),
+                          Container(
+                            alignment: Alignment.center,
+                            child: Icon(
+                              Icons.error_rounded,
+                              size: _height/7.92,
+                              color: PaletaColores().obtenerColorRiesgo(),
+                            ),
+                          ),
                           Text(
                             "Ups... Algo salio mal",
                             maxLines: 2,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: colores.obtenerColorRiesgo(),
+                              fontSize: _width/16.36363636363636,
+                              color: PaletaColores().obtenerColorRiesgo(),
                               fontFamily: "Lato",
                             ),
                           ),
@@ -959,7 +1066,7 @@ class _RutinasLista extends State<RutinasLista> {
                           child: Icon(
                             Icons.error_rounded,
                             size: _height/7.92,
-                            color: colores.obtenerColorRiesgo(),
+                            color: PaletaColores().obtenerColorRiesgo(),
                           ),
                         ),
                         Text(
@@ -967,7 +1074,8 @@ class _RutinasLista extends State<RutinasLista> {
                           maxLines: 2,
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: colores.obtenerColorRiesgo(),
+                            fontSize: _width/16.36363636363636,
+                            color: PaletaColores().obtenerColorRiesgo(),
                             fontFamily: "Lato",
                           ),
                         ),

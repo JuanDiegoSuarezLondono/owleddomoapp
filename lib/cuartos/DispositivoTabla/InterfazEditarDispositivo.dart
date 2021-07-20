@@ -7,9 +7,6 @@ import 'package:flutter_particles/particles.dart';
 import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
-
 ///Esta clase se encarga de manejar la interfaz con el formulario para editar el
 ///dispositivo suministrado.
 ///@version 1.0, 06/04/21.
@@ -74,10 +71,12 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
   ///una imagen cargada o no.
 
   _validar() {
-    setState(() {
-      _bordeImagen = _pathFoto == null ? PaletaColores().obtenerColorRiesgo()
-                                       : PaletaColores().obtenerColorInactivo();
-    });
+    if(mounted) {
+      setState(() {
+        _bordeImagen = _pathFoto == null ? PaletaColores().obtenerColorRiesgo()
+                                         : PaletaColores().obtenerColorInactivo();
+      });
+    }
   }
 
   ///Controla la selección de la imagen mediante la lista predeterminada para el dispositivo.
@@ -99,6 +98,31 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
     });
   }
 
+  ///Actualiza el dispositivo o genera un error en caso de cualquier eventualidad.
+  ///@see owleddomo_app/cuartos/DisporitivoTabla/ServiciosDispositivo.actualizarDispositivo#method().
+  ///@see owleddomo_app/shared/TratarError.estadoServicioActualizar#method().
+  ///@return no retorna nada en caso de no obtener una validación positiva de los campos.
+
+  _actualizarDispositivo() {
+    ServiciosDispositivo.actualizarDispositivo(_relacionId, _usuario,
+                                               _nombreCampo.text,_pathFoto)
+        .then((result) {
+      String respuesta = TratarError().tarjetaDeEstado( result, [_nombreCampo.text,
+                         _pathFoto], context).first.toString();
+      if(mounted) {
+        if ( respuesta == "2") {
+          setState(() {
+            _estadoBoton = ButtonState.success;
+          });
+        } else {
+          setState(() {
+            _estadoBoton = ButtonState.fail;
+          });
+        }
+      }
+    });
+  }
+
   Widget build(BuildContext context) {
 
     double _width = MediaQuery.of(context).size.width; //Obtiene el ancho de la pantalla del dispositivo.
@@ -110,7 +134,7 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
     Widget _particulas() {
       return Particles(
         20,
-        colores.obtenerColorCuatro(),
+        PaletaColores().obtenerCuaternario(),
       );
     }
 
@@ -135,10 +159,10 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
               height: _height/5.28,
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: colores.obtenerColorCuatro(),
+                  color: PaletaColores().obtenerCuaternario(),
                   width: _height/300,
                 ),
-                color: colores.obtenerColorCuatro(),
+                color: PaletaColores().obtenerCuaternario(),
                 borderRadius: BorderRadius.circular(150),
                 image: DecorationImage(
                   fit: BoxFit.cover,
@@ -152,7 +176,7 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
                   color: _bordeImagen,
                   width: _height/300,
                 ),
-                color: colores.obtenerColorDos(),
+                color: PaletaColores().obtenerContrasteInactivo(),
                 borderRadius: BorderRadius.circular(150),
               ),
               width: _width/2.25,
@@ -160,7 +184,7 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
               child: Icon(
                 Icons.image,
                 size: _height/8.0923,
-                color: colores.obtenerColorInactivo(),
+                color: PaletaColores().obtenerColorInactivo(),
               ),
             ),
           ),
@@ -180,17 +204,45 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: colores.obtenerColorCuatro(),
+            primaryColor: PaletaColores().obtenerCuaternario(),
           ),
           child: TextFormField(
             controller: _nombreCampo,
+            style: TextStyle(
+              color: PaletaColores().obtenerLetraContrasteSecundario(),
+              fontFamily: "Lato",
+            ),
             maxLength: 50,
             decoration: InputDecoration(
               filled: true,
-              fillColor: colores.obtenerColorDos(),
+              fillColor: PaletaColores().obtenerSecundario(),
               border: const OutlineInputBorder(),
+              counterStyle: TextStyle(
+                color: PaletaColores().obtenerLetraContrasteSecundario(),
+                fontFamily: "Lato",
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: PaletaColores().obtenerCuaternario(),
+                  width: 2.0,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: PaletaColores().obtenerColorInactivo(),
+                  width: 2.0,
+                ),
+              ),
               hintText: '¿Como va a llamar a este dispositivo?',
+              hintStyle: TextStyle(
+                color: PaletaColores().obtenerColorInactivo(),
+                fontFamily: "Lato",
+              ),
               labelText: 'Nombre',
+              labelStyle: TextStyle(
+                color: PaletaColores().obtenerColorInactivo(),
+                fontFamily: "Lato",
+              ),
             ),
             autofocus: true,
             validator: (value) {
@@ -205,33 +257,11 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
       );
     }
 
-    ///Actualiza el dispositivo o genera un error en caso de cualquier eventualidad.
-    ///@see owleddomo_app/cuartos/DisporitivoTabla/ServiciosDispositivo.actualizarDispositivo#method().
-    ///@see owleddomo_app/shared/TratarError.estadoServicioActualizar#method().
-    ///@return no retorna nada en caso de no obtener una validación positiva de los campos.
-
-    _actualizarDispositivo() {
-      ServiciosDispositivo.actualizarDispositivo(_relacionId, _usuario,
-                                                 _nombreCampo.text,_pathFoto)
-          .then((result) {
-            String respuesta = tratarError.estadoServicioActualizar( result, [_nombreCampo.text, _pathFoto], context);
-            if ( respuesta == "EXITO") {
-              setState(() {
-                _estadoBoton = ButtonState.success;
-              });
-            } else {
-              setState(() {
-                _estadoBoton = ButtonState.fail;
-              });
-            }
-      });
-    }
-
     ///Maneja el comportamiento al presionar el botón.
     ///@return un retorno vaico.
 
     void _alPresionarBoton() {
-      if ( _nombreCampo.text.isEmpty || _usuario.isEmpty || _pathFoto == null) {
+      if ( (_nombreCampo.text.isEmpty || _usuario.isEmpty || _pathFoto == null) && mounted) {
         if (_estadoBoton == ButtonState.fail) {
           setState(() {
             _estadoBoton = ButtonState.idle;
@@ -255,9 +285,11 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
           _estadoBoton = ButtonState.idle;
           break;
       }
-      setState(() {
-        _estadoBoton = _estadoBoton;
-      });
+      if(mounted) {
+        setState(() {
+          _estadoBoton = _estadoBoton;
+        });
+      }
     }
 
     ///Construye el Widget que maneja el botón para suministrar los datos del formulario.
@@ -266,30 +298,46 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
     Widget _boton() {
       return Container(
         width: _width/3.6,
-        child: ProgressButton.icon(iconedButtons: {
-          ButtonState.idle: IconedButton(
-              text: "Enviar",
-              icon: Icon(Icons.send, color: Colors.white),
-              color: colores.obtenerColorInactivo()),
-          ButtonState.loading:
-          IconedButton(text: "Cargando", color: colores.obtenerColorUno()),
-          ButtonState.fail: IconedButton(
-              icon: Icon(Icons.cancel, color: Colors.white),
-              color: colores.obtenerColorRiesgo()),
-          ButtonState.success: IconedButton(
-              text: "Exito",
-              icon: Icon(
-                Icons.check_circle,
-                color: Colors.white,
+        child: ProgressButton.icon(
+            textStyle: TextStyle(
+              color: PaletaColores().obtenerLetraContrastePrimario(),
+            ),
+            iconedButtons: {
+              ButtonState.idle: IconedButton(
+                text: "Enviar",
+                icon: Icon(
+                  Icons.send,
+                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                ),
+                color: PaletaColores().obtenerColorInactivo(),
               ),
-              color: colores.obtenerColorTres())
-        }, onPressed: () {
-          if (_formKey.currentState.validate()) {
-            _alPresionarBoton();
-          } else if (_estadoBoton == ButtonState.fail) {
-            _estadoBoton = ButtonState.idle;
-          }
-        },
+              ButtonState.loading:
+              IconedButton(
+                text: "Cargando",
+                color: PaletaColores().obtenerPrimario(),
+              ),
+              ButtonState.fail: IconedButton(
+                icon: Icon(
+                  Icons.cancel,
+                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                ),
+                color: PaletaColores().obtenerColorRiesgo(),
+              ),
+              ButtonState.success: IconedButton(
+                text: "Exito",
+                icon: Icon(
+                  Icons.check_circle,
+                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                ),
+                color: PaletaColores().obtenerTerciario(),
+              ),
+            }, onPressed: () {
+              if (_formKey.currentState.validate()) {
+                _alPresionarBoton();
+              } else if (_estadoBoton == ButtonState.fail) {
+                _estadoBoton = ButtonState.idle;
+              }
+              },
             state: _estadoBoton),
       );
     }
@@ -320,10 +368,19 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
       );
     }
 
-    return Stack(
-      children: <Widget>[
-        _particulas(),
-        _pantallaFrontal(),
+    return ListView(
+      physics: BouncingScrollPhysics(),
+      children: [
+        Container(
+          color: PaletaColores().obtenerColorFondo(),
+          height: _height/1.161290322580645,
+          child: Stack(
+            children: <Widget>[
+              _particulas(),
+              _pantallaFrontal(),
+            ],
+          ),
+        ),
       ],
     );
   }

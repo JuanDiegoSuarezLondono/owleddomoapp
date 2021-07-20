@@ -125,14 +125,17 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
 
       String respuesta = TratarError().tarjetaDeEstado( result, [_imagenFinal, _nombre.text,
                                                       _descripcion.text], context).first.toString();
-      if ( respuesta == "2") {
-        setState(() {
-          _estadoBoton = ButtonState.success;
-        });
-      } else {
-        setState(() {
-          _estadoBoton = ButtonState.fail;
-        });
+
+      if(mounted) {
+        if ( respuesta == "2") {
+          setState(() {
+            _estadoBoton = ButtonState.success;
+          });
+        } else {
+          setState(() {
+            _estadoBoton = ButtonState.fail;
+          });
+        }
       }
     });
   }
@@ -161,7 +164,7 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
                 color: PaletaColores().obtenerColorInactivo(),
                 width: _height/300,
               ),
-              color: PaletaColores().obtenerSecundario(),
+              color: PaletaColores().obtenerContrasteInactivo(),
               borderRadius: BorderRadius.circular(150),
             ),
             height: _height/11.31428571428571,
@@ -216,7 +219,7 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
                 color: _bordeImagen,
                 width: _height/300,
               ),
-              color: PaletaColores().obtenerSecundario(),
+              color: PaletaColores().obtenerContrasteInactivo(),
               borderRadius: BorderRadius.circular(150),
             ),
             child: Icon(
@@ -245,7 +248,7 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
           child: TextFormField(
             controller: _nombre,
             style: TextStyle(
-              color: PaletaColores().obtenerLetraContraseteSecundario(),
+              color: PaletaColores().obtenerLetraContrasteSecundario(),
               fontFamily: "Lato",
             ),
             maxLength: 50,
@@ -253,6 +256,10 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
               filled: true,
               fillColor: PaletaColores().obtenerSecundario(),
               border: const OutlineInputBorder(),
+              counterStyle: TextStyle(
+                color: PaletaColores().obtenerLetraContrasteSecundario(),
+                fontFamily: "Lato",
+              ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
                   color: PaletaColores().obtenerCuaternario(),
@@ -306,7 +313,7 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
           child: TextFormField(
             controller: _descripcion,
             style: TextStyle(
-              color: PaletaColores().obtenerLetraContraseteSecundario(),
+              color: PaletaColores().obtenerLetraContrasteSecundario(),
               fontFamily: "Lato",
             ),
             maxLength: 500,
@@ -314,6 +321,10 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
               filled: true,
               fillColor: PaletaColores().obtenerSecundario(),
               border: const OutlineInputBorder(),
+              counterStyle: TextStyle(
+                color: PaletaColores().obtenerLetraContrasteSecundario(),
+                fontFamily: "Lato",
+              ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
                   color: PaletaColores().obtenerCuaternario(),
@@ -384,9 +395,11 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
           _estadoBoton = ButtonState.idle;
           break;
       }
-      setState(() {
-        _estadoBoton = _estadoBoton;
-      });
+      if(mounted) {
+        setState(() {
+          _estadoBoton = _estadoBoton;
+        });
+      }
     }
 
     ///Construye el Widget que maneja el botón para suministrar los datos del formulario.
@@ -397,14 +410,14 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
         width: _width/3.6,
         child: ProgressButton.icon(
           textStyle: TextStyle(
-            color: PaletaColores().obtenerLetraContrasetePrimario(),
+            color: PaletaColores().obtenerContrasteInactivo(),
           ),
             iconedButtons: {
               ButtonState.idle: IconedButton(
                 text: "Enviar",
                 icon: Icon(
                   Icons.send,
-                  color: PaletaColores().obtenerLetraContrasetePrimario(),
+                  color: PaletaColores().obtenerContrasteInactivo(),
                 ),
                 color: PaletaColores().obtenerColorInactivo(),
               ),
@@ -415,22 +428,22 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
               ButtonState.fail: IconedButton(
                   icon: Icon(
                     Icons.cancel,
-                    color: PaletaColores().obtenerLetraContrasetePrimario(),
+                    color: PaletaColores().obtenerContrasteRiesgo(),
                   ),
-                  color: PaletaColores().obtenerColorRiesgo(),
+                color: PaletaColores().obtenerColorRiesgo(),
               ),
               ButtonState.success: IconedButton(
                 text: "Exito",
                 icon: Icon(
                   Icons.check_circle,
-                  color: PaletaColores().obtenerLetraContrasetePrimario(),
+                  color: PaletaColores().obtenerContrasteRiesgo(),
                 ),
                 color: PaletaColores().obtenerTerciario(),
               ),
             }, onPressed: () {
           if (_formKey.currentState.validate()) {
             _alPresionarBoton();
-          } else if (_estadoBoton == ButtonState.fail){
+          } else if (_estadoBoton == ButtonState.fail) {
             _estadoBoton = ButtonState.idle;
           }
         },
@@ -459,7 +472,6 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
         ),
       );
     }
-    print(_height/0.8372093023255814);
     return ListView(
       physics: BouncingScrollPhysics(),
       children: [

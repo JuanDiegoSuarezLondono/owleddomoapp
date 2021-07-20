@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:owleddomoapp/shared/PaletaColores.dart';
-
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
 
 ///Esta clase se encarga de construir la vista dentro de la carta de un
 ///dispositivo, dotándola de una imagen de fondo y un título para las cartas en

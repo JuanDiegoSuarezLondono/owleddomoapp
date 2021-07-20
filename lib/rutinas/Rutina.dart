@@ -30,7 +30,7 @@ class Rutina {
   Rutina({this.rutina_id, this.persona_producto_id, this.nombre, this.nombre_dispositivo,
           this.activo, this.tipo, this.relacion_dispositivo, this.dias, this.tiempo, this.nuevo_valor}); //Constructor de la clase.
 
-  ///Recibe una rutina en formato json y se encarga de transformarlo una
+  ///Recibe una rutina en formato json y se encarga de transformarla a una
   ///instancia de esta clase.
   ///@param json rutina en formato json.
 

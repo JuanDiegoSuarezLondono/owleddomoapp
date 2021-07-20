@@ -5,9 +5,6 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
 
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
-
 ///Esta clase se encarga del widget predeterminado para las variables de tipo
 ///luz RGB.
 ///@version 1.0, 06/04/21
@@ -33,6 +30,7 @@ class LuzRGB extends StatefulWidget {
 ///@param _B variable para azul.
 ///@param _G variable para verde.
 ///@param _colorActual obtiene el dato del color seleccionado.
+///@param _colorAnterior guarda el dato del color anterior.
 
 class _LuzRGB extends State<LuzRGB> {
 
@@ -42,7 +40,8 @@ class _LuzRGB extends State<LuzRGB> {
   Variable _R; //Variable para rojo.
   Variable _B; //Variable para azul.
   Variable _G; //Variable para verde.
-  Color _colorActual; //Obtiene el dato del color seleccionado.btiene el dato del color seleccionado.
+  Color _colorActual; //Obtiene el dato del color seleccionado.
+  Color _colorAnterior; //Guarda el dato del color anterior.
 
   @override
 
@@ -81,15 +80,42 @@ class _LuzRGB extends State<LuzRGB> {
   _cambiarValor () {
     if( _R.valor != _colorActual.red.toString()) {
       _R.valor = _colorActual.red.toString();
-      ServiciosVariable.actualizarVariable(_R.relacion_id, _R.valor, _R.persona_producto_id, _R.relacion_dispositivo);
+      ServiciosVariable.actualizarVariable(_R.relacion_id, _R.valor, _R.persona_producto_id, _R.relacion_dispositivo)
+          .then((result) {
+            String respuesta =  TratarError().estadoSnackbar(result, context).first.toString();
+            if ( respuesta != "200" && mounted) {
+              setState(() {
+                _colorActual = _colorAnterior;
+                _R.valor = _colorAnterior.red.toString();
+              });
+            }
+          });
     }
     if( _G.valor != _colorActual.green.toString()) {
       _G.valor = _colorActual.green.toString();
-      ServiciosVariable.actualizarVariable(_G.relacion_id, _G.valor, _G.persona_producto_id, _G.relacion_dispositivo);
+      ServiciosVariable.actualizarVariable(_G.relacion_id, _G.valor, _G.persona_producto_id, _G.relacion_dispositivo)
+          .then((result) {
+        String respuesta =  TratarError().estadoSnackbar(result, context).first.toString();
+        if ( respuesta != "200" && mounted) {
+          setState(() {
+            _colorActual = _colorAnterior;
+            _G.valor = _colorAnterior.red.toString();
+          });
+        }
+      });
     }
     if( _B.valor != _colorActual.blue.toString()) {
       _B.valor = _colorActual.blue.toString();
-      ServiciosVariable.actualizarVariable(_B.relacion_id, _B.valor, _B.persona_producto_id, _B.relacion_dispositivo);
+      ServiciosVariable.actualizarVariable(_B.relacion_id, _B.valor, _B.persona_producto_id, _B.relacion_dispositivo)
+          .then((result) {
+        String respuesta =  TratarError().estadoSnackbar(result, context).first.toString();
+        if ( respuesta != "200" && mounted) {
+          setState(() {
+            _colorActual = _colorAnterior;
+            _G.valor = _colorAnterior.red.toString();
+          });
+        }
+      });
     }
   }
 
@@ -107,22 +133,22 @@ class _LuzRGB extends State<LuzRGB> {
         return Icon(
           Icons.wb_sunny_rounded,
           color: useWhiteForeground(_colorActual)
-              ? colores.obtenerColorDos()
-              : colores.obtenerColorUno(),
+              ? Colors.white
+              : Colors.black,
         );
       } else if (variable.relacion_id.substring(5,6) == "0") {
         return Icon(
           Icons.nightlight_round,
           color: useWhiteForeground(_colorActual)
-              ? colores.obtenerColorDos()
-              : colores.obtenerColorUno(),
+              ? Colors.white
+              : Colors.black,
         );
       } else {
         return Icon(
           Icons.color_lens,
           color: useWhiteForeground(_colorActual)
-              ? colores.obtenerColorDos()
-              : colores.obtenerColorUno(),
+              ? Colors.white
+              : Colors.black,
         );
       }
     }
@@ -138,8 +164,8 @@ class _LuzRGB extends State<LuzRGB> {
         height: _height/13.2,
         child: Card(
           color: useWhiteForeground(_colorActual)
-              ? colores.obtenerColorDos()
-              : colores.obtenerColorUno(),
+              ? PaletaColores().obtenerColorInactivo()
+              : PaletaColores().obtenerColorInactivo(),
           child: PopupMenuButton(
             icon: Container(
               decoration: BoxDecoration(
@@ -155,25 +181,38 @@ class _LuzRGB extends State<LuzRGB> {
                 ],
               ),
               child: Container (
-                  height: _height/19.8,
-                  width: _width/9,
-                  child:  _icono(_variables[0])
+                height: _height/19.8,
+                width: _width/9,
+                child:  _icono(_variables[0]),
               ),
             ),
             initialValue: 1,
             itemBuilder: (context) {
               return [
-              PopupMenuItem(
-                value: 1,
-                child: Text('Franja de Colores'),
-              ),
-              PopupMenuItem(
-              value: 2,
-              child: Text('Seleccionar por RGB'),
-              ),
+                PopupMenuItem(
+                  value: 1,
+                  child: Text(
+                    'Paleta de colores',
+                    style: TextStyle(
+                      color: PaletaColores().obtenerLetraContrasteSecundario(),
+                      fontFamily: "lato",
+                    ),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 2,
+                  child: Text(
+                    'Barras RGB',
+                    style: TextStyle(
+                      color: PaletaColores().obtenerLetraContrasteSecundario(),
+                      fontFamily: "lato",
+                    ),
+                  ),
+                ),
               ];
             },
             onSelected: (int index) {
+              _colorAnterior = _colorActual;
               if (index == 1) {
                 showDialog(
                   context: context,

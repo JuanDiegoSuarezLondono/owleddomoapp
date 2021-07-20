@@ -2,18 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:owleddomoapp/cuartos/DispositivoTabla/Variable/Variable.dart';
 import 'package:owleddomoapp/shared/SeleccionarIcono.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
-import 'package:owleddomoapp/shared/TratarError.dart';
-
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
 
 ///Esta clase se encarga del widget predeterminado para las variables de tipo
-///interruptor de luz.
+///Abierto o Cerrado.
 ///@version 1.0, 06/04/21
 ///@author Juan Diego Suárez Londoño
 ///@param variable parámetros de la variable.
 ///@see owleddomo_app/cuartos/Dispositivo/DispositivoTabla/InterfazInformacionDispositivo.dart#class().
-///@return Un Widget Container con una tarjeta botón para controlar el interruptor.
+///@return Un Widget Container con una tarjeta testigo para indicar si el dispositivo está
+///abierto o cerrado.
 
 class AbiertoCerrado extends StatefulWidget {
 
@@ -26,7 +23,7 @@ class AbiertoCerrado extends StatefulWidget {
 
 }
 
-///Esta clase se encarga de formar un estado mutable de la clase “InterruptorLuz”.
+///Esta clase se encarga de formar un estado mutable de la clase “AbiertoCerrado”.
 ///@param _variable parámetros de la variable.
 ///@param _numero numero de la variable en el hardware.
 ///@param _interruptor controla el encendido o apagado.
@@ -39,7 +36,7 @@ class _AbiertoCerrado extends State<AbiertoCerrado> {
   _AbiertoCerrado(this._variable);
 
   String _numero; //Numero de la variable en el hardware
-  bool _interruptor; //Controla el encendido o apagado.
+  bool _interruptor; //Controla el abierto o cerrado.
 
   @override
 
@@ -47,7 +44,7 @@ class _AbiertoCerrado extends State<AbiertoCerrado> {
 
   void initState() {
     super.initState();
-    _numero = "1";//_variable.relacion_dispositivo.substring(4);
+    _numero = int.parse(_variable.relacion_id.substring(2,4)).toString();
     _interruptor = _variable.valor == "1" ? true : false;
   }
 
@@ -61,7 +58,7 @@ class _AbiertoCerrado extends State<AbiertoCerrado> {
         Container(
           width: _width/3.3962,
           child: Card(
-            color: colores.obtenerColorUno(),
+            color: PaletaColores().obtenerPrimario(),
             child: Column(
               children: <Widget> [
                 Padding(
@@ -70,15 +67,23 @@ class _AbiertoCerrado extends State<AbiertoCerrado> {
                   ),
                   child: Container (
                     width: _width/4,
-                    color: colores.obtenerColorDos(),
+                    color: PaletaColores().obtenerLetraContrastePrimario(),
                     child: _interruptor ?
                     Container(
-                        margin: EdgeInsets.symmetric(vertical: _height/158.4, horizontal: _width/72),
-                        child: SeleccionarIcono("PuertaCerrada", _height/15.84, Colors.brown)
+                      margin: EdgeInsets.symmetric(vertical: _height/158.4, horizontal: _width/72),
+                      child: SeleccionarIcono(
+                        "PuertaCerrada",
+                        _height/15.84,
+                        Colors.brown,
+                      ),
                     )
                         : Container(
-                        margin: EdgeInsets.symmetric(vertical: _height/158.4, horizontal: _width/72),
-                        child: SeleccionarIcono("PuertaAbierta", _height/15.84, Colors.brown)
+                      margin: EdgeInsets.symmetric(vertical: _height/158.4, horizontal: _width/72),
+                      child: SeleccionarIcono(
+                        "PuertaAbierta",
+                        _height/15.84,
+                        Colors.brown,
+                      ),
                     ),
                   ),
                 ),
@@ -89,7 +94,7 @@ class _AbiertoCerrado extends State<AbiertoCerrado> {
                   child:Text(
                     "$_numero",
                     style: TextStyle(
-                      color: Colors.white,
+                      color: PaletaColores().obtenerLetraContrastePrimario(),
                       fontFamily: "lato",
                       fontWeight: FontWeight.bold,
                       fontSize: _height/29.498,
@@ -102,7 +107,11 @@ class _AbiertoCerrado extends State<AbiertoCerrado> {
         ),
         Container(
             margin: EdgeInsets.symmetric(vertical: _height/79.2, horizontal: _width/36),
-            child: SeleccionarIcono("Atencion", _height/44, colores.obtenerColorRiesgo())
+            child: SeleccionarIcono(
+              "Atencion",
+              _height/44,
+              PaletaColores().obtenerColorRiesgo(),
+            ),
         ),
       ],
     );

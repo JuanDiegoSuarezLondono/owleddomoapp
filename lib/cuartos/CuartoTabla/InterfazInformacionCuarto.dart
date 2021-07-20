@@ -127,7 +127,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             border: Border.all(
-              color: PaletaColores().obtenerColorCuatro(),
+              color: PaletaColores().obtenerCuaternario(),
               width: _height/300,
             ),
             color: PaletaColores().obtenerSecundario(),
@@ -161,7 +161,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
             textAlign: TextAlign.left,
             maxLines: 1,
             style: TextStyle(
-              color: PaletaColores().obtenerLetraContraseteSecundario(),
+              color: PaletaColores().obtenerLetraContrasteSecundario(),
               fontFamily: "lato",
               fontWeight: FontWeight.bold,
               fontSize: _height/19.8,
@@ -192,7 +192,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
         decoration: BoxDecoration(
             boxShadow: <BoxShadow>[
               BoxShadow(
-                  color: PaletaColores().obtenerLetraContraseteSecundario().withOpacity(0.45),
+                  color: PaletaColores().obtenerLetraContrasteSecundario().withOpacity(0.45),
                   blurRadius: 10,
                   offset: Offset(0,10)
               )
@@ -258,7 +258,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
               _descripcion,
               textAlign: TextAlign.justify,
               style: TextStyle(
-                color: PaletaColores().obtenerLetraContraseteSecundario(),
+                color: PaletaColores().obtenerLetraContrasteSecundario(),
                 fontFamily: "lato",
                 fontSize: _height/52.8,
               ),
@@ -281,14 +281,14 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
               title: Text(
                 "¿Está seguro?",
                 style: TextStyle(
-                  color: PaletaColores().obtenerLetraContrasetePrimario(),
+                  color: PaletaColores().obtenerLetraContrastePrimario(),
                   fontFamily: "lato",
                 ),
               ),
               content: Text(
                 "Al eliminar este cuarto se perderá la configuración del mismo.",
                 style: TextStyle(
-                  color: PaletaColores().obtenerLetraContrasetePrimario(),
+                  color: PaletaColores().obtenerLetraContrastePrimario(),
                   fontFamily: "lato",
                 ),
               ),
@@ -304,13 +304,13 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
                       children: <Widget> [
                         Icon(
                           Icons.warning_rounded,
-                          color: PaletaColores().obtenerLetraContrasetePrimario(),
+                          color: PaletaColores().obtenerContrasteRiesgo(),
                           size: _height/26.4,
                         ),
                         Text(
                           "OK",
                           style: TextStyle(
-                            color: PaletaColores().obtenerLetraContrasetePrimario(),
+                            color: PaletaColores().obtenerContrasteRiesgo(),
                             fontFamily: "lato",
                           ),
                         ),
@@ -337,7 +337,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
                         Text(
                           "Cancelar",
                           style: TextStyle(
-                            color: PaletaColores().obtenerLetraContrasetePrimario(),
+                            color: PaletaColores().obtenerContrasteRiesgo(),
                             fontFamily: "lato",
                           ),
                         ),
@@ -372,7 +372,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
             },
             child: Icon(
               Icons.delete_rounded,
-              color: PaletaColores().obtenerLetraContraseteSecundario(),
+              color: PaletaColores().obtenerContrasteRiesgo(),
               size: _height/26.4,
             ),
           ),
@@ -413,7 +413,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
             },
             child: Icon(
               Icons.edit_rounded,
-              color: PaletaColores().obtenerLetraContraseteSecundario(),
+              color: PaletaColores().obtenerContrasteRiesgo(),
               size: _height/26.4,
             ),
           ),
@@ -509,7 +509,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
                               maxLines: 2,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: PaletaColores().obtenerLetraContraseteSecundario(),
+                                color: PaletaColores().obtenerLetraContrasteSecundario(),
                                 fontFamily: "Lato",
                               ),
                             ),
@@ -633,7 +633,7 @@ class _InterfazInformacionCuarto extends State<InterfazInformacionCuarto> {
                               ),
                               child: CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                    PaletaColores().obtenerLetraContraseteSecundario(),
+                                    PaletaColores().obtenerLetraContrasteSecundario(),
                                 ),
                               ),
                             ),

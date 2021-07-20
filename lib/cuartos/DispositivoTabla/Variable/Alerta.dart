@@ -5,16 +5,13 @@ import 'package:owleddomoapp/shared/SeleccionarIcono.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
 
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
-
 ///Esta clase se encarga del widget predeterminado para las variables de tipo
-///interruptor de luz.
+///alerta.
 ///@version 1.0, 06/04/21
 ///@author Juan Diego Suárez Londoño
 ///@param variable parámetros de la variable.
 ///@see owleddomo_app/cuartos/Dispositivo/DispositivoTabla/InterfazInformacionDispositivo.dart#class().
-///@return Un Widget Container con una tarjeta botón para controlar el interruptor.
+///@return Un Widget Container con una tarjeta botón para controlar la alerta.
 
 class Alerta extends StatefulWidget {
 
@@ -27,7 +24,7 @@ class Alerta extends StatefulWidget {
 
 }
 
-///Esta clase se encarga de formar un estado mutable de la clase “InterruptorLuz”.
+///Esta clase se encarga de formar un estado mutable de la clase “Alerta”.
 ///@param _variable parámetros de la variable.
 ///@param _numero numero de la variable en el hardware.
 ///@param _interruptor controla el encendido o apagado.
@@ -48,14 +45,15 @@ class _Alerta extends State<Alerta> {
 
   void initState() {
     super.initState();
-    _numero = "1";//_variable.relacion_dispositivo.substring(4);
+    _numero = int.parse(_variable.relacion_id.substring(2,4)).toString();
     _interruptor = _variable.valor == "1" ? true : false;
   }
 
   ///Intercambia entre el valor encendido o apagado según el estado previo.
   ///@param nuevoValor nuevoValor en string para enviar a la base de datos.
+  ///@return Un String con el nuevo valor.
 
-  _cambiarValor() {
+  String _cambiarValor() {
     String nuevoValor; //NuevoValor en string para enviar a la base de datos.
     if(_interruptor) {
       if(mounted) {
@@ -72,8 +70,21 @@ class _Alerta extends State<Alerta> {
         });
       }
     }
-    ServiciosVariable.actualizarVariable(_variable.relacion_id, nuevoValor, _variable.persona_producto_id, _variable.relacion_dispositivo)
+    return nuevoValor;
+  }
+
+  ///Actualiza la variable y controla el cambio del valor.
+  ///@param nuevoValor nuevoValor en string para enviar a la base de datos.
+
+  _actualizarValor() {
+    String nuevoValor = _cambiarValor();
+    ServiciosVariable.actualizarVariable(_variable.relacion_id, nuevoValor, _variable.persona_producto_id,
+        _variable.relacion_dispositivo)
         .then((result) {
+      String respuesta =  TratarError().estadoSnackbar(result, context).first.toString();
+      if ( respuesta != "200") {
+        _cambiarValor();
+      }
     });
   }
 
@@ -85,7 +96,7 @@ class _Alerta extends State<Alerta> {
     return Container(
       width: _width/3.3962,
       child: Card(
-        color: colores.obtenerColorUno(),
+        color: PaletaColores().obtenerPrimario(),
         child: Column(
           children: <Widget> [
             Padding(
@@ -93,17 +104,25 @@ class _Alerta extends State<Alerta> {
                 top: _height/198,
               ),
               child: MaterialButton(
-                splashColor: colores.obtenerColorTres(),
-                color: colores.obtenerColorDos(),
-                onPressed: _cambiarValor,
+                splashColor: PaletaColores().obtenerTerciario(),
+                color: PaletaColores().obtenerLetraContrastePrimario(),
+                onPressed: _actualizarValor,
                 child: _interruptor ?
                 Container(
                     margin: EdgeInsets.symmetric(vertical: _height/158.4, horizontal: _width/72),
-                    child: SeleccionarIcono("Escudo", _height/15.84, Colors.green)
+                    child: SeleccionarIcono(
+                      "Escudo",
+                      _height/15.84,
+                      Colors.green,
+                    ),
                 )
                 : Container(
                     margin: EdgeInsets.symmetric(vertical: _height/158.4, horizontal: _width/72),
-                    child: SeleccionarIcono("Escudo", _height/15.84, colores.obtenerColorInactivo())
+                    child: SeleccionarIcono(
+                      "Escudo",
+                      _height/15.84,
+                      PaletaColores().obtenerColorInactivo(),
+                    ),
                 ),
               ),
             ),
@@ -114,7 +133,7 @@ class _Alerta extends State<Alerta> {
               child:Text(
                 "$_numero",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: PaletaColores().obtenerLetraContrastePrimario(),
                   fontFamily: "lato",
                   fontWeight: FontWeight.bold,
                   fontSize: _height/29.498,

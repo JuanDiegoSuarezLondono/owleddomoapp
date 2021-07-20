@@ -16,9 +16,6 @@ import 'package:owleddomoapp/shared/TratarError.dart';
 import 'package:owleddomoapp/login/Persona.dart';
 import 'package:flutter_particles/particles.dart';
 
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
-
 ///Esta clase se encarga de la pantalla donde se muestra la información del dispositivo
 ///y su lógica.
 ///@version 1.0, 06/04/21
@@ -87,21 +84,23 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
     _codigoUsuario = TextEditingController();//Asigna el actual nombre al campo de texto.
     _estado = 0;
     _solicitudesLista = [];
-    _obtenerPermisos();
+    _solicidtudesObtenidas = _obtenerPermisos();
+    _variablesObtenidas = _obtenerVariables();
   }
 
-  ///Hace una petición para conseguir un mapeo con la lista de los parámetros de los dispositivos,
-  ///además actualiza el estado para saber la condición de la petición.
-  ///@see owleddomo_app/cuartos/DisporitivoTabla/Variable/ServiciosVariable.variableByMAC#method().
+  ///Hace una petición para conseguir un mapeo con la lista de los parámetros de los permisos.
+  ///@see owleddomo_app/hamburguesa/solicitud/ServiciosSolicitud.dispositivoSolicitud#method().
   ///@see owleddomo_app/shared/TratarError.estadoServicioLeer#method().
   ///@return un mapeo con las variables.
 
   Future<List> _obtenerPermisos() async {
-    setState(() {
-      _solicidtudesObtenidas =  ServiciosSolicitud.dispositivoSolicitud(_usuario.persona_id,_relacionId);
-    });
-    _solicidtudesObtenidas.then((result) => {
-      _solicitudesLista = result.last,
+    _solicidtudesObtenidas =  ServiciosSolicitud.dispositivoSolicitud(_usuario.persona_id,_relacionId);
+    _solicidtudesObtenidas.then((result) {
+      if(mounted) {
+        setState(() {
+          _solicitudesLista = result.last;
+        });
+      }
     });
     return _solicidtudesObtenidas;
   }
@@ -113,13 +112,28 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
   ///@return un mapeo con las variables.
 
   Future<List> _obtenerVariables() async {
-    setState(() {
-      _variablesObtenidas =  ServiciosVariable.variableByMAC(_relacionId, _usuario.persona_id);
-    });
-    _variablesObtenidas.then((result) => {
-      _estado = tratarError.estadoServicioLeer(result.first),
+    _variablesObtenidas =  ServiciosVariable.variableByMAC(_relacionId, _usuario.persona_id);
+    _variablesObtenidas.then((result) {
+      if(mounted) {
+        setState(() {
+          _estado = TratarError().estadoServicioLeer(result);
+        });
+      }
     });
     return _variablesObtenidas;
+  }
+
+  ///Agrega el cuarto o genera un error en caso de cualquier eventualidad.
+  ///@see owleddomo_app/cuartos/CuartoTabla/ServiciosCuarto.agregarCuarto#method().
+  ///@see owleddomo_app/shared/TratarError.estadoServicioActualizar#method().
+  ///@return No retorna nada en caso de no obtener una validación positiva de los campos.
+
+  _enviarSolicitud() {
+    Navigator.of(context).pop(null);
+    ServiciosSolicitud.agregarSolicitud(_usuario.persona_id,_relacionId,_codigoUsuario.text)
+        .then((result) {
+          TratarError().estadoSnackbar(result, context).first.toString();
+    });
   }
 
   Widget build(BuildContext context) {
@@ -133,7 +147,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
     Widget _particulas() {
       return Particles(
         20,
-        colores.obtenerColorCuatro(),
+        PaletaColores().obtenerCuaternario(),
       );
     }
 
@@ -152,7 +166,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
           alignment: Alignment.center,
           decoration: BoxDecoration(
             border: Border.all(
-              color: colores.obtenerColorUno(),
+              color: PaletaColores().obtenerPrimario(),
               width: _height/300,
             ),
             shape: BoxShape.circle,
@@ -185,6 +199,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
               fontFamily: "lato",
               fontWeight: FontWeight.bold,
               fontSize: _height/19.8,
+              color: PaletaColores().obtenerLetraContrasteSecundario(),
             ),
           ),
         ),
@@ -212,7 +227,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
             maxLines: 1,
             style: TextStyle(
               fontFamily: "lato",
-              color: colores.obtenerColorInactivo(),
+              color: PaletaColores().obtenerColorInactivo(),
               fontSize: _height/50,
             ),
           ),
@@ -230,7 +245,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
           left: _width/9.818,
         ),
         child: Card(
-          color: colores.obtenerColorDos(),
+          color: PaletaColores().obtenerSecundario(),
           child: Container(
             height: _height/5.267,
             width: _width/1.2834,
@@ -260,53 +275,43 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
         },
         child: Icon(
           Icons.edit_rounded,
-          color: colores.obtenerColorTres(),
-          size: 20,
+          color: PaletaColores().obtenerTerciario(),
+          size: _height/39.6,
         ),
       );
     }
 
-    ///Organiza las variables obtenidas en filas y columnas a manera de lista vertical.
-    ///@param variablesObtenidas lista con las variables obtenidas.
-    ///@param variables columna con todas las filas de variables obtenidas.
-    ///@param filaLuz fila con todas las interfaces para cada variable de tipo luz.
-    ///@param filaGrabar fila con todas las interfaces para cada variable de tipo grabar.
-    ///@param filaAbiertoCerrado fila con todas las interfaces para cada variable de tipo Open/Close.
-    ///@param filaAlerta fila con todas las interfaces para cada variable de tipo Alerta.
-    ///@param filaAbiertoCerrado fila con todas las interfaces para cada variable de tipo Open/Close.
-    ///@param filaGolpe fila con todas las interfaces para cada variable de tipo Golpe.
-    ///@param contadorLuz enumerador de las variables de tipo luz.
-    ///@param contadorGrabar enumerador de las variables de tipo grabar.
-    ///@param contadorAbiertoCerrado enumerador de las variables de tipo AbiertoCerrado.
-    ///@param contadorAlerta enumerador de las variables de tipo Alerta.
-    ///@param contadorGolpe enumerador de las variables de tipo Golpe.
-    ///@param cantidadGrupos enumerador de la cantidad de grupos de variables que tiene el dispositivo.
-    ///@param variablesRGB lista para pre-agrupar las variables de tipo RGB.
-    ///@return una lista con varias listas horizontales que contienen las interfaces
-    ///todas las variables organizadas según su tipo.
+    ///Organiza los permisos obtenidos en filas manera de una lista vertical.
+    ///@param permisosObtenidos lista los permios.
+    ///@param permisos columna con todos los widget de los permisos.
+    ///@param nombre o apodo de el usuario al que se le ha dado el permiso.
+    ///@return una lista con varias listas verticales que contienen interfaces
+    ///con todas las personas a las que se les ha dado un permiso sobre el dispositivo.
 
     List<Widget> _armarWidgetPermisos (List permisosObtenidos) {
-      List<Widget> permisos = []; //Columna con todas las filas de variables obtenidas.
-      String nombre = "";
+      List<Widget> permisos = []; //Columna con todos los widget de los permisos.
+      String nombre = ""; // Nombre o apodo de el usuario al que se le ha dado el permiso.
       permisos.add(
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Container(
-              padding: EdgeInsets.only(left: 15),
+              padding: EdgeInsets.only(left: _width/24),
               child: Text(
                 "Nombre",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                  fontFamily: "lato",
                 ),
               ),
             ),
             Container(
-              padding: EdgeInsets.only(right: 15),
+              padding: EdgeInsets.only(right: _width/24),
               child: Text(
                 "Puede editar",
                 style: TextStyle(
-                    color: Colors.white
+                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                  fontFamily: "lato",
                 ),
               ),
             ),
@@ -318,16 +323,17 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                          : solicitud.apodo;
         permisos.add(
           Card(
-            margin: EdgeInsets.only(top: 15),
+            margin: EdgeInsets.only(top: _height/52.8),
+            color: PaletaColores().obtenerLetraContrastePrimario(),
             child: Container(
-              height: 40,
+              height: _height/19.8,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(
-                    width: 110,
-                    height: 20,
-                    padding: EdgeInsets.only(left: 15),
+                    width: _width/3.272727272727273,
+                    height: _height/39.6,
+                    padding: EdgeInsets.only(left: _width/24),
                     child: ListView(
                       physics: BouncingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
@@ -340,16 +346,17 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                           maxLines: 1,
                           style: TextStyle(
                             fontFamily: "Lato",
+                            color: PaletaColores().obtenerPrimario(),
                           ),
                         ),
                       ],
                     ),
                   ),
                   Container(
-                    width: 105,
-                    height: 20,
-                    padding: EdgeInsets.only(right: 15),
-                    child: _botonPermiteEditar (),
+                    width: _width/3.428571428571429,
+                    height: _height/39.6,
+                    padding: EdgeInsets.only(right: _height/24),
+                    child: _botonPermiteEditar(),
                   ),
                 ],
               ),
@@ -366,9 +373,9 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
 
     Widget _botonEnviar () {
       return Container(
-        margin: EdgeInsets.only(left: 220),
+        margin: EdgeInsets.only(left: _width/1.636363636363636),
         child:ConstrainedBox(
-          constraints: BoxConstraints.tightFor(height: 30),
+          constraints: BoxConstraints.tightFor(height: _height/26.4),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               primary: Colors.transparent,
@@ -376,20 +383,21 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
               shadowColor: Colors.transparent,
             ),
             onPressed: () {
-              ServiciosSolicitud.agregarSolicitud(_relacionId, _codigoUsuario.text);
+              _enviarSolicitud();
             },
             child: Icon(
               Icons.send,
-              color: colores.obtenerColorCuatro(),
-              size: 20,
+              color: PaletaColores().obtenerPrimario(),
+              size: _height/39.6,
             ),
           ),
         ),
       );
     }
 
-    ///Construye el Widget que despliega una ventana emergente para confirmar la
-    ///desvinculacion del dispositivo.
+    ///Construye el Widget que despliega una ventana emergente que lista a las personas
+    ///con las que se ha compartido el dispositivo y para enviar una solicitud a
+    ///otro usuario.
 
     Widget _compartidos () {
       showDialog(
@@ -397,16 +405,16 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
           barrierDismissible: true,
           builder: (buildcontext) {
             return AlertDialog(
-              backgroundColor: colores.obtenerColorUno(),
+              backgroundColor: PaletaColores().obtenerPrimario(),
               title: Text(
                 "Compartido con:",
                 style: TextStyle(
-                  color: colores.obtenerColorDos(),
+                  color: PaletaColores().obtenerLetraContrastePrimario(),
                   fontFamily: "Lato",
                 ),
               ),
               content: Container(
-                height: 260,
+                height: _height/3.046153846153846,
                 child: ListView(
                   physics: BouncingScrollPhysics(),
                   primary: false,
@@ -417,28 +425,34 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
               actions: <Widget>[
                 Divider(
                   height: 20,
-                  thickness: 5,
+                  thickness: 3,
                   indent: 20,
                   endIndent: 20,
-                  color: colores.obtenerColorInactivo(),
+                  color: PaletaColores().obtenerColorInactivo(),
                 ),
                 Stack(
                   children: <Widget>[
                     Container(
-                      height: 30,
+                      height: _height/26.4,
                       child: TextFormField(
                         controller: _codigoUsuario,
                         style: TextStyle(
                           fontWeight: FontWeight.normal,
+                          fontFamily: "lato",
+                          color: PaletaColores().obtenerPrimario(),
                         ),
                         decoration: InputDecoration(
-                          contentPadding: EdgeInsets.only(bottom: 0, left:10.0, right: 30),
+                          contentPadding: EdgeInsets.only(bottom: 0, left:_width/36, right: _width/12),
                           filled: true,
-                          fillColor: colores.obtenerColorDos(),
+                          fillColor: PaletaColores().obtenerLetraContrastePrimario(),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(180),
                           ),
                           hintText: 'Codigo de usuario',
+                          hintStyle: TextStyle(
+                            fontFamily: "lato",
+                            color: PaletaColores().obtenerColorInactivo(),
+                          ),
                         ),
                         validator: (value) {
                           //_validar();
@@ -467,11 +481,11 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
           barrierDismissible: false,
           builder: (buildcontext) {
             return AlertDialog(
-              backgroundColor: colores.obtenerColorUno(),
+              backgroundColor: PaletaColores().obtenerPrimario(),
               title: Text(
                 "¿Está seguro?",
                 style: TextStyle(
-                  color: colores.obtenerColorDos(),
+                  color: PaletaColores().obtenerLetraContrastePrimario(),
                   fontFamily: "Lato",
                 ),
               ),
@@ -479,14 +493,14 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                 "Al eliminar este dispositivo se perderá la configuración guardada, "
                     "ademas, habilitara que otro pueda escanear el código QR.",
                 style: TextStyle(
-                  color: colores.obtenerColorDos(),
+                  color: PaletaColores().obtenerLetraContrastePrimario(),
                   fontFamily: "Lato",
                 ),
               ),
               actions: <Widget>[
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: colores.obtenerColorTres(),
+                    primary: PaletaColores().obtenerTerciario(),
                   ),
                   child:Container (
                     width: _width/6.428571428571429,
@@ -495,13 +509,13 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                       children: <Widget> [
                         Icon(
                           Icons.warning_rounded,
-                          color: colores.obtenerColorDos(),
+                          color: PaletaColores().obtenerLetraContrastePrimario(),
                           size: _height/26.4,
                         ),
                         Text(
                           "OK",
                           style: TextStyle(
-                            color: colores.obtenerColorDos(),
+                            color: PaletaColores().obtenerLetraContrastePrimario(),
                             fontFamily: "Lato",
                           ),
                         ),
@@ -512,13 +526,13 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                     Navigator.of(context).pop(false);
                     ServiciosDispositivo.borrarDispositivo(_relacionId, _usuario.persona_id)
                         .then((result) {
-                          tratarError.estadoServicioActualizar( result, [_nombre, _pathFoto], context);
+                          TratarError().tarjetaDeEstado( result, [_nombre, _pathFoto], context);
                         });
                   },
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: colores.obtenerColorRiesgo(),
+                    primary: PaletaColores().obtenerColorRiesgo(),
                   ),
                   child:Container (
                     width: _width/6.428571428571429,
@@ -528,7 +542,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                         Text(
                           "Cancelar",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: PaletaColores().obtenerLetraContrastePrimario(),
                             fontFamily: "Lato",
                           ),
                         ),
@@ -555,7 +569,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
           constraints: BoxConstraints.tightFor(height: _height/14.4),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              primary: colores.obtenerColorTres(),
+              primary: PaletaColores().obtenerTerciario(),
               shape: CircleBorder(),
             ),
             onPressed: () {
@@ -573,7 +587,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
             },
             child: Icon(
               Icons.edit_rounded,
-              color: colores.obtenerColorDos(),
+              color: PaletaColores().obtenerContrasteRiesgo(),
               size: _height/26.4,
             ),
           ),
@@ -595,14 +609,14 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
             constraints: BoxConstraints.tightFor(height: _height/19.8),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                primary: colores.obtenerColorUno(),
+                primary: PaletaColores().obtenerPrimario(),
               ),
               onPressed: () {
                 _compartidos();
               },
               child: Icon(
                 Icons.group_add,
-                color: colores.obtenerColorDos(),
+                color: PaletaColores().obtenerLetraContrastePrimario(),
                 size: _height/39.6,
               ),
             ),
@@ -621,7 +635,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
           constraints: BoxConstraints.tightFor(height: _height/14.4),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              primary: colores.obtenerColorRiesgo(),
+              primary: PaletaColores().obtenerColorRiesgo(),
               shape: CircleBorder(),
             ),
             onPressed: () {
@@ -629,7 +643,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
             },
             child: Icon(
               Icons.delete_rounded,
-              color: colores.obtenerColorDos(),
+              color: PaletaColores().obtenerContrasteRiesgo(),
               size: _height/26.4,
             ),
           ),
@@ -657,9 +671,6 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                     _botonBorrar(),
                   ],
                 ),
-                /*Center(
-                  child: _botonCompartir(),
-                ),*/
               ],
             ),
           ),
@@ -730,7 +741,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
 
       List<Widget> variables = []; //Columna con todas las filas de variables obtenidas.
       List<Widget> filaLuz = []; //Fila con todas las interfaces para cada variable de tipo luz.
-      List<Widget> filaGrabar = []; //Fila con todas las interfaces para cada variable de tipo Open/Close.
+      List<Widget> filaGrabar = []; //Fila con todas las interfaces para cada variable de tipo grabar.
       List<Widget> filaAbiertoCerrado = []; //Fila con todas las interfaces para cada variable de tipo AbiertoCerrado.
       List<Widget> filaAlerta = []; //Fila con todas las interfaces para cada variable de tipo Alerta.
       List<Widget> filaGolpe = []; //Fila con todas las interfaces para cada variable de tipo Golpe.
@@ -771,7 +782,9 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
               variablesRGB.add(variable);
               break;
           }
-          cantidadGrupos = int.parse(variable.relacion_id.substring(0,2)) > cantidadGrupos ? int.parse(variable.relacion_id.substring(0,2)) : cantidadGrupos;
+          cantidadGrupos = int.parse(variable.relacion_id.substring(0,2)) > cantidadGrupos ?
+                           int.parse(variable.relacion_id.substring(0,2))
+                           : cantidadGrupos;
         }
 
         if (contadorLuz > 0) {
@@ -819,8 +832,8 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
               shrinkWrap: true,
               children: <Widget> [
                 FutureBuilder<List>(
-                  future: _obtenerVariables(),
-                  builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
+                  future: _variablesObtenidas,
+                  builder: (context, AsyncSnapshot<List> snapshot) {
                     List<Widget> children;
                     if (snapshot.hasData) {
                       if( _estado == 0 ) {
@@ -835,17 +848,22 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                 child: Icon(
                                   Icons.build,
                                   size: _height/7.92,
-                                  color: colores.obtenerColorUno(),
+                                  color: PaletaColores().obtenerColorInactivo(),
                                 ),
                               ),
-                              Text(
-                                '"Internet facilita la información\nadecuada, en el momento adecuado,\npara el propósito adecuado..."\n¿Cual es el mio?',
-                                maxLines: 4,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: colores.obtenerColorUno(),
-                                  fontFamily: "Lato",
+
+                              Container(
+                                child: Text(
+                                  '"Internet facilita la información adecuada, en el momento adecuado, para el propósito adecuado..."\n¿Cual es el mio?',
+                                  maxLines: 5,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: _width/16.36363636363636,
+                                    color: PaletaColores().obtenerColorInactivo(),
+                                    fontFamily: "Lato",
+                                  ),
                                 ),
+                                width: _width/1.2,
                               ),
                             ],
                           ),
@@ -860,17 +878,21 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                 child: Icon(
                                   Icons.precision_manufacturing_sharp,
                                   size: _height/7.92,
-                                  color: colores.obtenerColorRiesgo(),
+                                  color: PaletaColores().obtenerColorRiesgo(),
                                 ),
                               ),
-                              Text(
-                                "¡Rayos! Algo pasa con la app...",
-                                maxLines: 2,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: colores.obtenerColorRiesgo(),
-                                  fontFamily: "Lato",
+                              Container(
+                                child: Text(
+                                  "No se pudo conectar con el dispositivo",
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: _width/16.36363636363636,
+                                    color: PaletaColores().obtenerColorRiesgo(),
+                                    fontFamily: "Lato",
+                                  ),
                                 ),
+                                width: _width/1.2,
                               ),
                             ],
                           ),
@@ -884,19 +906,23 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                               Container(
                                 alignment: Alignment.center,
                                 child: Icon(
-                                  Icons.cloud_off_rounded,
+                                  Icons.local_police_rounded,
                                   size: _height/7.92,
-                                  color: colores.obtenerColorCuatro(),
+                                  color: PaletaColores().obtenerColorRiesgo(),
                                 ),
                               ),
-                              Text(
-                                "Un avión tumbo nuestra nube...\nEstamos trabajando en ello :)",
-                                maxLines: 2,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: colores.obtenerColorCuatro(),
-                                  fontFamily: "Lato",
+                              Container(
+                                child: Text(
+                                  "No te identificamos...\n¿Esto es tuyo?",
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: _width/16.36363636363636,
+                                    color: PaletaColores().obtenerColorRiesgo(),
+                                    fontFamily: "Lato",
+                                  ),
                                 ),
+                                width: _width/1.2,
                               ),
                             ],
                           ),
@@ -910,19 +936,92 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                               Container(
                                 alignment: Alignment.center,
                                 child: Icon(
-                                  Icons.wifi_off_outlined,
+                                  Icons.cloud_off_rounded,
                                   size: _height/7.92,
-                                  color: colores.obtenerColorInactivo(),
+                                  color: PaletaColores().obtenerCuaternario(),
                                 ),
                               ),
-                              Text(
-                                "Si la vida te da internet, has limonada",
-                                maxLines: 2,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: colores.obtenerColorInactivo(),
-                                  fontFamily: "Lato",
+                              Container(
+                                child: Text(
+                                  "Un avión tumbo nuestra nube...\nEstamos trabajando en ello :)",
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: _width/16.36363636363636,
+                                    color: PaletaColores().obtenerCuaternario(),
+                                    fontFamily: "Lato",
+                                  ),
                                 ),
+                                width: _width/1.2,
+                              ),
+                            ],
+                          ),
+                        ];
+                      } else if ( _estado == 5 ) {
+                        children = <Widget>[
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  Icons.device_unknown_rounded,
+                                  size: _height/7.92,
+                                  color: PaletaColores().obtenerColorRiesgo(),
+                                ),
+                              ),
+                              Container(
+                                child: Text(
+                                  "¡Rayos! Algo pasa con la app...",
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: _width/16.36363636363636,
+                                    color: PaletaColores().obtenerColorRiesgo(),
+                                    fontFamily: "Lato",
+                                  ),
+                                ),
+                                width: _width/1.2,
+                              ),
+                            ],
+                          ),
+                        ];
+                      } else if ( _estado == 6) {
+                        children = <Widget>[
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  Icons.wifi_off_outlined,
+                                  size: _height/7.92,
+                                  color: PaletaColores().obtenerColorInactivo(),
+                                ),
+                              ),
+                              Container(
+                                child: Text(
+                                  "Si la vida te da internet, has limonada",
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: _width/16.36363636363636,
+                                    color: PaletaColores().obtenerColorInactivo(),
+                                    fontFamily: "Lato",
+                                  ),
+                                ),
+                                width: _width/1.2,
+                              ),
+                            ],
+                          ),
+                        ];
+                      } else if ( _estado == 8) {
+                        children = <Widget>[
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(PaletaColores().obtenerPrimario()),
                               ),
                             ],
                           ),
@@ -937,17 +1036,21 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                 child: Icon(
                                   Icons.error_rounded,
                                   size: _height/7.92,
-                                  color: colores.obtenerColorRiesgo(),
+                                  color: PaletaColores().obtenerColorRiesgo(),
                                 ),
                               ),
-                              Text(
-                                "Ups... Algo salio mal",
-                                maxLines: 2,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: colores.obtenerColorRiesgo(),
-                                  fontFamily: "Lato",
+                              Container(
+                                child: Text(
+                                  "Ups... Algo salio mal",
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: _width/16.36363636363636,
+                                    color: PaletaColores().obtenerColorRiesgo(),
+                                    fontFamily: "Lato",
+                                  ),
                                 ),
+                                width: _width/1.2,
                               ),
                             ],
                           ),
@@ -963,17 +1066,21 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                               child: Icon(
                                 Icons.error_rounded,
                                 size: _height/7.92,
-                                color: colores.obtenerColorRiesgo(),
+                                color: PaletaColores().obtenerColorRiesgo(),
                               ),
                             ),
-                            Text(
-                              "Ups... Algo salio mal",
-                              maxLines: 2,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: colores.obtenerColorRiesgo(),
-                                fontFamily: "Lato",
+                            Container(
+                              child: Text(
+                                "Ups... Algo salio mal",
+                                maxLines: 2,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: _width/16.36363636363636,
+                                  color: PaletaColores().obtenerColorRiesgo(),
+                                  fontFamily: "Lato",
+                                ),
                               ),
+                              width: _width/1.2,
                             ),
                           ],
                         ),
@@ -984,7 +1091,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(colores.obtenerColorUno()),
+                              valueColor: AlwaysStoppedAnimation<Color>(PaletaColores().obtenerPrimario()),
                             ),
                           ],
                         ),

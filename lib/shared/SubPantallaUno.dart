@@ -40,7 +40,7 @@ class _SubPantallaUno extends State<SubPantallaUno> {
           _titulo,
           style: TextStyle (
             fontFamily: 'Lato',
-            color: colores.obtenerColorDos(),
+            color: PaletaColores().color_letra_contraste_primario,
             fontSize: height/31.68,
             fontWeight: FontWeight.bold,
           ),
@@ -55,7 +55,7 @@ class _SubPantallaUno extends State<SubPantallaUno> {
           child: Icon(
             Icons.arrow_back_ios_rounded,
             size: height/19.8,
-            color: colores.obtenerColorDos(),
+            color: PaletaColores().color_letra_contraste_primario,
           ),
         ),
       );
@@ -64,12 +64,12 @@ class _SubPantallaUno extends State<SubPantallaUno> {
       return Scaffold(
           body: SafeArea(
             child: Scaffold(
-              backgroundColor: colores.obtenerColorFondo(),
+              backgroundColor: PaletaColores().obtenerColorFondo(),
               key: _scaffoldKey,
               appBar: AppBar(
                 leading: _flechaRegreso(),
                 automaticallyImplyLeading: false,
-                backgroundColor: colores.obtenerColorUno(),
+                backgroundColor: PaletaColores().obtenerPrimario(),
                 flexibleSpace: Container(
                   height: height/14.14285714285714,
                   child: Row (
@@ -84,7 +84,7 @@ class _SubPantallaUno extends State<SubPantallaUno> {
                 physics: BouncingScrollPhysics(),
                 child: Container(
                   height: height/1.162995594713656,
-                  color: colores.obtenerColorFondo(),
+                  color: PaletaColores().obtenerColorFondo(),
                   child:_widgetTabBar,
                 ),
               ),

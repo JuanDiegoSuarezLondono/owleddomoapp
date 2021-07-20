@@ -3,14 +3,16 @@ import 'package:flutter/material.dart';
 class PaletaColores {
 
   Color color_primario;
-  Color color_secundario; //FFFFFFFF
+  Color color_secundario;
   Color color_terciario;
   Color color_cuaternario;
   Color color_letra_contraste_primario;
   Color color_letra_contraste_secundario;
   Color color_inactivo;
+  Color color_contraste_inactivo;
   Color color_fondo;
   Color color_riesgo;
+  Color color_contraste_riesgo;
 
   PaletaColores() {
     int a = 1;
@@ -23,20 +25,24 @@ class PaletaColores {
         color_letra_contraste_primario = Colors.white;
         color_letra_contraste_secundario = Colors.black;
         color_inactivo = Color(0xFF929292);
+        color_contraste_inactivo = Colors.white;
         color_fondo = Color(0xFFECEFF1);
         color_riesgo = Colors.red; //FFF44336
+        color_contraste_riesgo = Colors.white;
         break;
 
       case 1:
-        color_primario = Colors.white;
+        color_primario = Colors.black;
         color_secundario = Color(0xFF08192d);
         color_terciario = Color(0xFF9BBF63);
         color_cuaternario = Color(0xFFF2CF1D);
-        color_letra_contraste_primario = Colors.black;
+        color_letra_contraste_primario = Colors.white.withOpacity(0.82);
         color_letra_contraste_secundario = Colors.white;//FFFFFFFF
-        color_inactivo = Color(0xFFECEFF1);
+        color_inactivo = Color(0xFF929292);
+        color_contraste_inactivo = Colors.white;
         color_fondo = Color(0xFF1E3C40);
         color_riesgo = Colors.red; //FFF44336
+        color_contraste_riesgo = Colors.white;
         break;
     }
   }
@@ -58,14 +64,21 @@ class PaletaColores {
     return color_cuaternario;
   }
 
-  Color obtenerLetraContrasetePrimario () {
+  Color obtenerLetraContrastePrimario () {
     return color_letra_contraste_primario;
   }
 
-  Color obtenerLetraContraseteSecundario () {
+  Color obtenerLetraContrasteSecundario () {
     return color_letra_contraste_secundario;
   }
 
+  Color obtenerContrasteInactivo () {
+    return color_contraste_inactivo;
+  }
+
+  Color obtenerContrasteRiesgo () {
+    return color_contraste_riesgo;
+  }
 
 
   Color obtenerColorUno () {

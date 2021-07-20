@@ -175,13 +175,13 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
       if(mounted) {
         setState(() {
           _ADMUNOLista = [];
-          if(result.first == "EXITO" && result.last != "EXITO" ) {
+          if(result.first.toString() == "200" && result.last.toString() != "200" ) {
             _ADMUNOSeleccionado.nombre = 'Provincia/Departamento/Region';
             _ADMUNOLista = [Territorio()];
             _ADMUNOLista[0] = _ADMUNOSeleccionado;
             _ADMUNOLista..addAll(result.last);
           }
-          else if (result.first == "VACIO") {
+          else if (result.first.toString() == "VACIO") {
             _ADMUNOSeleccionado.nombre = 'No hay lugares';
             _ADMUNOLista = [Territorio()];
             _ADMUNOLista[0] = _ADMUNOSeleccionado;
@@ -205,13 +205,13 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
       if(mounted) {
         setState(() {
           _ADMDOSLista = [];
-          if(result.first == "EXITO" && result.last != "EXITO" ) {
+          if(result.first.toString() == "200" && result.last.toString() != "200" ) {
             _ADMDOSSeleccionado.nombre = 'Ciudad/Pueblo';
             _ADMDOSLista = [Territorio()];
             _ADMDOSLista[0] = _ADMDOSSeleccionado;
             _ADMDOSLista..addAll(result.last);
           }
-          else if (result.first == "VACIO") {
+          else if (result.first.toString() == "VACIO") {
             _ADMDOSSeleccionado.nombre = 'No hay lugares';
             _ADMDOSLista = [Territorio()];
             _ADMDOSLista[0] = _ADMDOSSeleccionado;
@@ -497,7 +497,7 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   _nombreCorreoWidget(),
-                  _claveWidget(),
+                  //_claveWidget(),
                   _botonesWidget(),
                 ],
               ),
@@ -1204,10 +1204,10 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
                       physics: NeverScrollableScrollPhysics(),
                       children: <Widget> [
                         _cartaIntro(),
-                        _cartaNombApell(),
-                        _cartaTerritorio(),
-                        _cartaCorreoTel(),
-                        _cartaClave(),
+                        //_cartaNombApell(),
+                        //_cartaTerritorio(),
+                        //_cartaCorreoTel(),
+                        //_cartaClave(),
                       ],
                     ),
                   ),
@@ -1224,7 +1224,7 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
           builder: (context, child) {
             return Scaffold(
               body: Stack(children: <Widget>[
-                _animacion(),
+                //_animacion(),
                 _pantallaFrontal(),
               ]),
             );
