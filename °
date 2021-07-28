@@ -1,0 +1,54 @@
+Se ha arreglado las validaciones para crear una nueva cuenta de usuario.
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch master
+# Changes to be committed:
+#	modified:   android/build.gradle
+#	new file:   assets/img/Foto_Perfil_Usuario.jpg
+#	renamed:    assets/img/Foto_Perfil_Usuario.png -> assets/img/Icono_Perfil_Usuario.png
+#	modified:   lib/AppTrips.dart
+#	modified:   lib/cuartos/CuartoTabla/CartaCuarto.dart
+#	modified:   lib/cuartos/CuartoTabla/CuartosLista.dart
+#	modified:   lib/cuartos/CuartoTabla/InterfazAgregarCuarto.dart
+#	modified:   lib/cuartos/CuartoTabla/InterfazEditarCuarto.dart
+#	modified:   lib/cuartos/CuartoTabla/InterfazInformacionCuarto.dart
+#	modified:   lib/cuartos/CuartosMain.dart
+#	modified:   lib/cuartos/DispositivoTabla/DispositivosLista.dart
+#	modified:   lib/cuartos/DispositivoTabla/InterfazAgregarDispositivo.dart
+#	modified:   lib/cuartos/DispositivoTabla/InterfazEditarDispositivo.dart
+#	modified:   lib/cuartos/DispositivoTabla/InterfazInformacionDispositivo.dart
+#	modified:   lib/cuartos/DispositivoTabla/Variable/AbiertoCerrado.dart
+#	modified:   lib/cuartos/DispositivoTabla/Variable/Alerta.dart
+#	modified:   lib/cuartos/DispositivoTabla/Variable/Golpe.dart
+#	modified:   lib/cuartos/DispositivoTabla/Variable/InterruptorLuz.dart
+#	modified:   lib/cuartos/DispositivoTabla/Variable/LuzRGB.dart
+#	modified:   lib/hamburguesa/acercaDe/AcercaDe.dart
+#	modified:   lib/hamburguesa/ayuda/Ayuda.dart
+#	modified:   lib/hamburguesa/configuracion/Configuracion.dart
+#	modified:   lib/hamburguesa/cuenta/CuentaMain.dart
+#	modified:   lib/hamburguesa/solicitud/CartaSolicitud.dart
+#	modified:   lib/hamburguesa/solicitud/Solicitud.dart
+#	modified:   lib/hamburguesa/solicitud/SolicitudMain.dart
+#	modified:   lib/login/LoginMain.dart
+#	modified:   lib/login/Persona.dart
+#	modified:   lib/login/ServiciosPersona.dart
+#	modified:   lib/main.dart
+#	modified:   lib/mensajes/CartaMensaje.dart
+#	modified:   lib/mensajes/MensajesLista.dart
+#	modified:   lib/mensajes/MensajesMain.dart
+#	modified:   lib/rutinas/CartaRutina.dart
+#	modified:   lib/rutinas/InterfazAgregarRutina.dart
+#	modified:   lib/rutinas/RutinasLista.dart
+#	modified:   lib/rutinas/RutinasMain.dart
+#	modified:   lib/shared/FondoCubo.dart
+#	modified:   lib/shared/MenuHamburguesa.dart
+#	modified:   lib/shared/PaletaColores.dart
+#	modified:   lib/shared/PantallaEspera.dart
+#	modified:   lib/shared/PantallaSinRed.dart
+#	modified:   lib/shared/PopUpImagenes.dart
+#	modified:   lib/shared/SubPantallaUno.dart
+#	modified:   lib/shared/TratarError.dart
+#	modified:   pubspec.lock
+#	modified:   pubspec.yaml
+#
