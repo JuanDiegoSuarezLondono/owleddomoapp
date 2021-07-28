@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
-
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
 
 ///Esta clase se encarga de manejar la interfaz para el seleccionador de imagenes.
 ///@version 1.0, 06/04/21.
@@ -18,6 +17,8 @@ final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
 
 class PopUpImagenes extends StatelessWidget {
 
+  final Persona usuario;
+
   final List<String> imagenesListaCuarto= ["bano1.jpg", "bano2.jpg","bebe1.jpg","bebe2.jpg"
     ,"cocina1.jpg","cocina2.jpg","comedor1.jpg","comedor2.jpg","escaleras1.jpg"
     ,"escaleras2.jpg","habitacion1.jpg","habitacion2.jpg", "habitacion3.jpg"
@@ -26,7 +27,7 @@ class PopUpImagenes extends StatelessWidget {
     ,"enchufe1.jpg","interruptor1.jpg","sensorPuerta1.jpg"]; //Lista de imágenes predeterminadas de los dispositivos.
   final String lista; //Indica cual lista se va a utilizar.
 
-  PopUpImagenes(this.lista); //Constructor de la clase.
+  PopUpImagenes(this.lista, this.usuario); //Constructor de la clase.
 
   List<String> imagenesLista; //Lista de imágenes predeterminadas.
 
@@ -60,7 +61,7 @@ class PopUpImagenes extends StatelessWidget {
             margin: EdgeInsets.symmetric(horizontal: width/180),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: colores.obtenerColorDos(),
+              color: PaletaColores(usuario).obtenerSecundario(),
               shape: BoxShape.circle,
               image: DecorationImage(
                 fit: BoxFit.cover,
@@ -118,7 +119,7 @@ class PopUpImagenes extends StatelessWidget {
     }
 
     return AlertDialog(
-      backgroundColor: colores.obtenerColorDos(),
+      backgroundColor: PaletaColores(usuario).obtenerSecundario(),
       content: Container(
         height: height/1.98,
         width: width,

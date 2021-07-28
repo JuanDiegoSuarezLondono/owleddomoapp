@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:expansion_card/expansion_card.dart';
 import 'package:owleddomoapp/mensajes/CartaMensaje.dart';
 import 'package:owleddomoapp/mensajes/ServiciosMensaje.dart';
 import 'package:owleddomoapp/mensajes/Mensaje.dart';
@@ -8,9 +7,6 @@ import 'package:owleddomoapp/shared/PantallaEspera.dart';
 import 'package:owleddomoapp/shared/PantallaSinRed.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
-
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
 
 ///Esta clase se encarga de manejar la pantalla del despliegue de la lista de las
 ///rutinas y su lógica.
@@ -92,7 +88,7 @@ class _MensajesLista extends State<MensajesLista> {
     });
     _mensajesObtenidos.then((value) => {
       print(value.first),
-      _estado = tratarError.estadoServicioLeer(value.first),
+      _estado = TratarError(_usuario).estadoServicioLeer(value.first),
       if(value.first == "EXITO" && value.last != "EXITO" ) {
       } else if (value.first == "EXITO") {
         _estado = 1,
@@ -115,7 +111,7 @@ class _MensajesLista extends State<MensajesLista> {
           barrierDismissible: false,
           context: context,
           builder: (BuildContext dialogContext) {
-            return PantallaEspera();
+            return PantallaEspera(_usuario);
           },
         );
       });
@@ -130,7 +126,7 @@ class _MensajesLista extends State<MensajesLista> {
       return Container (
         margin: EdgeInsets.all(10),
         alignment: Alignment.centerLeft,
-        child: CartaMensaje("usuario","rutina", mensaje.evento,"perPro", mensaje.asociacion.toString(),
+        child: CartaMensaje(_usuario,"rutina", mensaje.evento,"perPro", mensaje.asociacion.toString(),
                             0, mensaje.notificacion_id, mensaje.fecha_creacion.substring(11,16)),
       );
     }
@@ -229,7 +225,7 @@ class _MensajesLista extends State<MensajesLista> {
                             child: Icon(
                               Icons.precision_manufacturing_sharp,
                               size: _height/7.92,
-                              color: colores.obtenerColorRiesgo(),
+                              color: PaletaColores(_usuario).obtenerColorRiesgo(),
                             ),
                           ),
                           Text(
@@ -237,7 +233,7 @@ class _MensajesLista extends State<MensajesLista> {
                             maxLines: 2,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: colores.obtenerColorRiesgo(),
+                              color: PaletaColores(_usuario).obtenerColorRiesgo(),
                               fontFamily: "Lato",
                             ),
                           ),
@@ -254,7 +250,7 @@ class _MensajesLista extends State<MensajesLista> {
                             child: Icon(
                               Icons.cloud_off_rounded,
                               size: _height/7.92,
-                              color: colores.obtenerColorCuatro(),
+                              color: PaletaColores(_usuario).obtenerCuaternario(),
                             ),
                           ),
                           Text(
@@ -262,7 +258,7 @@ class _MensajesLista extends State<MensajesLista> {
                             maxLines: 2,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: colores.obtenerColorCuatro(),
+                              color: PaletaColores(_usuario).obtenerCuaternario(),
                               fontFamily: "Lato",
                             ),
                           ),
@@ -290,7 +286,7 @@ class _MensajesLista extends State<MensajesLista> {
                             child: Icon(
                               Icons.error_rounded,
                               size: _height/7.92,
-                              color: colores.obtenerColorRiesgo(),
+                              color: PaletaColores(_usuario).obtenerColorRiesgo(),
                             ),
                           ),
                           Text(
@@ -298,7 +294,7 @@ class _MensajesLista extends State<MensajesLista> {
                             maxLines: 2,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: colores.obtenerColorRiesgo(),
+                              color: PaletaColores(_usuario).obtenerColorRiesgo(),
                               fontFamily: "Lato",
                             ),
                           ),
@@ -320,7 +316,7 @@ class _MensajesLista extends State<MensajesLista> {
                           child: Icon(
                             Icons.error_rounded,
                             size: _height/7.92,
-                            color: colores.obtenerColorRiesgo(),
+                            color: PaletaColores(_usuario).obtenerColorRiesgo(),
                           ),
                         ),
                         Text(
@@ -328,7 +324,7 @@ class _MensajesLista extends State<MensajesLista> {
                           maxLines: 2,
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: colores.obtenerColorRiesgo(),
+                            color: PaletaColores(_usuario).obtenerColorRiesgo(),
                             fontFamily: "Lato",
                           ),
                         ),

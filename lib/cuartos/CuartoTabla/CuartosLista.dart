@@ -73,7 +73,7 @@ class _CuartosLista extends State<CuartosLista> {
     _cuartosObtenidos.then((result) {
       if (mounted) {
         setState(() {
-          _estado = TratarError().estadoServicioLeer(result);
+          _estado = TratarError(_usuario).estadoServicioLeer(result);
         });
       }
     });
@@ -87,7 +87,7 @@ class _CuartosLista extends State<CuartosLista> {
 
   _alPresionarAgregarCuarto () {
     Route route = MaterialPageRoute (builder: (context) =>
-        SubPantallaUno(InterfazAgregarCuarto(_usuario.persona_id),"Creando cuarto")
+        SubPantallaUno(InterfazAgregarCuarto(_usuario),"Creando cuarto",_usuario)
     ); //Especifica la ruta hacia la interfaz para agregar un cuarto.
     Navigator.push(context, route).then((value)=>{
       if(mounted) {
@@ -113,7 +113,7 @@ class _CuartosLista extends State<CuartosLista> {
                                                  cuarto.nombre,
                                                  cuarto.pathImagen,
                                                  cuarto.descripcion,_usuario),
-                                                 "Cuarto"));
+                                                 "Cuarto",_usuario));
     Navigator.push(context, route).then((value)=>{
       if(mounted) {
         setState(() {
@@ -134,7 +134,7 @@ class _CuartosLista extends State<CuartosLista> {
 
     Widget _botonAgregarCuarto() {
       return AvatarGlow(
-        glowColor: PaletaColores().obtenerTerciario(),
+        glowColor: PaletaColores(_usuario).obtenerTerciario(),
         endRadius: 90.0,
         duration: Duration(milliseconds: 2000),
         repeat: true,
@@ -151,7 +151,7 @@ class _CuartosLista extends State<CuartosLista> {
                     top: _height/31.68,
                     left: _width/8.779,
                   ),
-                  color: PaletaColores().obtenerColorFondo(),
+                  color: PaletaColores(_usuario).obtenerColorFondo(),
                   width: _height/19.8,
                   height: _height/19.8,
                 ),
@@ -163,7 +163,7 @@ class _CuartosLista extends State<CuartosLista> {
                   child: Icon(
                     Icons.add_circle,
                     size: _height/8.799,
-                    color: PaletaColores().obtenerTerciario(),
+                    color: PaletaColores(_usuario).obtenerTerciario(),
                   ),
                 ),
               ],
@@ -193,9 +193,9 @@ class _CuartosLista extends State<CuartosLista> {
       return Center(
         child: Card(
           margin: EdgeInsets.symmetric(vertical: _height/79.2),
-          color: PaletaColores().obtenerSecundario(),
+          color: PaletaColores(_usuario).obtenerSecundario(),
           child: InkWell(
-            splashColor: PaletaColores().obtenerCuaternario(),
+            splashColor: PaletaColores(_usuario).obtenerCuaternario(),
             highlightColor: Colors.transparent,
             onTap: () {
               _alPresionarCarta (cuarto);
@@ -288,7 +288,7 @@ class _CuartosLista extends State<CuartosLista> {
             Text(
               "¡Añadamos un Cuarto!",
               style: TextStyle(
-                color: PaletaColores().obtenerLetraContrasteSecundario(),
+                color: PaletaColores(_usuario).obtenerLetraContrasteSecundario(),
                 fontSize: _height/26.4,
                 fontFamily: "Lato",
               ),
@@ -307,7 +307,7 @@ class _CuartosLista extends State<CuartosLista> {
           barrierDismissible: false,
           context: context,
           builder: (BuildContext dialogContext) {
-            return PantallaEspera();
+            return PantallaEspera(_usuario);
           },
         );
       });
@@ -363,7 +363,7 @@ class _CuartosLista extends State<CuartosLista> {
                               child: Icon(
                                 Icons.precision_manufacturing_sharp,
                                 size: _height/7.92,
-                                color: PaletaColores().obtenerColorRiesgo(),
+                                color: PaletaColores(_usuario).obtenerColorRiesgo(),
                               ),
                             ),
                             Container(
@@ -373,7 +373,7 @@ class _CuartosLista extends State<CuartosLista> {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: _width/16.36363636363636,
-                                  color: PaletaColores().obtenerColorRiesgo(),
+                                  color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                   fontFamily: "Lato",
                                 ),
                               ),
@@ -392,7 +392,7 @@ class _CuartosLista extends State<CuartosLista> {
                               child: Icon(
                                 Icons.local_police_rounded,
                                 size: _height/7.92,
-                                color: PaletaColores().obtenerColorRiesgo(),
+                                color: PaletaColores(_usuario).obtenerColorRiesgo(),
                               ),
                             ),
                             Container(
@@ -402,7 +402,7 @@ class _CuartosLista extends State<CuartosLista> {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: _width/16.36363636363636,
-                                  color: PaletaColores().obtenerColorRiesgo(),
+                                  color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                   fontFamily: "Lato",
                                 ),
                               ),
@@ -421,7 +421,7 @@ class _CuartosLista extends State<CuartosLista> {
                               child: Icon(
                                 Icons.cloud_off_rounded,
                                 size: _height/7.92,
-                                color: PaletaColores().obtenerCuaternario(),
+                                color: PaletaColores(_usuario).obtenerCuaternario(),
                               ),
                             ),
                             Container(
@@ -431,7 +431,7 @@ class _CuartosLista extends State<CuartosLista> {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: _width/16.36363636363636,
-                                  color: PaletaColores().obtenerCuaternario(),
+                                  color: PaletaColores(_usuario).obtenerCuaternario(),
                                   fontFamily: "Lato",
                                 ),
                               ),
@@ -450,7 +450,7 @@ class _CuartosLista extends State<CuartosLista> {
                               child: Icon(
                                 Icons.device_unknown_rounded,
                                 size: _height/7.92,
-                                color: PaletaColores().obtenerColorRiesgo(),
+                                color: PaletaColores(_usuario).obtenerColorRiesgo(),
                               ),
                             ),
                             Text(
@@ -459,7 +459,7 @@ class _CuartosLista extends State<CuartosLista> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: _width/16.36363636363636,
-                                color: PaletaColores().obtenerColorRiesgo(),
+                                color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                 fontFamily: "Lato",
                               ),
                             ),
@@ -487,7 +487,7 @@ class _CuartosLista extends State<CuartosLista> {
                               child: Icon(
                                 Icons.error_rounded,
                                 size: _height/7.92,
-                                color: PaletaColores().obtenerColorRiesgo(),
+                                color: PaletaColores(_usuario).obtenerColorRiesgo(),
                               ),
                             ),
                             Text(
@@ -496,7 +496,7 @@ class _CuartosLista extends State<CuartosLista> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: _width/16.36363636363636,
-                                color: PaletaColores().obtenerColorRiesgo(),
+                                color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                 fontFamily: "Lato",
                               ),
                             ),
@@ -518,7 +518,7 @@ class _CuartosLista extends State<CuartosLista> {
                             child: Icon(
                               Icons.error_rounded,
                               size: _height/7.92,
-                              color: PaletaColores().obtenerColorRiesgo(),
+                              color: PaletaColores(_usuario).obtenerColorRiesgo(),
                             ),
                           ),
                           Text(
@@ -527,7 +527,7 @@ class _CuartosLista extends State<CuartosLista> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: _width/16.36363636363636,
-                              color: PaletaColores().obtenerColorRiesgo(),
+                              color: PaletaColores(_usuario).obtenerColorRiesgo(),
                               fontFamily: "Lato",
                             ),
                           ),

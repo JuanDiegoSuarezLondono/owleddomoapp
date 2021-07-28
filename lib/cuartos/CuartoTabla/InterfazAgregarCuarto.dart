@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 import 'package:owleddomoapp/cuartos/CuartoTabla/ServiciosCuarto.dart';
 import 'package:owleddomoapp/shared/PopUpImagenes.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
@@ -18,7 +19,7 @@ import 'package:image_picker/image_picker.dart';
 
 class InterfazAgregarCuarto extends StatefulWidget {
 
-  final String usuario; //Identificador del usuario.
+  final Persona usuario; //Identificador del usuario.
   InterfazAgregarCuarto(this.usuario); //Constructor de la clase.
 
   @override
@@ -46,7 +47,7 @@ class InterfazAgregarCuarto extends StatefulWidget {
 class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
 
   final _formKey = GlobalKey<FormState>(); //Llave identificadora del formulario.
-  final String _usuario; //Identificador del usuario.
+  final Persona _usuario; //Identificador del usuario.
   _InterfazAgregarCuarto(this._usuario); //Constructor de la clase.
 
   String _imagen; //Imagen seleccionada de la lista.
@@ -66,7 +67,7 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
     _imagen = null; //Se indica que no hay imagen por parte de la lista.
     _imagenCamara = null; //Se indica que no hay imagen por parte de la camara.
     _imagenFinal = null; //Se indica que no hay imagen.
-    _bordeImagen = PaletaColores().obtenerColorInactivo();
+    _bordeImagen = PaletaColores(_usuario).obtenerColorInactivo();
     _nombre = TextEditingController();
     _descripcion = TextEditingController();
     _estadoBoton = ButtonState.idle;
@@ -78,15 +79,15 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
-        return PopUpImagenes("cuartos");
+        return PopUpImagenes("cuartos",_usuario);
       },
     ).then((value) => {
       if (mounted) {
         setState(() {
           _imagenCamara = null;
           value != null ? _imagen = value : _imagen = null;
-          _bordeImagen = value != null ?  PaletaColores().obtenerCuaternario()
-                                       :  PaletaColores().obtenerColorRiesgo();
+          _bordeImagen = value != null ?  PaletaColores(_usuario).obtenerCuaternario()
+                                       :  PaletaColores(_usuario).obtenerColorRiesgo();
         })
       },
     });
@@ -105,9 +106,9 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
       if(imagen != null) {
         File archivoImagen = File(imagen.path);
         _imagenCamara = archivoImagen;
-        _bordeImagen = PaletaColores().obtenerCuaternario();
+        _bordeImagen = PaletaColores(_usuario).obtenerCuaternario();
       } else {
-        _bordeImagen = PaletaColores().obtenerColorRiesgo();
+        _bordeImagen = PaletaColores(_usuario).obtenerColorRiesgo();
         _imagenCamara = null;
       }
       _imagen = null;
@@ -120,10 +121,10 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
   ///@return No retorna nada en caso de no obtener una validación positiva de los campos.
 
   _agregarCuarto() {
-    ServiciosCuarto.agregarCuarto(_usuario, _nombre.text, _imagenFinal, _descripcion.text)
+    ServiciosCuarto.agregarCuarto(_usuario.persona_id, _nombre.text, _imagenFinal, _descripcion.text)
         .then((result) {
 
-      String respuesta = TratarError().tarjetaDeEstado( result, [_imagenFinal, _nombre.text,
+      String respuesta = TratarError(_usuario).tarjetaDeEstado( result, [_imagenFinal, _nombre.text,
                                                       _descripcion.text], context).first.toString();
 
       if(mounted) {
@@ -161,10 +162,10 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
                 width: _height/300,
               ),
-              color: PaletaColores().obtenerContrasteInactivo(),
+              color: PaletaColores(_usuario).obtenerContrasteInactivo(),
               borderRadius: BorderRadius.circular(150),
             ),
             height: _height/11.31428571428571,
@@ -172,7 +173,7 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
             child: Icon(
               Icons.camera_alt_rounded,
               size: _height/22.62857142857143,
-              color: PaletaColores().obtenerColorInactivo(),
+              color: PaletaColores(_usuario).obtenerColorInactivo(),
             ),
           ),
         ),
@@ -201,7 +202,7 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
                 color: _bordeImagen,
                 width: _height/300,
               ),
-              color: PaletaColores().obtenerSecundario(),
+              color: PaletaColores(_usuario).obtenerSecundario(),
               borderRadius: BorderRadius.circular(150),
               image: DecorationImage(
                 fit: BoxFit.cover,
@@ -219,13 +220,13 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
                 color: _bordeImagen,
                 width: _height/300,
               ),
-              color: PaletaColores().obtenerContrasteInactivo(),
+              color: PaletaColores(_usuario).obtenerContrasteInactivo(),
               borderRadius: BorderRadius.circular(150),
             ),
             child: Icon(
               Icons.image,
               size: _height/6.6,
-              color: PaletaColores().obtenerColorInactivo(),
+              color: PaletaColores(_usuario).obtenerColorInactivo(),
             ),
           ),
         ),
@@ -243,43 +244,43 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: PaletaColores().obtenerCuaternario(),
+            primaryColor: PaletaColores(_usuario).obtenerCuaternario(),
           ),
           child: TextFormField(
             controller: _nombre,
             style: TextStyle(
-              color: PaletaColores().obtenerLetraContrasteSecundario(),
+              color: PaletaColores(_usuario).obtenerLetraContrasteSecundario(),
               fontFamily: "Lato",
             ),
             maxLength: 50,
             decoration: InputDecoration(
               filled: true,
-              fillColor: PaletaColores().obtenerSecundario(),
+              fillColor: PaletaColores(_usuario).obtenerSecundario(),
               border: const OutlineInputBorder(),
               counterStyle: TextStyle(
-                color: PaletaColores().obtenerLetraContrasteSecundario(),
+                color: PaletaColores(_usuario).obtenerLetraContrasteSecundario(),
                 fontFamily: "Lato",
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: PaletaColores().obtenerCuaternario(),
+                  color: PaletaColores(_usuario).obtenerCuaternario(),
                   width: 2.0,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: PaletaColores().obtenerColorInactivo(),
+                  color: PaletaColores(_usuario).obtenerColorInactivo(),
                   width: 2.0,
                 ),
               ),
               hintText: '¿Como quieres llamar a este cuarto?',
               hintStyle: TextStyle(
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
                 fontFamily: "Lato",
               ),
               labelText: 'Nombre',
               labelStyle: TextStyle(
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
                 fontFamily: "Lato",
               ),
             ),
@@ -308,43 +309,43 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: PaletaColores().obtenerCuaternario(),
+            primaryColor: PaletaColores(_usuario).obtenerCuaternario(),
           ),
           child: TextFormField(
             controller: _descripcion,
             style: TextStyle(
-              color: PaletaColores().obtenerLetraContrasteSecundario(),
+              color: PaletaColores(_usuario).obtenerLetraContrasteSecundario(),
               fontFamily: "Lato",
             ),
             maxLength: 500,
             decoration: InputDecoration(
               filled: true,
-              fillColor: PaletaColores().obtenerSecundario(),
+              fillColor: PaletaColores(_usuario).obtenerSecundario(),
               border: const OutlineInputBorder(),
               counterStyle: TextStyle(
-                color: PaletaColores().obtenerLetraContrasteSecundario(),
+                color: PaletaColores(_usuario).obtenerLetraContrasteSecundario(),
                 fontFamily: "Lato",
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: PaletaColores().obtenerCuaternario(),
+                  color: PaletaColores(_usuario).obtenerCuaternario(),
                   width: 2.0,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: PaletaColores().obtenerColorInactivo(),
+                  color: PaletaColores(_usuario).obtenerColorInactivo(),
                   width: 2.0,
                 ),
               ),
               hintText: '¿Que distingue a este cuarto?',
               hintStyle: TextStyle(
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
                 fontFamily: "Lato",
               ),
               labelText: 'Descripcion',
               labelStyle: TextStyle(
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
                 fontFamily: "Lato",
               ),
             ),
@@ -364,7 +365,7 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
     ///@return un retorno vaico.
 
     void _alPresionarBoton() {
-      if ( _usuario.isEmpty || (_imagen == null && _imagenCamara == null) ||
+      if ( _usuario.persona_id.isEmpty || (_imagen == null && _imagenCamara == null) ||
            _nombre.text.isEmpty || _descripcion.text.isEmpty) {
         if ( _estadoBoton == ButtonState.fail ) {
           setState(() {
@@ -373,9 +374,9 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
         }
         setState(() {
           if (_imagen == null && _imagenCamara == null) {
-            _bordeImagen = PaletaColores().obtenerColorRiesgo();
+            _bordeImagen = PaletaColores(_usuario).obtenerColorRiesgo();
           } else {
-            _bordeImagen = PaletaColores().obtenerColorInactivo();
+            _bordeImagen = PaletaColores(_usuario).obtenerColorInactivo();
           }
         });
         return;
@@ -410,35 +411,35 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
         width: _width/3.6,
         child: ProgressButton.icon(
           textStyle: TextStyle(
-            color: PaletaColores().obtenerContrasteInactivo(),
+            color: PaletaColores(_usuario).obtenerContrasteInactivo(),
           ),
             iconedButtons: {
               ButtonState.idle: IconedButton(
                 text: "Enviar",
                 icon: Icon(
                   Icons.send,
-                  color: PaletaColores().obtenerContrasteInactivo(),
+                  color: PaletaColores(_usuario).obtenerContrasteInactivo(),
                 ),
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
               ),
               ButtonState.loading: IconedButton(
                 text: "Cargando",
-                color: PaletaColores().obtenerPrimario(),
+                color: PaletaColores(_usuario).obtenerPrimario(),
               ),
               ButtonState.fail: IconedButton(
                   icon: Icon(
                     Icons.cancel,
-                    color: PaletaColores().obtenerContrasteRiesgo(),
+                    color: PaletaColores(_usuario).obtenerContrasteRiesgo(),
                   ),
-                color: PaletaColores().obtenerColorRiesgo(),
+                color: PaletaColores(_usuario).obtenerColorRiesgo(),
               ),
               ButtonState.success: IconedButton(
                 text: "Exito",
                 icon: Icon(
                   Icons.check_circle,
-                  color: PaletaColores().obtenerContrasteRiesgo(),
+                  color: PaletaColores(_usuario).obtenerContrasteRiesgo(),
                 ),
-                color: PaletaColores().obtenerTerciario(),
+                color: PaletaColores(_usuario).obtenerTerciario(),
               ),
             }, onPressed: () {
           if (_formKey.currentState.validate()) {
@@ -476,11 +477,11 @@ class _InterfazAgregarCuarto extends State<InterfazAgregarCuarto> {
       physics: BouncingScrollPhysics(),
       children: [
         Container(
-          color: PaletaColores().obtenerColorFondo(),
+          color: PaletaColores(_usuario).obtenerColorFondo(),
           height: _height/1.161290322580645,
           child: Stack(
             children: <Widget>[
-              FondoCubo(),
+              FondoCubo(_usuario),
               _pantallaFrontal(),
               _camara(),
             ],

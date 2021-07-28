@@ -68,7 +68,7 @@ class _SolicitudMain extends State<SolicitudMain> {
     _peticionesObtenidas .then((result) {
       if (mounted) {
         setState(() {
-          _estado = TratarError().estadoServicioLeer(result);
+          _estado = TratarError(_usuario).estadoServicioLeer(result);
         });
       }
     });
@@ -118,7 +118,7 @@ class _SolicitudMain extends State<SolicitudMain> {
           barrierDismissible: false,
           context: context,
           builder: (BuildContext dialogContext) {
-            return PantallaEspera();
+            return PantallaEspera(_usuario);
           },
         );
       });
@@ -173,7 +173,7 @@ class _SolicitudMain extends State<SolicitudMain> {
                             child: Icon(
                               Icons.precision_manufacturing_sharp,
                               size: _height/7.92,
-                              color: PaletaColores().obtenerColorRiesgo(),
+                              color: PaletaColores(_usuario).obtenerColorRiesgo(),
                             ),
                           ),
                           Container(
@@ -183,7 +183,7 @@ class _SolicitudMain extends State<SolicitudMain> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: _width/16.36363636363636,
-                                color: PaletaColores().obtenerColorRiesgo(),
+                                color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                 fontFamily: "Lato",
                               ),
                             ),
@@ -202,7 +202,7 @@ class _SolicitudMain extends State<SolicitudMain> {
                             child: Icon(
                               Icons.local_police_rounded,
                               size: _height/7.92,
-                              color: PaletaColores().obtenerColorRiesgo(),
+                              color: PaletaColores(_usuario).obtenerColorRiesgo(),
                             ),
                           ),
                           Container(
@@ -212,7 +212,7 @@ class _SolicitudMain extends State<SolicitudMain> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: _width/16.36363636363636,
-                                color: PaletaColores().obtenerColorRiesgo(),
+                                color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                 fontFamily: "Lato",
                               ),
                             ),
@@ -231,7 +231,7 @@ class _SolicitudMain extends State<SolicitudMain> {
                             child: Icon(
                               Icons.cloud_off_rounded,
                               size: _height/7.92,
-                              color: PaletaColores().obtenerCuaternario(),
+                              color: PaletaColores(_usuario).obtenerCuaternario(),
                             ),
                           ),
                           Container(
@@ -241,7 +241,7 @@ class _SolicitudMain extends State<SolicitudMain> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: _width/16.36363636363636,
-                                color: PaletaColores().obtenerCuaternario(),
+                                color: PaletaColores(_usuario).obtenerCuaternario(),
                                 fontFamily: "Lato",
                               ),
                             ),
@@ -260,7 +260,7 @@ class _SolicitudMain extends State<SolicitudMain> {
                             child: Icon(
                               Icons.device_unknown_rounded,
                               size: _height/7.92,
-                              color: PaletaColores().obtenerColorRiesgo(),
+                              color: PaletaColores(_usuario).obtenerColorRiesgo(),
                             ),
                           ),
                           Text(
@@ -269,7 +269,7 @@ class _SolicitudMain extends State<SolicitudMain> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: _width/16.36363636363636,
-                              color: PaletaColores().obtenerColorRiesgo(),
+                              color: PaletaColores(_usuario).obtenerColorRiesgo(),
                               fontFamily: "Lato",
                             ),
                           ),
@@ -286,7 +286,7 @@ class _SolicitudMain extends State<SolicitudMain> {
                             child: Icon(
                               Icons.wifi_off_outlined,
                               size: _height/7.92,
-                              color: PaletaColores().obtenerColorInactivo(),
+                              color: PaletaColores(_usuario).obtenerColorInactivo(),
                             ),
                           ),
                           Container(
@@ -296,7 +296,7 @@ class _SolicitudMain extends State<SolicitudMain> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: _width/16.36363636363636,
-                                color: PaletaColores().obtenerColorInactivo(),
+                                color: PaletaColores(_usuario).obtenerColorInactivo(),
                                 fontFamily: "Lato",
                               ),
                             ),
@@ -319,7 +319,7 @@ class _SolicitudMain extends State<SolicitudMain> {
                             child: Icon(
                               Icons.error_rounded,
                               size: _height/7.92,
-                              color: PaletaColores().obtenerColorRiesgo(),
+                              color: PaletaColores(_usuario).obtenerColorRiesgo(),
                             ),
                           ),
                           Text(
@@ -328,7 +328,7 @@ class _SolicitudMain extends State<SolicitudMain> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: _width/16.36363636363636,
-                              color: PaletaColores().obtenerColorRiesgo(),
+                              color: PaletaColores(_usuario).obtenerColorRiesgo(),
                               fontFamily: "Lato",
                             ),
                           ),
@@ -350,7 +350,7 @@ class _SolicitudMain extends State<SolicitudMain> {
                           child: Icon(
                             Icons.error_rounded,
                             size: _height/7.92,
-                            color: PaletaColores().obtenerColorRiesgo(),
+                            color: PaletaColores(_usuario).obtenerColorRiesgo(),
                           ),
                         ),
                         Text(
@@ -359,7 +359,7 @@ class _SolicitudMain extends State<SolicitudMain> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: _width/16.36363636363636,
-                            color: PaletaColores().obtenerColorRiesgo(),
+                            color: PaletaColores(_usuario).obtenerColorRiesgo(),
                             fontFamily: "Lato",
                           ),
                         ),

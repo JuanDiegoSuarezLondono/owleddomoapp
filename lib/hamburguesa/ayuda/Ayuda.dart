@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 
-final  colores = new PaletaColores();
-
 class Ayuda extends StatefulWidget {
 
   Ayuda();

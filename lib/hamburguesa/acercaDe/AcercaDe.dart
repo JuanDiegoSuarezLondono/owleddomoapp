@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
-
-final  colores = new PaletaColores();
 
 class AcercaDe extends StatefulWidget {
 

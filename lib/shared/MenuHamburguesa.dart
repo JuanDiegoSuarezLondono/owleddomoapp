@@ -2,15 +2,13 @@ import 'package:flutter/material.dart';
 import 'PaletaColores.dart';
 import 'package:owleddomoapp/shared/SubPantallaUno.dart';
 import 'package:owleddomoapp/login/Persona.dart';
-import 'package:owleddomoapp/hamburguesa/cuenta/CuentaMain.dart';
-import 'package:owleddomoapp/hamburguesa/configuracion/Configuracion.dart';
-import 'package:owleddomoapp/hamburguesa/ayuda/Ayuda.dart';
-import 'package:owleddomoapp/hamburguesa/acercaDe/AcercaDe.dart';
-import 'package:owleddomoapp/hamburguesa/solicitud/SolicitudMain.dart';
 import 'package:owleddomoapp/hamburguesa/solicitud/ServiciosSolicitud.dart';
+import 'package:owleddomoapp/hamburguesa/configuracion/Configuracion.dart';
+import 'package:owleddomoapp/hamburguesa/solicitud/SolicitudMain.dart';
 import 'package:owleddomoapp/hamburguesa/solicitud/Solicitud.dart';
-
-final PaletaColores colores = new PaletaColores();
+import 'package:owleddomoapp/hamburguesa/cuenta/CuentaMain.dart';
+import 'package:owleddomoapp/hamburguesa/acercaDe/AcercaDe.dart';
+import 'package:owleddomoapp/hamburguesa/ayuda/Ayuda.dart';
 
 class MenuHamburguesa extends StatefulWidget {
 
@@ -29,20 +27,17 @@ class _MenuHamburguesa extends State<MenuHamburguesa> {
   final Persona _usuario;
   _MenuHamburguesa(this._usuario);
 
-  List<Solicitud> _permisosLista; //Lista de las cartas de los dispositivos.
   Future<List> _pemisossObtenidos; //Lista con el mapeo de los dispositivos.
   int _numeroPeticiones;
 
   void initState() {
     super.initState();
     _numeroPeticiones = 0;
-    _obtenerPermisos();
+    _pemisossObtenidos = _obtenerPermisos();
   }
 
   Future<List> _obtenerPermisos() async {
-    setState(() {
-      _pemisossObtenidos =  ServiciosSolicitud.todasSolicitud(_usuario.persona_id);
-    });
+    _pemisossObtenidos =  ServiciosSolicitud.todasSolicitud(_usuario.persona_id);
     _pemisossObtenidos .then((value) => {
       if(value.first != value.last) {
         setState(() {
@@ -52,32 +47,37 @@ class _MenuHamburguesa extends State<MenuHamburguesa> {
             }
           }
         }),
-        _permisosLista = value.last,
       }
     });
     return _pemisossObtenidos;
   }
 
+
+
   @override
   Widget build(BuildContext context) {
 
     return Drawer(
-      // Add a ListView to the drawer. This ensures the user can scroll
-      // through the options in the drawer if there isn't enough vertical
-      // space to fit everything.
       child: ListView(
-        // Important: Remove any padding from the ListView.
         padding: EdgeInsets.zero,
         children: <Widget>[
           Container(
             height: 150,
-            color: colores.obtenerColorUno(),
+            child: Container(
+              decoration: BoxDecoration(
+                color: PaletaColores(_usuario).obtenerPrimario(),
+                image: DecorationImage(
+                  fit: BoxFit.cover,
+                  image: AssetImage(_usuario.url_foto),
+                ),
+              ),
+            ),
           ),
           ListTile(
             title: Text('Cuenta'),
             onTap: () {
               Route route = MaterialPageRoute (
-                builder: (context) => SubPantallaUno(CuentaMain(_usuario), 'Tu Cuenta'),
+                builder: (context) => SubPantallaUno(CuentaMain(_usuario), 'Tu Cuenta', _usuario),
               );
               Navigator.push(context, route).then((value) =>{
               });
@@ -87,7 +87,7 @@ class _MenuHamburguesa extends State<MenuHamburguesa> {
             title: Text('Configuracion'),
             onTap: () {
               Route route = MaterialPageRoute (
-                builder: (context) => SubPantallaUno(Configuracion(), "Configuracion"),
+                builder: (context) => SubPantallaUno(Configuracion(_usuario), "Configuracion", _usuario),
               );
               Navigator.push(context, route).then((value) =>{
               });
@@ -97,7 +97,7 @@ class _MenuHamburguesa extends State<MenuHamburguesa> {
             title: Text('Ayuda'),
             onTap: () {
               Route route = MaterialPageRoute (
-                builder: (context) => SubPantallaUno(Ayuda(), "Ayuda"),
+                builder: (context) => SubPantallaUno(Ayuda(), "Ayuda", _usuario),
               );
               Navigator.push(context, route).then((value) =>{
               });
@@ -107,7 +107,7 @@ class _MenuHamburguesa extends State<MenuHamburguesa> {
             title: Text('Acerca de'),
             onTap: () {
               Route route = MaterialPageRoute (
-                builder: (context) => SubPantallaUno(AcercaDe(),"Acerca de"),
+                builder: (context) => SubPantallaUno(AcercaDe(),"Acerca de", _usuario),
               );
               Navigator.push(context, route).then((value) =>{
               });
@@ -123,7 +123,7 @@ class _MenuHamburguesa extends State<MenuHamburguesa> {
             ),
             onTap: () {
               Route route = MaterialPageRoute (
-                builder: (context) => SubPantallaUno(SolicitudMain(_usuario), "Lista Solicitudes"),
+                builder: (context) => SubPantallaUno(SolicitudMain(_usuario), "Lista Solicitudes", _usuario),
               );
               Navigator.push(context, route).then((value) =>{
               });

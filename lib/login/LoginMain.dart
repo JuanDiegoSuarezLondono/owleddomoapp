@@ -6,18 +6,14 @@ import 'package:owleddomoapp/login/territorio/Territorio.dart';
 import 'package:owleddomoapp/login/ServiciosPersona.dart';
 import 'package:owleddomoapp/login/Persona.dart';
 import 'package:owleddomoapp/shared/SeleccionarIcono.dart';
-import 'package:owleddomoapp/shared/PaletaColores.dart';
-import 'package:owleddomoapp/shared/TratarError.dart';
 import 'package:progress_state_button/progress_button.dart';
 import 'package:progress_state_button/iconed_button.dart';
-import 'package:flutter/animation.dart';
+import 'package:owleddomoapp/shared/PantallaEspera.dart';
 
-///Esta clase se encarga de manejar la pantalla del formulario para agregar un dispositivo.
+///Esta clase se encarga de manejar la pantalla de entrada de la app.
 ///@version 1.0, 06/04/21.
 ///@author Juan Diego Suárez Londoño.
-///@param usuario identificador del usuario.
-///@see owleddomo_app/cuartos/DispositivoTabla/DispositivosLista.dart#class().
-///@return un Widget Stack con el fondo animado y un formulario.
+///@return un Widget SafeArea con un Scaffold que posee la pantalla de intro.
 
 class LoginMain extends StatefulWidget {
 
@@ -30,97 +26,90 @@ class LoginMain extends StatefulWidget {
 
 }
 
-///Esta clase se encarga de formar un estado mutable de la clase “InterfazAgregarDispositivo”.
-///@param _formKey Llave identificadora del formulario.
-///@param _usuario identificador del usuario.
-///@param _qrResultado texto recuperado del código QR.
-///@param _textoBotonQR texto del boton para escanear el código QR.
-///@param _nombre controlador del campo de texto para el nombre.
-///@param _imagen path de la imagen para el dispositivo.
-///@param _bordeImagen Color del borde del botón para seleccionar imagen.
-///@param _bordeQR color del borde del botón para escanear el código QR.
-///@param _letrasEscanealo color de las letras del botón para escanear el código QR.
-///@param _estadoBoton Estado entre las transiciones del botón.
+///Esta clase se encarga de formar un estado mutable de la clase “LoginMain”.
+///@param _imagen path de la imagen para el logo OWLED.
+///@param _nombreCorreo controlador del campo de texto para el nombre del logueo.
+///@param _clave controlador del campo de texto para la contraseña del logueo.
+///@param _nombre controlador del nombre del nuevo usuario.
+///@param _apellido controlador del apellido del nuevo usuario.
+///@param _correo controlador del correo del nuevo usuario.
+///@param _errorCorreo controlador del texto de error del campo del correo del nuevo usuario.
+///@param _correoObtenidos lista con el mapeo de los correos.
+///@param _telefono controlador del telefono del nuevo usuario.
+///@param _ingresarClave controlador de la clave del nuevo usuario.
+///@param _errorIngresarClave controlador del texto de error del campo de la clave del nuevo usuario.
+///@param _confirmarClave controlador para confirmar la clave del nuevo usuario.
+///@param _errorConfirmarClave controlador del texto de error del campo para confirmar la clave del nuevo usuario.
+///@param _personasObtenidas lista con el mapeo de las personas.
+///@param _ADMUNOObtenidos lista con el mapeo de las regiones obtenidas.
+///@param _ADMUNOLista lista de elementos en el dropdown de regiones.
+///@param _ADMUNOSeleccionado region seleccionada en el dropdown de regiones.
+///@param _colorADMUNO color del dropdown de regiones.
+///@param _errorDepartamento indica si ha habido un error al cargar los departamentos.
+///@param _ADMDOSObtenidos lista con el mapeo de las ciudades obtenidas.
+///@param _ADMDOSLista lista de elementos en el dropdown de ciudades.
+///@param _ADMDOSSeleccionado ciudad seleccionada en el dropdown de ciudades.
+///@param _colorADMDOS color del dropdown de ciudades.
+///@param _estadoBoton estado entre las transiciones del botón.
+///@param _formKey llave identificadora del formulario de login.
+///@param _formKeyRegisterUno llave identificadora del formulario de nombre y apellido.
+///@param _formKeyRegisterDos llave identificadora del formulario de territorios.
+///@param _formKeyRegisterTres llave identificadora del formulario de correo y telefono.
+///@param _formKeyRegisterCuatro llave identificadora del formulario de contraseña.
+///@param _keyList llave identificadora de cada carta.
+///@param _actualIndex posición actual en el formulario.
+///@param _keyActual llave de la posición actual en el formulario.
 ///@param _width obtiene el ancho de la pantalla del dispositivo.
 ///@param _height obtiene el alto de la pantalla del dispositivo.
 
-class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
+class _LoginMain extends State<LoginMain>{
 
   _LoginMain(); //Constructor de la clase.
 
-  final String _imagen = "assets/img/Logo_OWLed_Blanco.png";
+  final String _imagen = "assets/img/Logo_OWLed_Blanco.png"; //Path de la imagen para el logo OWLED.
 
-  TextEditingController _nombreCorreo; //Controlador del campo de texto para el nombre.
-  TextEditingController _clave;
-  TextEditingController _nombre;
-  TextEditingController _apellido;
-  TextEditingController _correo; //Controlador del campo de texto para el nombre.
-  TextEditingController _telefono;
-  TextEditingController _ingresarClave;
-  TextEditingController _confirmarClave;
+  TextEditingController _nombreCorreo; //Controlador del campo de texto para el nombre del logeo.
+  TextEditingController _clave; //Controlador del campo de texto para la contraseña del logueo.
 
-  Future<List> _personasObtenidas; //Lista con el mapeo de los dispositivos.
+  TextEditingController _nombre; //Controlador del nombre del nuevo usuario.
+  TextEditingController _apellido; //Controlador del apellido del nuevo usuario.
 
-  Future<List> _ADMUNOObtenidos; //Lista con el mapeo de los dispositivos.
-  List<Territorio> _ADMUNOLista; //Lista de elementos en el dropdown de dispositivos.
-  Territorio _ADMUNOSeleccionado; //Dispositivo seleccionado en el dropdown de dispositivos.
+  TextEditingController _correo; //Controlador del correo del nuevo usuario.
+  String _errorCorreo; //Controlador del texto de error del campo del correo del nuevo usuario.
+  Future<List> _correoObtenidos; //Lista con el mapeo de los correos.
+  TextEditingController _telefono; //Controlador del telefono del nuevo usuario.
 
-  Future<List> _ADMDOSObtenidos; //Lista con el mapeo de los dispositivos.
-  List<Territorio> _ADMDOSLista; //Lista de elementos en el dropdown de dispositivos.
-  Territorio _ADMDOSSeleccionado; //Dispositivo seleccionado en el dropdown de dispositivos.
+  TextEditingController _ingresarClave; //Controlador de la clave del nuevo usuario.
+  String _errorIngresarClave; //Controlador del texto de error del campo de la clave del nuevo usuario.
+  TextEditingController _confirmarClave; //Controlador para confirmar la clave del nuevo usuario.
+  String _errorConfirmarClave; //Controlador del texto de error del campo para confirmar la clave del nuevo usuario.
+
+  Future<List> _personasObtenidas; //Lista con el mapeo de las personas.
+
+  Future<List> _ADMUNOObtenidos; //Lista con el mapeo de las regiones obtenidas.
+  List<Territorio> _ADMUNOLista; //Lista de elementos en el dropdown de regiones.
+  Territorio _ADMUNOSeleccionado; //Region seleccionada en el dropdown de regiones.
+  Color _colorADMUNO; //Color del dropdown de regiones.
+  bool _errorDepartamento; //Indica si ha habido un error al cargar los departamentos.
+
+  Future<List> _ADMDOSObtenidos; //Lista con el mapeo de las ciudades obtenidas.
+  List<Territorio> _ADMDOSLista; //Lista de elementos en el dropdown de ciudades.
+  Territorio _ADMDOSSeleccionado; //Ciudad seleccionada en el dropdown de ciudades.
+  Color _colorADMDOS; //Color del dropdown de ciudades.
 
   ButtonState _estadoBoton; //Estado entre las transiciones del botón.
 
-  //Animation
-  Animation<double> backgroundAnimation;
-  //Animation Controller
-  AnimationController _backgroundController;
-  //Alignment tweens
-  AlignmentTween alignmentTop = AlignmentTween(begin: Alignment.topRight, end: Alignment.topLeft);
-  AlignmentTween alignmentBottom = AlignmentTween(begin: Alignment.bottomRight, end: Alignment.bottomLeft);
+  final _formKey = GlobalKey<FormState>(); //Llave identificadora del formulario de login.
+  final _formKeyRegisterUno = GlobalKey<FormState>(); //Llave identificadora del formulario de nombre y apellido.
+  final _formKeyRegisterDos = GlobalKey<FormState>(); //Llave identificadora del formulario de territorios.
+  final _formKeyRegisterTres = GlobalKey<FormState>(); //Llave identificadora del formulario de correo y telefono.
+  final _formKeyRegisterCuatro = GlobalKey<FormState>(); //Llave identificadora del formulario de contraseña.
 
-  final _formKey = GlobalKey<FormState>(); //Llave identificadora del formulario.
-  final _formKeyRegisterUno = GlobalKey<FormState>();
-  final _formKeyRegisterDos = GlobalKey<FormState>();
-  final _formKeyRegisterTres = GlobalKey<FormState>();
-  final _formKeyRegisterCuatro = GlobalKey<FormState>();
+  final List<LabeledGlobalKey> _keyList = [GlobalKey(),GlobalKey(),GlobalKey(),
+                                         GlobalKey(),GlobalKey()]; //Llave identificadora de cada carta.
 
-  final List<LabeledGlobalKey> _keyList= [GlobalKey(),GlobalKey(),GlobalKey(),
-                                         GlobalKey(),GlobalKey()];
-
-  int _actualIndex;
-  var _keyActual = new GlobalKey();
-
-  Animatable<Color> backgroundNormal = TweenSequence<Color>([
-    TweenSequenceItem(
-      weight: 0.5,
-      tween: ColorTween(
-        begin: Color(0xFF08192d).withBlue(330),
-        end: Color(0xFFbf930d),
-      ),
-    ),
-    TweenSequenceItem(
-      weight: 0.5,
-      tween: ColorTween(
-        begin: Color(0xFFbf930d),
-        end: Color(0xFF08192d).withBlue(330),
-      ),
-    ),
-    TweenSequenceItem(
-      weight: 0.5,
-      tween: ColorTween(
-        begin: Color(0xFF08192d).withBlue(330),
-        end: Color(0xFF11DA53),
-      ),
-    ),
-    TweenSequenceItem(
-      weight: 0.5,
-      tween: ColorTween(
-        begin: Color(0xFF11DA53),
-        end: Color(0xFF08192d).withBlue(330),
-      ),
-    ),
-  ]);
+  int _actualIndex; //Posición actual en el formulario.
+  var _keyActual = new GlobalKey(); //Llave de la posicion actual en el formulario.
 
   @override
 
@@ -129,69 +118,73 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
   void initState() {
     super.initState();
     _nombreCorreo = TextEditingController();
+    _clave = TextEditingController();
+
     _nombre = TextEditingController();
     _apellido = TextEditingController();
-    _clave = TextEditingController();
 
     _ADMUNOSeleccionado = Territorio();
     _ADMUNOSeleccionado.nombre = 'Primero seleccione un pais';
     _ADMUNOLista = [Territorio()];
     _ADMUNOLista[0] = _ADMUNOSeleccionado;
+    _colorADMUNO = Colors.black;
+    _errorDepartamento = false;
 
     _ADMDOSSeleccionado = Territorio();
     _ADMDOSSeleccionado.nombre = 'Primero seleccione una region';
     _ADMDOSLista = [Territorio()];
     _ADMDOSLista[0] = _ADMDOSSeleccionado;
+    _colorADMDOS = Colors.black;
 
-    _correo = TextEditingController(); //Controlador del campo de texto para el nombre.
+    _correo = TextEditingController();
+    _errorCorreo = "Ingresa un correo valido.";
     _telefono = TextEditingController();
+
     _ingresarClave = TextEditingController();
     _confirmarClave = TextEditingController();
+
     _estadoBoton = ButtonState.idle;
-    _backgroundController = AnimationController(
-      duration: const Duration(seconds: 20),
-      vsync: this,
-    )..repeat();
-    backgroundAnimation = CurvedAnimation(parent: _backgroundController, curve: Curves.easeIn);
     _keyActual = _keyList[0];
     _actualIndex = 0;
-    _obtenerADMUNO();
+    _ADMUNOObtenidos = _obtenerADMUNO();
   }
 
+  ///Hace una petición para conseguir un mapeo con la lista de los parámetros del
+  ///usuario que solicita el ingreso.
+  ///@see owleddomo_app/login/ServiciosPersona.login#method().
+  ///@return Un mapeo con el usuario.
+
   Future<List> _obtenerLogin() async {
-    if(mounted) {
-      setState(() {
-        _personasObtenidas =  ServiciosPersona.login(_nombreCorreo.text,_clave.text);
-      });
-    }
+    _personasObtenidas =  ServiciosPersona.login(_nombreCorreo.text,_clave.text);
     return _personasObtenidas;
   }
 
+  ///Hace una petición para conseguir un mapeo con la lista de los departamentos.
+  ///@see owleddomo_app/login/territorio/ServiciosTerritorio.obtenerProvincias#method().
+  ///@return Un mapeo con el usuario.
+
   Future<List> _obtenerADMUNO() async {
-    setState(() {
-      _ADMUNOObtenidos = ServiciosTerritorio.obtenerProvincias("CO");
-    });
-    _ADMUNOObtenidos.then((result) => {
+    _ADMUNOObtenidos = ServiciosTerritorio.obtenerProvincias("CO");
+    _ADMUNOObtenidos.then((result) {
       if(mounted) {
         setState(() {
           _ADMUNOLista = [];
-          if(result.first.toString() == "200" && result.last.toString() != "200" ) {
+          if(result.first.toString()[0] == "2" && result.last.toString()[0] != "2"
+              && result.last.toString() != "[]" ) {
             _ADMUNOSeleccionado.nombre = 'Provincia/Departamento/Region';
             _ADMUNOLista = [Territorio()];
             _ADMUNOLista[0] = _ADMUNOSeleccionado;
             _ADMUNOLista..addAll(result.last);
-          }
-          else if (result.first.toString() == "VACIO") {
-            _ADMUNOSeleccionado.nombre = 'No hay lugares';
+            _errorDepartamento = false;
+            _colorADMUNO = Colors.black;
+          } else {
+            _ADMUNOSeleccionado.nombre = 'Error / Actualice por favor';
             _ADMUNOLista = [Territorio()];
             _ADMUNOLista[0] = _ADMUNOSeleccionado;
+            _errorDepartamento = true;
+            _colorADMUNO = Colors.red;
           }
-          else {
-            _ADMUNOSeleccionado.nombre = 'Error';
-            _ADMUNOLista = [Territorio()];
-            _ADMUNOLista[0] = _ADMUNOSeleccionado;
-          }
-        }),
+        });
       }
     });
     return _ADMUNOObtenidos;
@@ -201,33 +194,40 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
     setState(() {
       _ADMDOSObtenidos = ServiciosTerritorio.obtenerCiudades(ADMUNO.codigo_pais, ADMUNO.codigo_admin_uno);
     });
-    _ADMDOSObtenidos.then((result) => {
+    _ADMDOSObtenidos.then((result) {
       if(mounted) {
         setState(() {
           _ADMDOSLista = [];
-          if(result.first.toString() == "200" && result.last.toString() != "200" ) {
+          if(result.first.toString()[0] == "2" && result.last.toString()[0] != "2" ) {
             _ADMDOSSeleccionado.nombre = 'Ciudad/Pueblo';
             _ADMDOSLista = [Territorio()];
             _ADMDOSLista[0] = _ADMDOSSeleccionado;
             _ADMDOSLista..addAll(result.last);
-          }
-          else if (result.first.toString() == "VACIO") {
-            _ADMDOSSeleccionado.nombre = 'No hay lugares';
-            _ADMDOSLista = [Territorio()];
-            _ADMDOSLista[0] = _ADMDOSSeleccionado;
+            _colorADMDOS = Colors.black;
           }
           else {
-            _ADMDOSSeleccionado.nombre = 'Error';
+            _ADMDOSSeleccionado.nombre = 'Error / Actualice por favor';
             _ADMDOSLista = [Territorio()];
             _ADMDOSLista[0] = _ADMDOSSeleccionado;
+            _colorADMDOS = Colors.red;
           }
-        }),
+        });
       }
     });
     return _ADMDOSObtenidos;
   }
 
-  _alPresionar (Persona usuario) {
+  ///Hace una petición para conseguir una repuesta que corrobora si un correo esta
+  ///o no disponible.
+  ///@see owleddomo_app/login/ServiciosPersona.comprobarCorreo#method().
+  ///@return Un mapeo con el correo.
+
+  Future<List> _comprobarCorreo() async {
+    _correoObtenidos =  ServiciosPersona.comprobarCorreo(_correo.text);
+    return _correoObtenidos;
+  }
+
+  _alConfirmar (Persona usuario) {
     Route route = MaterialPageRoute (builder: (context) =>
         AppTrips(usuario)
     );
@@ -245,20 +245,160 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
   ///escaneo de código QR mediante la validación de sus respectivos campos.
 
   _validar() {
-    Persona usuario;
-    _obtenerLogin().then((value) =>
-        {
-          if (value.first == "EXITO" && value.last != "EXITO") {
-            usuario = value.last[0],
-            _estadoBoton = ButtonState.idle,
-            _alPresionar(usuario),
+    if(_formKey.currentState.validate()) {
+      Persona usuario;
+      _obtenerLogin().then((value) =>
+      {
+        if (value.first.toString()[0] == "2" && value.last.toString()[0] != "2"
+            && value.last.toString() != "[]") {
+          usuario = value.last[0],
+          _estadoBoton = ButtonState.idle,
+          _alConfirmar(usuario),
+        } else {
+          setState(() {
+            _estadoBoton = ButtonState.fail;
+          }),
+        }
+      }
+      );
+    } else {
+      _estadoBoton = ButtonState.fail;
+    }
+  }
+
+  ///Maneja el comportamiento al presionar el botón.
+  ///@return un retorno vaico.
+
+  void _alPresionarBoton() {
+    switch (_estadoBoton) {
+      case ButtonState.idle:
+        _estadoBoton = ButtonState.loading;
+        _validar();
+        break;
+      case ButtonState.loading:
+        break;
+      case ButtonState.success:
+        _estadoBoton = ButtonState.idle;
+        break;
+      case ButtonState.fail:
+        _estadoBoton = ButtonState.idle;
+        break;
+    }
+    setState(() {
+      _estadoBoton = _estadoBoton;
+    });
+  }
+
+  _irAtras() {
+    if( _keyActual != _keyList[0] ) {
+      _actualIndex--;
+      _keyActual = _keyList[ _actualIndex];
+      Scrollable.ensureVisible(
+        _keyActual.currentContext,
+        duration: Duration(milliseconds: 1200),
+      );
+    };
+  }
+
+  ///Una ventana emergente que bloquea el resto de la interfaz.
+  ///@see owleddomo_app/shared/PantallaEspera.dart#class().
+
+  _plantillaCarga(BuildContext context) {
+    Future.delayed(Duration(milliseconds: 0), () {
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return Text("Espera");
+        },
+      );
+    });
+  }
+
+  ///Despliega la pantalla de carga mediante un Widget de tipo Text.
+  ///@return un texto vacío.
+
+  Widget _cargando() {
+    _plantillaCarga(context); //Indica que se ha desplegado una pantalla de carga.
+    return  Text("");
+  }
+
+  _irAdelante() {
+    bool validarTerritorios = false;
+    bool validarTelefono = false;
+
+    if(mounted) {
+      setState(() {
+        if(_keyActual == _keyList[2]) {
+          if( _ADMUNOSeleccionado != null && _ADMUNOSeleccionado.nombre != 'Primero seleccione un pais'
+              && _ADMUNOSeleccionado.nombre != 'Provincia/Departamento/Region' && _ADMUNOSeleccionado.nombre != "Error / Actualice por favor") {
+            _colorADMUNO = Colors.black;
           } else {
-            setState(() {
-              _estadoBoton = ButtonState.fail;
-            }),
+            _colorADMUNO = Colors.red;
+          }
+          if( _ADMDOSSeleccionado != null && _ADMDOSSeleccionado.nombre != 'Primero seleccione una region'
+              && _ADMDOSSeleccionado.nombre != "Ciudad/Pueblo" && _ADMDOSSeleccionado.nombre != "Error / Actualice por favor"){
+            _colorADMDOS = Colors.black;
+            validarTerritorios =true;
+          } else {
+            _colorADMDOS = Colors.red;
           }
         }
-    );
+
+       if(_keyActual == _keyList[3]) {
+         if(_telefono.text.isNotEmpty) {
+           validarTelefono = true;
+         }
+         if(_correo.text.isNotEmpty && _correo.text.length <= 63) {
+           if(_correo.text.contains('@',1) && _correo.text.contains('.',1)){
+             if(_correo.text.contains('.',_correo.text.lastIndexOf('@'))
+                 && !_correo.text.contains(' ')
+                 && _correo.text.substring(_correo.text.indexOf('.')).length != 1) {
+               _cargando();
+               _comprobarCorreo().then((result) {
+                 if(mounted) {
+                   setState(() {
+                     if(result.first.toString()[0] == "2" && result.last.toString()[0] != "2" && result.last.toString() != "[]" ) {
+                       _errorCorreo = null;
+                       if(validarTelefono) {
+                         _actualIndex++;
+                         _keyActual = _keyList[ _actualIndex];
+                         Scrollable.ensureVisible(
+                           _keyActual.currentContext,
+                           duration: Duration(milliseconds: 1200),
+                         );
+                       }
+                     } else {
+                       _errorCorreo = 'Ya esta en uso';
+                     }
+                   });
+                 }
+                 _formKeyRegisterTres.currentState.validate();
+                 Navigator.of(context).pop(null);
+               });
+             } else {
+               _errorCorreo = "Ingresa un correo valido.";
+             }
+           } else {
+             _errorCorreo = "Ingresa un correo valido.";
+           }
+         } else {
+           _errorCorreo = "Ingresa un correo valido.";
+         }
+         _formKeyRegisterTres.currentState.validate();
+       }
+      });
+    }
+
+    if((_keyActual == _keyList[1] && _formKeyRegisterUno.currentState.validate())
+        || (_keyActual == _keyList[2] && validarTerritorios)) {
+      _actualIndex++;
+      _keyActual = _keyList[ _actualIndex];
+      Scrollable.ensureVisible(
+        _keyActual.currentContext,
+        duration: Duration(milliseconds: 1200),
+      );
+    }
   }
 
   Widget build(BuildContext context) {
@@ -266,27 +406,30 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
     double _width = MediaQuery.of(context).size.width; //Obtiene el ancho de la pantalla del dispositivo.
     double _height = MediaQuery.of(context).size.height; //Obtiene el alto de la pantalla del dispositivo.
 
-    Widget _animacion() {
+    ///Construye el Widget que maneja el fondo de la pantalla.
+    ///@return un Widget de Container que posee un gradiente de color.
+
+    Widget _fondo() {
       return Container(
         width: _width,
         height: _height,
         decoration: BoxDecoration(
-          color: PaletaColores().obtenerPrimario(),
-          /*gradient: LinearGradient(
-            begin: alignmentTop.evaluate(backgroundAnimation),
-            end: alignmentBottom.evaluate(backgroundAnimation),
+          color: Color(0xFF08192d),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
             colors: [
-              PaletaColores().obtenerColorUno(),
-              backgroundNormal.evaluate(backgroundAnimation),
-              PaletaColores().obtenerColorUno().withBlue(10),
+              Colors.black,
+              Color(0xFF08192d),
+              Colors.black,
             ],
-          ),*/
+          ),
         ),
       );
     }
 
-    ///Construye el Widget que maneja el campo para introducir el nombre del dispositivo.
-    ///@return un Widget de Padding que contiene un campo de texto.
+    ///Construye el Widget que maneja el campo de texto para el nombre.
+    ///@return un Widget de Container que posee un campo de texto.
 
     Widget _nombreCorreoWidget() {
       return Container(
@@ -295,24 +438,43 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: PaletaColores().obtenerColorCuatro(),
+            primaryColor: Color(0xFFbf930d),
           ),
           child: TextFormField(
-            style: TextStyle(fontSize: _width/27.69230769230769),
             controller: _nombreCorreo,
+            style: TextStyle(
+              fontSize: _width/27.69230769230769,
+              color: Colors.black,
+              fontFamily: "Lato",
+            ),
             decoration: InputDecoration(
               filled: true,
-              fillColor: PaletaColores().obtenerColorDos(),
+              fillColor: Colors.white,
               border: const OutlineInputBorder(),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Color(0xFFbf930d),
+                  width: 2.0,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Color(0xFF929292),
+                  width: 2.0,
+                ),
+              ),
               labelText: 'Introduzca el Correo o Usuario',
+              labelStyle: TextStyle(
+                color: Color(0xFF929292),
+                fontFamily: "Lato",
+              ),
               icon: Icon(
                 Icons.person_rounded,
-                color: PaletaColores().obtenerColorInactivo(),
+                color: Color(0xFF929292),
                 size: _width/14.4,
               ),
             ),
             validator: (value) {
-              //_validar();
               String mensaje;
               value.isEmpty ? mensaje='¡Hey! Te falta llenar esto.'
                   : mensaje=null;
@@ -323,8 +485,8 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
       );
     }
 
-    ///Construye el Widget que maneja el campo para introducir el nombre del dispositivo.
-    ///@return un Widget de Padding que contiene un campo de texto.
+    ///Construye el Widget que maneja el campo de texto para la clave.
+    ///@return un Widget de Container que posee un campo de texto.
 
     Widget _claveWidget() {
       return Container(
@@ -333,25 +495,44 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: PaletaColores().obtenerColorCuatro(),
+            primaryColor: Color(0xFFbf930d),
           ),
           child: TextFormField(
-            obscureText: true,
-            style: TextStyle(fontSize: _width/27.69230769230769),
             controller: _clave,
+            obscureText: true,
+            style: TextStyle(
+              fontSize: _width/27.69230769230769,
+              color: Colors.black,
+              fontFamily: "Lato",
+            ),
             decoration: InputDecoration(
               filled: true,
-              fillColor: PaletaColores().obtenerColorDos(),
+              fillColor: Colors.white,
               border: const OutlineInputBorder(),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Color(0xFFbf930d),
+                  width: 2.0,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Color(0xFF929292),
+                  width: 2.0,
+                ),
+              ),
               labelText: 'Introduzca su Contraseña',
+              labelStyle: TextStyle(
+                color: Color(0xFF929292),
+                fontFamily: "Lato",
+              ),
               icon: Icon(
                 Icons.lock_open_rounded,
-                color: PaletaColores().obtenerColorInactivo(),
+                color: Color(0xFF929292),
                 size: _width/14.4,
               ),
             ),
             validator: (value) {
-              //_validar();
               String mensaje;
               value.isEmpty ? mensaje='¡Hey! Te falta llenar esto.'
                   : mensaje=null;
@@ -362,112 +543,123 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
       );
     }
 
-    ///Maneja el comportamiento al presionar el botón.
-    ///@return un retorno vaico.
+    ///Construye el Widget del boton de login del formularo.
+    ///@return un Widget de Container que posee un boton.
 
-    void _alPresionarBoton() {
-      switch (_estadoBoton) {
-        case ButtonState.idle:
-          _validar();
-          _estadoBoton = ButtonState.loading;
-          break;
-        case ButtonState.loading:
-          break;
-        case ButtonState.success:
-          _estadoBoton = ButtonState.idle;
-          break;
-        case ButtonState.fail:
-          _estadoBoton = ButtonState.idle;
-          break;
-      }
-      setState(() {
-        _estadoBoton = _estadoBoton;
-      });
-    }
-
-    ///Construye el Widget que maneja el botón para suministrar los datos del formulario.
-    ///@return un Widget de Container que contiene un botón.
-
-    Widget _boton() {
+    Widget _botonLogin() {
       return Container(
         width: _width/6.545454545454545,
-        child: ProgressButton.icon(iconedButtons: {
-          ButtonState.idle: IconedButton(
-              icon: Icon(Icons.login_rounded, color: Colors.white),
-              color: PaletaColores().obtenerColorInactivo()),
-          ButtonState.loading:
-          IconedButton(text: "Cargando", color: PaletaColores().obtenerColorUno()),
-          ButtonState.fail: IconedButton(
-              icon: Icon(Icons.cancel, color: Colors.white),
-              color: PaletaColores().obtenerColorRiesgo()),
-          ButtonState.success: IconedButton(
-              text: "Exito",
+        child: ProgressButton.icon(
+          iconedButtons: {
+            ButtonState.idle: IconedButton(
               icon: Icon(
+                Icons.login_rounded,
+                color: Colors.white,
+              ),
+              color: Color(0xFF929292),
+            ),
+            ButtonState.loading:
+            IconedButton(
+              text: "Cargando",
+              color: Color(0xFF08192d),
+            ),
+          ButtonState.fail: IconedButton(
+              icon: Icon(
+                Icons.cancel,
+                color: Colors.white,
+              ),
+            color: Colors.red,
+          ),
+          ButtonState.success: IconedButton(
+            text: "Exito",
+            icon: Icon(
                 Icons.check_circle,
                 color: Colors.white,
               ),
-              color: PaletaColores().obtenerColorTres())
+            color: Color(0xFF9BBF63),
+          )
         }, onPressed: () {
-          if (_formKey.currentState.validate()) {
             _alPresionarBoton();
-          } else if (_estadoBoton == ButtonState.fail){
-            _estadoBoton = ButtonState.idle;
-          }
         },
-            state: _estadoBoton),
+          state: _estadoBoton,
+        ),
       );
     }
+
+    ///Construye el Widget del botón de agregar persona.
+    ///@return un Widget de Container que posee un botón.
+
+    Widget _botonAgregarPersona() {
+      return Container(
+        decoration: BoxDecoration(
+          color: Color(0xFF08192d),
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Color(0xFF08192d),
+            width: _width/180,
+          ),
+        ),
+        child: IconButton(
+          iconSize: _width/12,
+          color: Color(0xFF9BBF63),
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          icon: Icon(
+            Icons.person_add,
+          ),
+          onPressed: () => {
+            _keyActual = _keyList[1],
+            _actualIndex = 1,
+            Scrollable.ensureVisible(
+              _keyList[1].currentContext,
+              duration: Duration(milliseconds: 1200),
+            ),
+          },
+        ),
+      );
+    }
+
+    ///Construye el Widget del botón de recuperar contraseña.
+    ///@return un Widget de Container que posee un botón.
+
+    Widget _botonRecuperarPassword() {
+      return Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Color(0xFFbf930d),
+            width: _width/180,
+          ),
+        ),
+        child: IconButton(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          icon: SeleccionarIcono(
+            "RecuperarContraseña",
+            _width/12,
+            Color(0xFFbf930d),
+          ),
+          onPressed: () {
+          },
+        ),
+      );
+    }
+
+    ///Construye el Widget de la fila inferior.
+    ///@return un Widget de Row que posee dos botones.
 
     Widget _filaRegistro() {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget> [
-          Container(
-            decoration: BoxDecoration(
-              color: PaletaColores().obtenerColorUno(),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: PaletaColores().obtenerColorUno(),
-                width: _width/180,
-              ),
-            ),
-            child: IconButton(
-              iconSize: _width/12,
-              color: PaletaColores().obtenerColorTres(),
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              icon: Icon(
-                Icons.person_add,
-              ),
-              onPressed: () => {
-                _keyActual = _keyList[1],
-                _actualIndex = 1,
-                Scrollable.ensureVisible(
-                  _keyList[1].currentContext,
-                  duration: Duration(milliseconds: 1200),
-                ),
-              },
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: PaletaColores().obtenerColorCuatro(),
-                width: _width/180,
-              ),
-            ),
-            child: IconButton(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              icon: SeleccionarIcono("RecuperarContraseña", _width/12, PaletaColores().obtenerColorCuatro()),
-              onPressed: () {
-              },
-            ),
-          ),
+          _botonRecuperarPassword(),
+          _botonAgregarPersona(),
         ],
       );
     }
+
+    ///Construye el Widget de la fila que contiene los botones.
+    ///@return un Widget de Container que posee una columna.
 
     Widget _botonesWidget() {
       return Container (
@@ -475,12 +667,15 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         alignment: Alignment.center,
         child: Column(
           children: <Widget> [
-            _boton(),
+            _botonLogin(),
             _filaRegistro(),
           ],
         )
       );
     }
+
+    ///Construye el Widget de la carta principal del login.
+    ///@return un Widget de Container que posee una carta.
 
     Widget _cartaIntro() {
       return Container (
@@ -488,6 +683,7 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         margin: EdgeInsets.symmetric(horizontal: _width/15),
         alignment: Alignment.center,
         child: Card(
+          color: Colors.white,
           child: Container(
             height: _height/2.262857142857143,
             width: _width/1.2,
@@ -497,7 +693,7 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   _nombreCorreoWidget(),
-                  //_claveWidget(),
+                  _claveWidget(),
                   _botonesWidget(),
                 ],
               ),
@@ -507,27 +703,8 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
       );
     }
 
-    _irAtras() {
-      if( _keyActual != _keyList[0] ) {
-        _actualIndex--;
-        _keyActual = _keyList[ _actualIndex];
-        Scrollable.ensureVisible(
-          _keyActual.currentContext,
-          duration: Duration(milliseconds: 1200),
-        );
-      };
-    }
-
-    _irAdelante() {
-      if( _keyActual != _keyList[4] ) {
-        _actualIndex++;
-        _keyActual = _keyList[ _actualIndex];
-        Scrollable.ensureVisible(
-          _keyActual.currentContext,
-          duration: Duration(milliseconds: 1200),
-        );
-      };
-    }
+    ///Construye el Widget del botón de las tarjetas para retroceder.
+    ///@return un Widget de Container que posee un boton.
 
     Widget _botonAtras() {
       return Container(
@@ -541,20 +718,24 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
                   child: Icon(
                     Icons.arrow_back_ios,
                     size: _width/18,
+                    color: Colors.white,
                   ),
                 ),
                 Text(
                   "Regresar",
                   style: TextStyle(
-                    color: PaletaColores().obtenerColorDos(),
+                    color: Colors.white,
                     fontSize: _width/25.71428571428571,
+                    fontFamily: "Lato",
                   ),
                 ),
               ],
             ),
           ),
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(PaletaColores().obtenerColorRiesgo()),
+            backgroundColor: MaterialStateProperty.all<Color>(
+              Colors.red,
+            ),
           ),
           onPressed: () => {
             _irAtras(),
@@ -562,6 +743,9 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         ),
       );
     }
+
+    ///Construye el Widget del botón de las tarjetas para avanzar.
+    ///@return un Widget de Container que posee un boton.
 
     Widget _botonSiguiente() {
       return Container(
@@ -574,21 +758,25 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
                 Text(
                   "Siguiente",
                   style: TextStyle(
-                    color: PaletaColores().obtenerColorDos(),
+                    color: Colors.white,
                     fontSize: _width/25.71428571428571,
+                    fontFamily: "Lato",
                   ),
                 ),
                 Container (
                   child: Icon(
                     Icons.arrow_forward_ios_outlined,
                     size: _width/18,
+                    color: Colors.white,
                   ),
                 ),
               ],
             ),
           ),
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(PaletaColores().obtenerColorTres()),
+            backgroundColor: MaterialStateProperty.all<Color>(
+              Color(0xFF9BBF63),
+            ),
           ),
           onPressed: () => {
             _irAdelante(),
@@ -596,6 +784,10 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         ),
       );
     }
+
+    ///Construye el Widget de la fila inferior para los botones
+    ///de navegación.
+    ///@return un Widget de Row que posee dos botones.
 
     Widget _barraNavegacion() {
       return Container(
@@ -610,67 +802,132 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
       );
     }
 
+    ///Construye el Widget que maneja el campo de texto para el nombre de un
+    ///nuevo usuario.
+    ///@return un Widget de Padding que posee un campo de texto.
+
     Widget _nombreWidget() {
-      return Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: _height/158.4,
-          horizontal: _width/28,
-        ),
-        child: Theme(
-          data: ThemeData(
-            primaryColor: PaletaColores().obtenerColorCuatro(),
+      return Container(
+        height: _height/8.8,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: _height/158.4,
+            horizontal: _width/28,
           ),
-          child: TextFormField(
-            controller: _nombre,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: PaletaColores().obtenerColorDos(),
-              border: const OutlineInputBorder(),
-              hintText: '¿Como va a llamar a este dispositivo?',
-              labelText: 'Ingrese su Nombre',
+          child: Theme(
+            data: ThemeData(
+              primaryColor: Color(0xFFbf930d),
             ),
-            validator: (value) {
-              //_validar();
-              String mensaje;
-              value.isEmpty ? mensaje='¡Espera!... Debes ponerle un nombre.'
-                  : mensaje=null;
-              return mensaje;
-            },
+            child: TextFormField(
+              controller: _nombre,
+              style: TextStyle(
+                fontSize: _width/27.69230769230769,
+                color: Colors.black,
+                fontFamily: "Lato",
+              ),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                border: const OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFbf930d),
+                    width: 2.0,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFF929292),
+                    width: 2.0,
+                  ),
+                ),
+                hintText: '¿Cual es tu nombre?',
+                hintStyle: TextStyle(
+                  color: Color(0xFF929292),
+                  fontFamily: "Lato",
+                ),
+                labelText: 'Ingresa tu Nombre',
+                labelStyle: TextStyle(
+                  color: Color(0xFF929292),
+                  fontFamily: "Lato",
+                ),
+              ),
+              validator: (value) {
+                String mensaje;
+                value.isEmpty ? mensaje='Ingresa tus nombres.'
+                    : mensaje=null;
+                return mensaje;
+              },
+            ),
           ),
         ),
       );
     }
 
+    ///Construye el Widget que maneja el campo de texto para el apellido de un
+    ///nuevo usuario.
+    ///@return un Widget de Padding que posee un campo de texto.
+
     Widget _apellidoWidget() {
-      return Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: _height/158.4,
-          horizontal: _width/28,
-        ),
-        child: Theme(
-          data: ThemeData(
-            primaryColor: PaletaColores().obtenerColorCuatro(),
+      return Container(
+        height: _height/8.8,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: _height/158.4,
+            horizontal: _width/28,
           ),
-          child: TextFormField(
-            controller: _apellido,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: PaletaColores().obtenerColorDos(),
-              border: const OutlineInputBorder(),
-              hintText: '¿Como va a llamar a este dispositivo?',
-              labelText: 'Ingrese se Apellido',
+          child: Theme(
+            data: ThemeData(
+              primaryColor: Color(0xFFbf930d),
             ),
-            validator: (value) {
-              //_validar();
-              String mensaje;
-              value.isEmpty ? mensaje='¡Espera!... Debes ponerle un nombre.'
-                  : mensaje=null;
-              return mensaje;
-            },
+            child: TextFormField(
+              controller: _apellido,
+              style: TextStyle(
+                fontSize: _width/27.69230769230769,
+                color: Colors.black,
+                fontFamily: "Lato",
+              ),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                border: const OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFbf930d),
+                    width: 2.0,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFF929292),
+                    width: 2.0,
+                  ),
+                ),
+                hintText: '¿Cual es tu apellido?',
+                hintStyle: TextStyle(
+                  color: Color(0xFF929292),
+                  fontFamily: "Lato",
+                ),
+                labelText: 'Ingresa tu Apellido',
+                labelStyle: TextStyle(
+                  color: Color(0xFF929292),
+                  fontFamily: "Lato",
+                ),
+              ),
+              validator: (value) {
+                String mensaje;
+                value.isEmpty ? mensaje='Ingresa tus apellidos.'
+                    : mensaje=null;
+                return mensaje;
+              },
+            ),
           ),
         ),
       );
     }
+
+    ///Construye el Widget de la carta para agregar los parámetros de nombre y apellido.
+    ///@return un Widget de Container que posee una carta.
 
     Widget _cartaNombApell() {
       return Container (
@@ -678,8 +935,9 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         margin: EdgeInsets.symmetric(horizontal: _width/15),
         alignment: Alignment.center,
         child: Card(
+          color: Colors.white,
           child: Container(
-            height: _height/3.3,
+            height: _height/3.168,
             width: _width/1.2,
             child: Form(
               key: _formKeyRegisterUno,
@@ -688,13 +946,19 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
                 children: <Widget>[
                   Container(
                     width: _width/1.285714285714286,
-                    height: _height/5.28,
+                    height: _height/4.4,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Container(
-                          child: SeleccionarIcono("Astronauta", _width/12, PaletaColores().obtenerColorInactivo()),
-                          margin: EdgeInsets.only(left: _width/36),
+                          child: SeleccionarIcono(
+                            "Astronauta",
+                            _width/12,
+                            Color(0xFF929292),
+                          ),
+                          margin: EdgeInsets.only(
+                            left: _width/36,
+                          ),
                         ),
                         Container(
                           width: _width/1.5,
@@ -716,6 +980,9 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         ),
       );
     }
+    ///Construye el Widget que maneja la lista desplegable y seleccionable de los
+    ///departamentos.
+    ///@return Un Widget de Container con un dropDown.
 
     Widget _dropDownADMUNO() {
       return Container(
@@ -723,47 +990,33 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         child: DropdownButton<Territorio>(
           isExpanded: true,
           value: _ADMUNOSeleccionado,
-          menuMaxHeight: _height/1,
-
-          /*icon: Icon(
-            _iconoDispositivo,
-            color: _dispositivoColorDrowDown,
-          ),
-          iconSize: _width/18,*/
+          menuMaxHeight: _height,
           elevation: 16,
+          iconEnabledColor: _colorADMUNO,
           underline: Container(
             height: _height/396,
-            //color: _dispositivoColorDrowDown,
           ),
           onChanged: (Territorio nuevoValor) {
             setState(() {
               _ADMUNOSeleccionado = nuevoValor;
               if (_ADMUNOSeleccionado.nombre != "Error"
                   && _ADMUNOSeleccionado.codigo_admin_uno == null) {
-                //_dispositivoColorDrowDown = colores.obtenerColorInactivo();
-                //_iconoDispositivo = Icons.device_unknown_rounded;
-                //_estado = 0;
               } else if (_ADMUNOSeleccionado.nombre == "Error"
                   && _ADMUNOSeleccionado.codigo_admin_uno == null) {
-                //_iconoDispositivo = Icons.error_outline_rounded;
-                //_estado = 0;
               } else {
-                //_dispositivoColorDrowDown = colores.obtenerColorCuatro();
-                //_iconoDispositivo = Icons.check_rounded;
-                //_estado = 2;
                 _obtenerADMDOS(_ADMUNOSeleccionado);
               }
             });
           },
-          items: _ADMUNOLista.map((Territorio dispositivo) {
+          items: _ADMUNOLista.map((Territorio territorio) {
             return DropdownMenuItem<Territorio>(
-              value: dispositivo,
+              value: territorio,
               child: Text(
-                dispositivo.nombre,
+                territorio.nombre,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
                 style: TextStyle(
-                  //color: _dispositivoColorDrowDown,
+                  color: _colorADMUNO,
                   fontFamily: 'Lato',
                   fontSize: _width/30,
                 ),
@@ -773,6 +1026,10 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         ),
       );
     }
+
+    ///Construye el Widget que maneja la lista desplegable y seleccionable de las
+    ///ciudades.
+    ///@return Un Widget de Container con un dropDown.
 
     Widget _dropDownADMDOS() {
       return Container(
@@ -780,46 +1037,32 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
         child: DropdownButton<Territorio>(
           isExpanded: true,
           value: _ADMDOSSeleccionado,
-          menuMaxHeight: _height/1,
-
-          /*icon: Icon(
-            _iconoDispositivo,
-            color: _dispositivoColorDrowDown,
-          ),
-          iconSize: _width/18,*/
+          menuMaxHeight: _height,
           elevation: 16,
+          iconEnabledColor: _colorADMDOS,
           underline: Container(
             height: _height/396,
-            //color: _dispositivoColorDrowDown,
           ),
           onChanged: (Territorio nuevoValor) {
             setState(() {
               _ADMDOSSeleccionado = nuevoValor;
               if (_ADMDOSSeleccionado.nombre != "Error"
                   && _ADMDOSSeleccionado.codigo_admin_dos == null) {
-                //_dispositivoColorDrowDown = colores.obtenerColorInactivo();
-                //_iconoDispositivo = Icons.device_unknown_rounded;
-                //_estado = 0;
               } else if (_ADMDOSSeleccionado.nombre == "Error"
                   && _ADMDOSSeleccionado.codigo_admin_dos == null) {
-                //_iconoDispositivo = Icons.error_outline_rounded;
-                //_estado = 0;
               } else {
-                //_dispositivoColorDrowDown = colores.obtenerColorCuatro();
-                //_iconoDispositivo = Icons.check_rounded;
-                //_estado = 2;
               }
             });
           },
-          items: _ADMDOSLista.map((Territorio dispositivo) {
+          items: _ADMDOSLista.map((Territorio territorio) {
             return DropdownMenuItem<Territorio>(
-              value: dispositivo,
+              value: territorio,
               child: Text(
-                dispositivo.nombre,
+                territorio.nombre,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
                 style: TextStyle(
-                  //color: _dispositivoColorDrowDown,
+                  color: _colorADMDOS,
                   fontFamily: 'Lato',
                   fontSize: _width/30,
                 ),
@@ -830,14 +1073,51 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
       );
     }
 
+    ///Construye el Widget del botón de las tarjetas para actualizar
+    ///los departamentos.
+    ///@return un Widget de Container que posee un boton.
+
+    Widget _botonActualizarDepartamento() {
+      return Container(
+        width: _width/6,
+        child: _errorDepartamento ? Container(
+          height: _width/7.2,
+          width: _width/7.2,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+          ),
+          child: IconButton(
+            iconSize: _width/9,
+            color: Color(0xFF929292),
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            icon: Icon(
+              Icons.update_rounded,
+            ),
+            onPressed: () => {
+              _obtenerADMUNO(),
+            },
+          ),
+        ) : SeleccionarIcono(
+          "Localizacion",
+          _width/12,
+          Color(0xFF929292),
+        ),
+      );
+    }
+
+    ///Construye el Widget de la carta para agregar los parámetros de departamento y ciudad.
+    ///@return un Widget de Container que posee una carta.
+
     Widget _cartaTerritorio() {
       return Container (
         key: _keyList[2],
         margin: EdgeInsets.symmetric(horizontal: _width/15),
         alignment: Alignment.center,
         child: Card(
+          color:Colors.white,
           child: Container(
-            height: _height/2.64,
+            height: _height/4.4,
             width: _width/1.2,
             child: Form(
               key: _formKeyRegisterDos,
@@ -846,16 +1126,13 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
                 children: <Widget>[
                   Container(
                     width: _width/1.285714285714286,
-                    height: _height/5.28,
+                    height: _height/7.92,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
+                        _botonActualizarDepartamento(),
                         Container(
-                          child: SeleccionarIcono("Localizacion", _width/12, PaletaColores().obtenerColorInactivo()),
-                          margin: EdgeInsets.only(left: _width/36),
-                        ),
-                        Container(
-                          width: _width/1.5,
+                          width: _width/1.636363636363636,
                           child: Column(
                             children: <Widget> [
                               _dropDownADMUNO(),
@@ -875,76 +1152,139 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
       );
     }
 
+    ///Construye el Widget que maneja el campo de texto para el correo de un
+    ///nuevo usuario.
+    ///@return un Widget de Padding que posee un campo de texto.
+
     Widget _correoWidget() {
-      return Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: _height/158.4,
-          horizontal: _width/28,
-        ),
-        child: Theme(
-          data: ThemeData(
-            primaryColor: PaletaColores().obtenerColorCuatro(),
+      return Container(
+        height: _height/8.8,
+        child:Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: _height/158.4,
+            horizontal: _width/28,
           ),
-          child: TextFormField(
-            controller: _correo,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: PaletaColores().obtenerColorDos(),
-              border: const OutlineInputBorder(),
-              hintText: '¿Como va a llamar a este dispositivo?',
-              labelText: 'Ingrese su correo',
+          child: Theme(
+            data: ThemeData(
+              primaryColor: Color(0xFFbf930d),
             ),
-            validator: (value) {
-              //_validar();
-              String mensaje;
-              value.isEmpty ? mensaje='¡Espera!... Debes ponerle un nombre.'
-                  : mensaje=null;
-              return mensaje;
-            },
+            child: TextFormField(
+              controller: _correo,
+              style: TextStyle(
+                fontSize: _width/27.69230769230769,
+                color: Colors.black,
+                fontFamily: "Lato",
+              ),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                border: const OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFbf930d),
+                    width: 2.0,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFF929292),
+                    width: 2.0,
+                  ),
+                ),
+                hintText: '¿Cual es tu correo?',
+                hintStyle: TextStyle(
+                  color: Color(0xFF929292),
+                  fontFamily: "Lato",
+                ),
+                labelText: 'Ingresa tu correo',
+                labelStyle: TextStyle(
+                  color: Color(0xFF929292),
+                  fontFamily: "Lato",
+                ),
+              ),
+              validator: (value) {
+                return _errorCorreo;
+              },
+            ),
           ),
         ),
       );
     }
 
+    ///Construye el Widget que maneja el campo de texto para el telefono de un
+    ///nuevo usuario.
+    ///@return un Widget de Padding que posee un campo de texto.
+
     Widget _telefonoWidget() {
-      return Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: _height/158.4,
-          horizontal: _width/28,
-        ),
-        child: Theme(
-          data: ThemeData(
-            primaryColor: PaletaColores().obtenerColorCuatro(),
+      return Container(
+        height: _height/8.8,
+        child:Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: _height/158.4,
+            horizontal: _width/28,
           ),
-          child: TextFormField(
-            controller: _telefono,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: PaletaColores().obtenerColorDos(),
-              border: const OutlineInputBorder(),
-              hintText: '¿Como va a llamar a este dispositivo?',
-              labelText: 'Ingrese su telefono',
+          child: Theme(
+            data: ThemeData(
+              primaryColor: Color(0xFFbf930d),
             ),
-            validator: (value) {
-              //_validar();
-              String mensaje;
-              value.isEmpty ? mensaje='¡Espera!... Debes ponerle un nombre.'
-                  : mensaje=null;
-              return mensaje;
-            },
+            child: TextFormField(
+              controller: _telefono,
+              style: TextStyle(
+                fontSize: _width/27.69230769230769,
+                color: Colors.black,
+                fontFamily: "Lato",
+              ),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                border: const OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFbf930d),
+                    width: 2.0,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFF929292),
+                    width: 2.0,
+                  ),
+                ),
+                hintText: '¿Cual es tu telefono?',
+                hintStyle: TextStyle(
+                  color: Color(0xFF929292),
+                  fontFamily: "Lato",
+                ),
+                labelText: 'Ingresa tu telefono',
+                labelStyle: TextStyle(
+                  color: Color(0xFF929292),
+                  fontFamily: "Lato",
+                ),
+              ),
+              validator: (value) {
+                String mensaje;
+                value.isEmpty ? mensaje='Ingresa un numero valido.'
+                    : mensaje=null;
+                return mensaje;
+              },
+            ),
           ),
         ),
       );
     }
+
+    ///Construye el Widget de la carta para agregar los parámetros de correo y telefono.
+    ///@return un Widget de Container que posee una carta.
 
     Widget _cartaCorreoTel() {
       return Container (
         key: _keyList[3],
-        margin: EdgeInsets.symmetric(horizontal: _width/24),
+        margin: EdgeInsets.symmetric(horizontal: _width/15),
         alignment: Alignment.center,
         child: Card(
+          color:Colors.white,
           child: Container(
-            height: _height/3.3,
+            height: _height/3.168,
             width: _width/1.2,
             child: Form(
               key: _formKeyRegisterTres,
@@ -953,12 +1293,16 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
                 children: <Widget>[
                   Container(
                     width: _width/1.285714285714286,
-                    height: _height/5.28,
+                    height: _height/4.4,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Container(
-                          child: SeleccionarIcono("Correo", _width/12, PaletaColores().obtenerColorInactivo()),
+                          child: SeleccionarIcono(
+                            "Correo",
+                            _width/12,
+                            Color(0xFF929292),
+                          ),
                           margin: EdgeInsets.only(left: _width/360),
                         ),
                         Container(
@@ -982,67 +1326,133 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
       );
     }
 
+    ///Construye el Widget que maneja el campo de texto para la clave de un
+    ///nuevo usuario.
+    ///@return un Widget de Padding que posee un campo de texto.
+
     Widget _introducirClaveWidget() {
-      return Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: _height/158.4,
-          horizontal: _width/28,
-        ),
-        child: Theme(
-          data: ThemeData(
-            primaryColor: PaletaColores().obtenerColorCuatro(),
+      return Container(
+        height: _height/8.8,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: _height/158.4,
+            horizontal: _width/28,
           ),
-          child: TextFormField(
-            controller: _ingresarClave,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: PaletaColores().obtenerColorDos(),
-              border: const OutlineInputBorder(),
-              hintText: '¿Como va a llamar a este dispositivo?',
-              labelText: 'Ingresar clave',
+          child: Theme(
+            data: ThemeData(
+              primaryColor: Color(0xFFbf930d),
             ),
-            validator: (value) {
-              //_validar();
-              String mensaje;
-              value.isEmpty ? mensaje='¡Espera!... Debes ponerle un nombre.'
-                  : mensaje=null;
-              return mensaje;
-            },
+            child: TextFormField(
+              controller: _ingresarClave,
+              style: TextStyle(
+                fontSize: _width/27.69230769230769,
+                color: Colors.black,
+                fontFamily: "Lato",
+              ),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                border: const OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFbf930d),
+                    width: 2.0,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFF929292),
+                    width: 2.0,
+                  ),
+                ),
+                hintText: '¡Pon una super clave!',
+                hintStyle: TextStyle(
+                  color: Color(0xFF929292),
+                  fontFamily: "Lato",
+                ),
+                labelText: 'Ingresa una clave',
+                labelStyle: TextStyle(
+                  color: Color(0xFF929292),
+                  fontFamily: "Lato",
+                ),
+              ),
+              validator: (value) {
+                String mensaje;
+                value.isEmpty ? mensaje='Ingresa una clave.'
+                    : mensaje=_errorIngresarClave;
+                return mensaje;
+              },
+            ),
           ),
         ),
       );
     }
 
+    ///Construye el Widget que maneja el campo de texto para confirmar la clave de un
+    ///nuevo usuario.
+    ///@return un Widget de Padding que posee un campo de texto.
+
     Widget _confirmarClaveWidget() {
-      return Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: _height/158.4,
-          horizontal: _width/28,
-        ),
-        child: Theme(
-          data: ThemeData(
-            primaryColor: PaletaColores().obtenerColorCuatro(),
+      return Container(
+        height: _height/8.8,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: _height/158.4,
+            horizontal: _width/28,
           ),
-          child: TextFormField(
-            controller: _confirmarClave,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: PaletaColores().obtenerColorDos(),
-              border: const OutlineInputBorder(),
-              hintText: '¿Como va a llamar a este dispositivo?',
-              labelText: 'Confirmar Clave',
+          child: Theme(
+            data: ThemeData(
+              primaryColor: Color(0xFFbf930d),
             ),
-            validator: (value) {
-              //_validar();
-              String mensaje;
-              value.isEmpty ? mensaje='¡Espera!... Debes ponerle un nombre.'
-                  : mensaje=null;
-              return mensaje;
-            },
+            child: TextFormField(
+              controller: _confirmarClave,
+              style: TextStyle(
+                fontSize: _width/27.69230769230769,
+                color: Colors.black,
+                fontFamily: "Lato",
+              ),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                border: const OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFbf930d),
+                    width: 2.0,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFF929292),
+                    width: 2.0,
+                  ),
+                ),
+                hintText: '¡Confirma tu super clave!',
+                hintStyle: TextStyle(
+                  color: Color(0xFF929292),
+                  fontFamily: "Lato",
+                ),
+                labelText: 'Confirma esa clave',
+                labelStyle: TextStyle(
+                  color: Color(0xFF929292),
+                  fontFamily: "Lato",
+                ),
+              ),
+              validator: (value) {
+                String mensaje;
+                value.isEmpty ? mensaje='Confirma tu clave.'
+                    : mensaje=_errorConfirmarClave;
+                return mensaje;
+              },
+            ),
           ),
         ),
       );
     }
+
+    ///Construye el Widget del botón de las tarjetas para enviar la informacion del
+    ///nuevo usuario.
+    ///@return un Widget de Container que posee un boton.
 
     Widget _botonEnviar() {
       return Container(
@@ -1055,43 +1465,60 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
                 Text(
                   "Registrarse",
                   style: TextStyle(
-                    color: PaletaColores().obtenerColorDos(),
+                    color: Colors.white,
                     fontSize: _width/25.71428571428571,
+                    fontFamily: "Lato",
                   ),
                 ),
               ],
             ),
           ),
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(PaletaColores().obtenerColorUno()),
+            backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF08192d),),
           ),
-          onPressed: () => {
-            _actualIndex = 0,
-            _keyActual = _keyList[0],
-            Scrollable.ensureVisible(
-              _keyList[3].currentContext,
-              duration: Duration(milliseconds: 400),
-            ).then((value) => {
-              Scrollable.ensureVisible(
-                _keyList[2].currentContext,
-                duration: Duration(milliseconds: 400),
-              ).then((value) => {
+          onPressed: () {
+            bool clave = _ingresarClave.text.isEmpty ? false : true;
+            bool confirmaClave = _confirmarClave.text.isEmpty ? false : true;
+            if( clave && confirmaClave ) {
+              if( _ingresarClave.text  == _confirmarClave.text) {
+                _errorIngresarClave = null;
+                _errorConfirmarClave = null;
+                _alPresionarRegistrar();
+                _actualIndex = 0;
+                _keyActual = _keyList[0];
                 Scrollable.ensureVisible(
-                  _keyList[1].currentContext,
+                  _keyList[3].currentContext,
                   duration: Duration(milliseconds: 400),
                 ).then((value) => {
                   Scrollable.ensureVisible(
-                    _keyList[0].currentContext,
+                    _keyList[2].currentContext,
                     duration: Duration(milliseconds: 400),
-                  ),
-                }),
-              }),
-            }),
-            _alPresionarRegistrar(),
+                  ).then((value) => {
+                    Scrollable.ensureVisible(
+                      _keyList[1].currentContext,
+                      duration: Duration(milliseconds: 400),
+                    ).then((value) => {
+                      Scrollable.ensureVisible(
+                        _keyList[0].currentContext,
+                        duration: Duration(milliseconds: 400),
+                      ),
+                    }),
+                  }),
+                });
+              } else {
+                _errorIngresarClave = 'No coincide con la de abajo.';
+                _errorConfirmarClave = 'No coincide con la de arriba.';
+              }
+            }
+            _formKeyRegisterCuatro.currentState.validate();
           },
         ),
       );
     }
+
+    ///Construye el Widget de la fila inferior para los botones
+    ///de navegación sustituyendo el boton de siguiente por el de registrarse.
+    ///@return un Widget de Row que posee dos botones.
 
     Widget _barraNavegacionFinal() {
       return Container(
@@ -1106,14 +1533,18 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
       );
     }
 
+    ///Construye el Widget de la carta para agregar los parámetros de la clave.
+    ///@return un Widget de Container que posee una carta.
+
     Widget _cartaClave() {
       return Container (
         key: _keyList[4],
         margin: EdgeInsets.symmetric(horizontal: _width/15),
         alignment: Alignment.center,
         child: Card(
+          color: Colors.white,
           child: Container(
-            height: _height/3.3,
+            height: _height/3.168,
             width: _width/1.2,
             child: Form(
               key: _formKeyRegisterCuatro,
@@ -1122,14 +1553,14 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
                 children: <Widget>[
                   Container(
                     width: _width/1.285714285714286,
-                    height: _height/5.28,
+                    height: _height/4.4,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Container(
                           child: Icon(
                             Icons.vpn_key_rounded,
-                            color: PaletaColores().obtenerColorInactivo(),
+                            color: Color(0xFF929292),
                             size: _width/12,
                           ),
                           margin: EdgeInsets.only(left: _width/36),
@@ -1160,75 +1591,77 @@ class _LoginMain extends State<LoginMain> with TickerProviderStateMixin{
 
     Widget _pantallaFrontal() {
       return Center (
-          child: ListView(
-            physics: BouncingScrollPhysics(),
-            children: <Widget>[
-              Column (
-                children: <Widget>[
-                  Stack(
-                    alignment: Alignment.center,
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.only(top:_height/14.94339622),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: PaletaColores().obtenerColorUno(),
-                          boxShadow: [
-                            BoxShadow(color: PaletaColores().obtenerColorDos(), spreadRadius: 2),
-                          ],
-                        ),
-                        height: _height/3.6,
-                        width: _width/1.636363636363636,
-                      ),
-                      Container (
-                        margin: EdgeInsets.only(top:_height/14.94339622),
-                        height: _height/4.4,
-                        width: _width/2,
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          image: DecorationImage(
-                            image: AssetImage(_imagen),
-                            fit: BoxFit.scaleDown,
+        child: ListView(
+          physics: BouncingScrollPhysics(),
+          children: <Widget>[
+            Column (
+              children: <Widget>[
+                Stack(
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.only(top:_height/14.94339622,),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xFF08192d),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.white,
+                            spreadRadius: 2,
                           ),
+                        ],
+                      ),
+                      height: _height/3.6,
+                      width: _width/1.636363636363636,
+                    ),
+                    Container (
+                      margin: EdgeInsets.only(top:_height/14.94339622),
+                      height: _height/4.4,
+                      width: _width/2,
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        image: DecorationImage(
+                          image: AssetImage(_imagen),
+                          fit: BoxFit.scaleDown,
                         ),
                       ),
+                    ),
+                  ],
+                ),
+                Container (
+                  margin: EdgeInsets.only(top: _height/39.6),
+                  alignment: Alignment.center,
+                  height: _height/1.98,
+                  width: _width,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    physics: NeverScrollableScrollPhysics(),
+                    children: <Widget> [
+                      _cartaIntro(),
+                      _cartaNombApell(),
+                      _cartaTerritorio(),
+                      _cartaCorreoTel(),
+                      _cartaClave(),
                     ],
                   ),
-                  Container (
-                    margin: EdgeInsets.only(top: _height/39.6),
-                    alignment: Alignment.center,
-                    height: _height/1.98,
-                    width: _width,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      physics: NeverScrollableScrollPhysics(),
-                      children: <Widget> [
-                        _cartaIntro(),
-                        //_cartaNombApell(),
-                        //_cartaTerritorio(),
-                        //_cartaCorreoTel(),
-                        //_cartaClave(),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
+        ),
       );
     }
 
     return SafeArea(
-      child: AnimatedBuilder(
-          animation: backgroundAnimation,
-          builder: (context, child) {
-            return Scaffold(
-              body: Stack(children: <Widget>[
-                //_animacion(),
-                _pantallaFrontal(),
-              ]),
-            );
-          }),
+      child: Scaffold(
+        backgroundColor: Color(0xFFECEFF1),
+        body: Scaffold(
+          body: Stack(children: <Widget>[
+            _fondo(),
+            _pantallaFrontal(),
+          ]),
+        ),
+      ),
     );
   }
 }

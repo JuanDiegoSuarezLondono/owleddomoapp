@@ -15,6 +15,7 @@ import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
 import 'package:owleddomoapp/login/Persona.dart';
 import 'package:flutter_particles/particles.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 ///Esta clase se encarga de la pantalla donde se muestra la información del dispositivo
 ///y su lógica.
@@ -86,6 +87,22 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
     _solicitudesLista = [];
     _solicidtudesObtenidas = _obtenerPermisos();
     _variablesObtenidas = _obtenerVariables();
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification notification = message.notification;
+      AndroidNotification android = message.notification?.android;
+      print("Dale");
+      if (notification != null && android != null) {
+        print("hashCode: ${notification.hashCode}");
+        print("hashCode: ${notification.title}");
+        print("hashCode: ${notification.body}");
+        if(mounted) {
+          setState(() {
+            _estado = 8;
+            _obtenerVariables();
+          });
+        };
+      }
+    });
   }
 
   ///Hace una petición para conseguir un mapeo con la lista de los parámetros de los permisos.
@@ -116,7 +133,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
     _variablesObtenidas.then((result) {
       if(mounted) {
         setState(() {
-          _estado = TratarError().estadoServicioLeer(result);
+          _estado = TratarError(_usuario).estadoServicioLeer(result);
         });
       }
     });
@@ -132,7 +149,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
     Navigator.of(context).pop(null);
     ServiciosSolicitud.agregarSolicitud(_usuario.persona_id,_relacionId,_codigoUsuario.text)
         .then((result) {
-          TratarError().estadoSnackbar(result, context).first.toString();
+          TratarError(_usuario).estadoSnackbar(result, context).first.toString();
     });
   }
 
@@ -147,7 +164,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
     Widget _particulas() {
       return Particles(
         20,
-        PaletaColores().obtenerCuaternario(),
+        PaletaColores(_usuario).obtenerCuaternario(),
       );
     }
 
@@ -166,7 +183,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
           alignment: Alignment.center,
           decoration: BoxDecoration(
             border: Border.all(
-              color: PaletaColores().obtenerPrimario(),
+              color: PaletaColores(_usuario).obtenerPrimario(),
               width: _height/300,
             ),
             shape: BoxShape.circle,
@@ -199,7 +216,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
               fontFamily: "lato",
               fontWeight: FontWeight.bold,
               fontSize: _height/19.8,
-              color: PaletaColores().obtenerLetraContrasteSecundario(),
+              color: PaletaColores(_usuario).obtenerLetraContrasteSecundario(),
             ),
           ),
         ),
@@ -227,7 +244,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
             maxLines: 1,
             style: TextStyle(
               fontFamily: "lato",
-              color: PaletaColores().obtenerColorInactivo(),
+              color: PaletaColores(_usuario).obtenerColorInactivo(),
               fontSize: _height/50,
             ),
           ),
@@ -245,7 +262,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
           left: _width/9.818,
         ),
         child: Card(
-          color: PaletaColores().obtenerSecundario(),
+          color: PaletaColores(_usuario).obtenerSecundario(),
           child: Container(
             height: _height/5.267,
             width: _width/1.2834,
@@ -275,7 +292,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
         },
         child: Icon(
           Icons.edit_rounded,
-          color: PaletaColores().obtenerTerciario(),
+          color: PaletaColores(_usuario).obtenerTerciario(),
           size: _height/39.6,
         ),
       );
@@ -300,7 +317,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
               child: Text(
                 "Nombre",
                 style: TextStyle(
-                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                  color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                   fontFamily: "lato",
                 ),
               ),
@@ -310,7 +327,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
               child: Text(
                 "Puede editar",
                 style: TextStyle(
-                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                  color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                   fontFamily: "lato",
                 ),
               ),
@@ -324,7 +341,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
         permisos.add(
           Card(
             margin: EdgeInsets.only(top: _height/52.8),
-            color: PaletaColores().obtenerLetraContrastePrimario(),
+            color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
             child: Container(
               height: _height/19.8,
               child: Row(
@@ -346,7 +363,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                           maxLines: 1,
                           style: TextStyle(
                             fontFamily: "Lato",
-                            color: PaletaColores().obtenerPrimario(),
+                            color: PaletaColores(_usuario).obtenerPrimario(),
                           ),
                         ),
                       ],
@@ -387,7 +404,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
             },
             child: Icon(
               Icons.send,
-              color: PaletaColores().obtenerPrimario(),
+              color: PaletaColores(_usuario).obtenerPrimario(),
               size: _height/39.6,
             ),
           ),
@@ -405,11 +422,11 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
           barrierDismissible: true,
           builder: (buildcontext) {
             return AlertDialog(
-              backgroundColor: PaletaColores().obtenerPrimario(),
+              backgroundColor: PaletaColores(_usuario).obtenerPrimario(),
               title: Text(
                 "Compartido con:",
                 style: TextStyle(
-                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                  color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                   fontFamily: "Lato",
                 ),
               ),
@@ -428,7 +445,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                   thickness: 3,
                   indent: 20,
                   endIndent: 20,
-                  color: PaletaColores().obtenerColorInactivo(),
+                  color: PaletaColores(_usuario).obtenerColorInactivo(),
                 ),
                 Stack(
                   children: <Widget>[
@@ -439,19 +456,19 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                         style: TextStyle(
                           fontWeight: FontWeight.normal,
                           fontFamily: "lato",
-                          color: PaletaColores().obtenerPrimario(),
+                          color: PaletaColores(_usuario).obtenerPrimario(),
                         ),
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.only(bottom: 0, left:_width/36, right: _width/12),
                           filled: true,
-                          fillColor: PaletaColores().obtenerLetraContrastePrimario(),
+                          fillColor: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(180),
                           ),
                           hintText: 'Codigo de usuario',
                           hintStyle: TextStyle(
                             fontFamily: "lato",
-                            color: PaletaColores().obtenerColorInactivo(),
+                            color: PaletaColores(_usuario).obtenerColorInactivo(),
                           ),
                         ),
                         validator: (value) {
@@ -481,11 +498,11 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
           barrierDismissible: false,
           builder: (buildcontext) {
             return AlertDialog(
-              backgroundColor: PaletaColores().obtenerPrimario(),
+              backgroundColor: PaletaColores(_usuario).obtenerPrimario(),
               title: Text(
                 "¿Está seguro?",
                 style: TextStyle(
-                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                  color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                   fontFamily: "Lato",
                 ),
               ),
@@ -493,14 +510,14 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                 "Al eliminar este dispositivo se perderá la configuración guardada, "
                     "ademas, habilitara que otro pueda escanear el código QR.",
                 style: TextStyle(
-                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                  color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                   fontFamily: "Lato",
                 ),
               ),
               actions: <Widget>[
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: PaletaColores().obtenerTerciario(),
+                    primary: PaletaColores(_usuario).obtenerTerciario(),
                   ),
                   child:Container (
                     width: _width/6.428571428571429,
@@ -509,13 +526,13 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                       children: <Widget> [
                         Icon(
                           Icons.warning_rounded,
-                          color: PaletaColores().obtenerLetraContrastePrimario(),
+                          color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                           size: _height/26.4,
                         ),
                         Text(
                           "OK",
                           style: TextStyle(
-                            color: PaletaColores().obtenerLetraContrastePrimario(),
+                            color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                             fontFamily: "Lato",
                           ),
                         ),
@@ -526,13 +543,13 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                     Navigator.of(context).pop(false);
                     ServiciosDispositivo.borrarDispositivo(_relacionId, _usuario.persona_id)
                         .then((result) {
-                          TratarError().tarjetaDeEstado( result, [_nombre, _pathFoto], context);
+                          TratarError(_usuario).tarjetaDeEstado( result, [_nombre, _pathFoto], context);
                         });
                   },
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: PaletaColores().obtenerColorRiesgo(),
+                    primary: PaletaColores(_usuario).obtenerColorRiesgo(),
                   ),
                   child:Container (
                     width: _width/6.428571428571429,
@@ -542,7 +559,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                         Text(
                           "Cancelar",
                           style: TextStyle(
-                            color: PaletaColores().obtenerLetraContrastePrimario(),
+                            color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                             fontFamily: "Lato",
                           ),
                         ),
@@ -569,12 +586,12 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
           constraints: BoxConstraints.tightFor(height: _height/14.4),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              primary: PaletaColores().obtenerTerciario(),
+              primary: PaletaColores(_usuario).obtenerTerciario(),
               shape: CircleBorder(),
             ),
             onPressed: () {
               Route route = MaterialPageRoute (
-                builder: (context) => SubPantallaUno(InterfazEditarDispositivo(_relacionId, _nombre, _pathFoto,_usuario.persona_id),"Editando"),
+                builder: (context) => SubPantallaUno(InterfazEditarDispositivo(_relacionId, _nombre, _pathFoto,_usuario),"Editando", _usuario),
               );
               Navigator.push(context, route).then((value) =>{
                 if ( value != false ) {
@@ -587,7 +604,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
             },
             child: Icon(
               Icons.edit_rounded,
-              color: PaletaColores().obtenerContrasteRiesgo(),
+              color: PaletaColores(_usuario).obtenerContrasteRiesgo(),
               size: _height/26.4,
             ),
           ),
@@ -609,14 +626,14 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
             constraints: BoxConstraints.tightFor(height: _height/19.8),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                primary: PaletaColores().obtenerPrimario(),
+                primary: PaletaColores(_usuario).obtenerPrimario(),
               ),
               onPressed: () {
                 _compartidos();
               },
               child: Icon(
                 Icons.group_add,
-                color: PaletaColores().obtenerLetraContrastePrimario(),
+                color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                 size: _height/39.6,
               ),
             ),
@@ -635,7 +652,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
           constraints: BoxConstraints.tightFor(height: _height/14.4),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              primary: PaletaColores().obtenerColorRiesgo(),
+              primary: PaletaColores(_usuario).obtenerColorRiesgo(),
               shape: CircleBorder(),
             ),
             onPressed: () {
@@ -643,7 +660,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
             },
             child: Icon(
               Icons.delete_rounded,
-              color: PaletaColores().obtenerContrasteRiesgo(),
+              color: PaletaColores(_usuario).obtenerContrasteRiesgo(),
               size: _height/26.4,
             ),
           ),
@@ -760,7 +777,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
           switch (variable.variable_id) {
             case "9HZA7L57GRSYG":
               contadorLuz++;
-              filaLuz.add(InterruptorLuz(variable));
+              filaLuz.add(InterruptorLuz(variable,_usuario));
               break;
             case "4TBPNLLAQPZAR":
               contadorGrabar++;
@@ -768,15 +785,15 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
               break;
             case "QRNSS74XFQMED":
               contadorAbiertoCerrado++;
-              filaAbiertoCerrado.add(AbiertoCerrado(variable));
+              filaAbiertoCerrado.add(AbiertoCerrado(variable,_usuario));
               break;
             case "4J7PARLF4QT8B":
               contadorAlerta++;
-              filaAlerta.add(Alerta(variable));
+              filaAlerta.add(Alerta(variable,_usuario));
               break;
             case "MZK8J3PJXFCZC":
               contadorGolpe++;
-              filaGolpe.add(Golpe(variable));
+              filaGolpe.add(Golpe(variable,_usuario));
               break;
             case "54XKJ9NGEC8XH":
               variablesRGB.add(variable);
@@ -805,7 +822,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
         if( cantidadGrupos > 0) {
           if(variablesRGB.length > 0)  {
             for(var i=1; i<=(variablesRGB.length/3);i++) {
-              filaRGB.add(LuzRGB(_armarGrupo(variablesRGB,i)));
+              filaRGB.add(LuzRGB(_armarGrupo(variablesRGB,i),_usuario));
             }
             variables.add( _filaVariable(filaRGB));
           }
@@ -848,7 +865,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                 child: Icon(
                                   Icons.build,
                                   size: _height/7.92,
-                                  color: PaletaColores().obtenerColorInactivo(),
+                                  color: PaletaColores(_usuario).obtenerColorInactivo(),
                                 ),
                               ),
 
@@ -859,7 +876,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: _width/16.36363636363636,
-                                    color: PaletaColores().obtenerColorInactivo(),
+                                    color: PaletaColores(_usuario).obtenerColorInactivo(),
                                     fontFamily: "Lato",
                                   ),
                                 ),
@@ -878,7 +895,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                 child: Icon(
                                   Icons.precision_manufacturing_sharp,
                                   size: _height/7.92,
-                                  color: PaletaColores().obtenerColorRiesgo(),
+                                  color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                 ),
                               ),
                               Container(
@@ -888,7 +905,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: _width/16.36363636363636,
-                                    color: PaletaColores().obtenerColorRiesgo(),
+                                    color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                     fontFamily: "Lato",
                                   ),
                                 ),
@@ -908,7 +925,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                 child: Icon(
                                   Icons.local_police_rounded,
                                   size: _height/7.92,
-                                  color: PaletaColores().obtenerColorRiesgo(),
+                                  color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                 ),
                               ),
                               Container(
@@ -918,7 +935,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: _width/16.36363636363636,
-                                    color: PaletaColores().obtenerColorRiesgo(),
+                                    color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                     fontFamily: "Lato",
                                   ),
                                 ),
@@ -938,7 +955,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                 child: Icon(
                                   Icons.cloud_off_rounded,
                                   size: _height/7.92,
-                                  color: PaletaColores().obtenerCuaternario(),
+                                  color: PaletaColores(_usuario).obtenerCuaternario(),
                                 ),
                               ),
                               Container(
@@ -948,7 +965,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: _width/16.36363636363636,
-                                    color: PaletaColores().obtenerCuaternario(),
+                                    color: PaletaColores(_usuario).obtenerCuaternario(),
                                     fontFamily: "Lato",
                                   ),
                                 ),
@@ -967,7 +984,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                 child: Icon(
                                   Icons.device_unknown_rounded,
                                   size: _height/7.92,
-                                  color: PaletaColores().obtenerColorRiesgo(),
+                                  color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                 ),
                               ),
                               Container(
@@ -977,7 +994,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: _width/16.36363636363636,
-                                    color: PaletaColores().obtenerColorRiesgo(),
+                                    color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                     fontFamily: "Lato",
                                   ),
                                 ),
@@ -996,7 +1013,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                 child: Icon(
                                   Icons.wifi_off_outlined,
                                   size: _height/7.92,
-                                  color: PaletaColores().obtenerColorInactivo(),
+                                  color: PaletaColores(_usuario).obtenerColorInactivo(),
                                 ),
                               ),
                               Container(
@@ -1006,7 +1023,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: _width/16.36363636363636,
-                                    color: PaletaColores().obtenerColorInactivo(),
+                                    color: PaletaColores(_usuario).obtenerColorInactivo(),
                                     fontFamily: "Lato",
                                   ),
                                 ),
@@ -1021,7 +1038,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(PaletaColores().obtenerPrimario()),
+                                valueColor: AlwaysStoppedAnimation<Color>(PaletaColores(_usuario).obtenerPrimario()),
                               ),
                             ],
                           ),
@@ -1036,7 +1053,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                 child: Icon(
                                   Icons.error_rounded,
                                   size: _height/7.92,
-                                  color: PaletaColores().obtenerColorRiesgo(),
+                                  color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                 ),
                               ),
                               Container(
@@ -1046,7 +1063,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: _width/16.36363636363636,
-                                    color: PaletaColores().obtenerColorRiesgo(),
+                                    color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                     fontFamily: "Lato",
                                   ),
                                 ),
@@ -1066,7 +1083,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                               child: Icon(
                                 Icons.error_rounded,
                                 size: _height/7.92,
-                                color: PaletaColores().obtenerColorRiesgo(),
+                                color: PaletaColores(_usuario).obtenerColorRiesgo(),
                               ),
                             ),
                             Container(
@@ -1076,7 +1093,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: _width/16.36363636363636,
-                                  color: PaletaColores().obtenerColorRiesgo(),
+                                  color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                   fontFamily: "Lato",
                                 ),
                               ),
@@ -1091,7 +1108,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(PaletaColores().obtenerPrimario()),
+                              valueColor: AlwaysStoppedAnimation<Color>(PaletaColores(_usuario).obtenerPrimario()),
                             ),
                           ],
                         ),

@@ -67,9 +67,9 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
     _qrResultado = "Vacio"; //Se indica que al inicio no hay codigo qr.
     _textoBotonQR = "¡Escanealo!";
     _imagen = null; //Se indica que no hay imagen por parte de la lista.
-    _bordeImagen = PaletaColores().obtenerColorInactivo();
-    _bordeQR = PaletaColores().obtenerColorInactivo();
-    _letrasEscanealo = PaletaColores().obtenerPrimario();
+    _bordeImagen = PaletaColores(_usuario).obtenerColorInactivo();
+    _bordeQR = PaletaColores(_usuario).obtenerColorInactivo();
+    _letrasEscanealo = PaletaColores(_usuario).obtenerPrimario();
     _estadoBoton = ButtonState.idle;
   }
 
@@ -78,15 +78,15 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
 
   _validar() {
     setState(() {
-      _bordeImagen = _imagen == null ? PaletaColores().obtenerColorRiesgo()
-                                     : PaletaColores().obtenerColorInactivo();
+      _bordeImagen = _imagen == null ? PaletaColores(_usuario).obtenerColorRiesgo()
+                                     : PaletaColores(_usuario).obtenerColorInactivo();
       if (_qrResultado == "Vacio") {
-        _bordeQR = PaletaColores().obtenerColorRiesgo();
-        _letrasEscanealo = PaletaColores().obtenerColorRiesgo();
+        _bordeQR = PaletaColores(_usuario).obtenerColorRiesgo();
+        _letrasEscanealo = PaletaColores(_usuario).obtenerColorRiesgo();
         _textoBotonQR = "¡Escanealo!";
       } else {
-        _bordeQR = PaletaColores().obtenerCuaternario();
-        _letrasEscanealo = PaletaColores().obtenerCuaternario();
+        _bordeQR = PaletaColores(_usuario).obtenerCuaternario();
+        _letrasEscanealo = PaletaColores(_usuario).obtenerCuaternario();
         _textoBotonQR = "¡Perfecto!";
       }
     });
@@ -98,7 +98,7 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
-        return PopUpImagenes("dispositivos");
+        return PopUpImagenes("dispositivos",_usuario);
       },
     ).then((value) => {
       if (mounted) {
@@ -119,7 +119,7 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
                                              _nombre.text, _imagen)
         .then((result) {
 
-      String respuesta = TratarError().tarjetaDeEstado(result,[_nombre.text,_imagen]
+      String respuesta = TratarError(_usuario).tarjetaDeEstado(result,[_nombre.text,_imagen]
                                                       ,context).first.toString();
       if(mounted) {
         if ( respuesta == "2") {
@@ -128,8 +128,8 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
           });
         } else {
           setState(() {
-            _bordeQR = PaletaColores().obtenerColorRiesgo();
-            _letrasEscanealo = PaletaColores().obtenerColorRiesgo();
+            _bordeQR = PaletaColores(_usuario).obtenerColorRiesgo();
+            _letrasEscanealo = PaletaColores(_usuario).obtenerColorRiesgo();
             _textoBotonQR = "Ya en uso";
             _estadoBoton = ButtonState.fail;
           });
@@ -149,7 +149,7 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
     Widget _particulas() {
       return Particles(
         20,
-        PaletaColores().obtenerCuaternario(),
+        PaletaColores(_usuario).obtenerCuaternario(),
       );
     }
 
@@ -172,10 +172,10 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
               height: _height/5.28,
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: PaletaColores().obtenerCuaternario(),
+                  color: PaletaColores(_usuario).obtenerCuaternario(),
                   width: _height/300,
                 ),
-                color: PaletaColores().obtenerCuaternario(),
+                color: PaletaColores(_usuario).obtenerCuaternario(),
                 borderRadius: BorderRadius.circular(150),
                 image: DecorationImage(
                   fit: BoxFit.cover,
@@ -189,7 +189,7 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
                   color: _bordeImagen,
                   width: _height/300,
                 ),
-                color: PaletaColores().obtenerContrasteInactivo(),
+                color: PaletaColores(_usuario).obtenerContrasteInactivo(),
                 borderRadius: BorderRadius.circular(150),
               ),
               width: _width/2.25,
@@ -197,7 +197,7 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
               child: Icon(
                 Icons.image,
                 size: _height/8.0923,
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
               ),
             ),
           ),
@@ -218,7 +218,7 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
           children: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                primary: PaletaColores().obtenerPrimario(),
+                primary: PaletaColores(_usuario).obtenerPrimario(),
                 padding: EdgeInsets.all(_height/39.6),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.0),
@@ -234,7 +234,7 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
               child: Icon(
                 Icons.qr_code_scanner_rounded,
                 size: _height/15.84,
-                color: PaletaColores().obtenerTerciario(),
+                color: PaletaColores(_usuario).obtenerTerciario(),
               ),
             ),
             Text(
@@ -268,7 +268,7 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
           ),
           borderRadius: BorderRadius.circular(25.0),
         ),
-          color: PaletaColores().obtenerLetraContrastePrimario(),
+          color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
           child: _escanearProducto(),
         ),
       );
@@ -285,43 +285,43 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: PaletaColores().obtenerCuaternario(),
+            primaryColor: PaletaColores(_usuario).obtenerCuaternario(),
           ),
           child: TextFormField(
             controller: _nombre,
             style: TextStyle(
-              color: PaletaColores().obtenerLetraContrasteSecundario(),
+              color: PaletaColores(_usuario).obtenerLetraContrasteSecundario(),
               fontFamily: "Lato",
             ),
             maxLength: 50,
             decoration: InputDecoration(
               filled: true,
-              fillColor: PaletaColores().obtenerSecundario(),
+              fillColor: PaletaColores(_usuario).obtenerSecundario(),
               border: const OutlineInputBorder(),
               counterStyle: TextStyle(
-                color: PaletaColores().obtenerLetraContrasteSecundario(),
+                color: PaletaColores(_usuario).obtenerLetraContrasteSecundario(),
                 fontFamily: "Lato",
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: PaletaColores().obtenerCuaternario(),
+                  color: PaletaColores(_usuario).obtenerCuaternario(),
                   width: 2.0,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: PaletaColores().obtenerColorInactivo(),
+                  color: PaletaColores(_usuario).obtenerColorInactivo(),
                   width: 2.0,
                 ),
               ),
               hintText: '¿Como va a llamar a este dispositivo?',
               hintStyle: TextStyle(
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
                 fontFamily: "Lato",
               ),
               labelText: 'Nombre',
               labelStyle: TextStyle(
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
                 fontFamily: "Lato",
               ),
             ),
@@ -382,35 +382,35 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
         width: _width/3.6,
         child: ProgressButton.icon(
             textStyle: TextStyle(
-              color: PaletaColores().obtenerContrasteInactivo(),
+              color: PaletaColores(_usuario).obtenerContrasteInactivo(),
             ),
             iconedButtons: {
               ButtonState.idle: IconedButton(
                 text: "Enviar",
                 icon: Icon(
                   Icons.send,
-                  color: PaletaColores().obtenerContrasteInactivo(),
+                  color: PaletaColores(_usuario).obtenerContrasteInactivo(),
                 ),
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
               ),
               ButtonState.loading: IconedButton(
                 text: "Cargando",
-                color: PaletaColores().obtenerPrimario(),
+                color: PaletaColores(_usuario).obtenerPrimario(),
               ),
               ButtonState.fail: IconedButton(
                 icon: Icon(
                   Icons.cancel,
-                  color: PaletaColores().obtenerContrasteRiesgo(),
+                  color: PaletaColores(_usuario).obtenerContrasteRiesgo(),
                 ),
-                color: PaletaColores().obtenerColorRiesgo(),
+                color: PaletaColores(_usuario).obtenerColorRiesgo(),
               ),
               ButtonState.success: IconedButton(
               text: "Exito",
               icon: Icon(
                 Icons.check_circle,
-                color: PaletaColores().obtenerContrasteRiesgo(),
+                color: PaletaColores(_usuario).obtenerContrasteRiesgo(),
               ),
-                color: PaletaColores().obtenerTerciario(),
+                color: PaletaColores(_usuario).obtenerTerciario(),
               ),
             }, onPressed: () {
           if (_formKey.currentState.validate()) {
@@ -473,7 +473,7 @@ class _InterfazAgregarDispositivo extends State<InterfazAgregarDispositivo> {
       physics: BouncingScrollPhysics(),
       children: [
         Container(
-          color: PaletaColores().obtenerColorFondo(),
+          color: PaletaColores(_usuario).obtenerColorFondo(),
           height: _height/1.161290322580645,
           child: Stack(
             children: <Widget>[

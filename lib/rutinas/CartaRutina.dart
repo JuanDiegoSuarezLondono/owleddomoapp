@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 import 'package:owleddomoapp/rutinas/ServiciosRutina.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
@@ -24,7 +25,7 @@ import 'package:owleddomoapp/shared/TratarError.dart';
 
 class CartaRutina extends StatefulWidget{
 
-  final String usuario; //Identificador del usuario.
+  final Persona usuario; //Identificador del usuario.
   final String rutina_id; //Identificador único de la rutina.
   final String nombreDispositivo; //Nombre del dispositivo al que pertenece.
   final String persona_producto_id; //Producto que controla la rutina.
@@ -58,7 +59,7 @@ class CartaRutina extends StatefulWidget{
 
 class _CartaRutina extends State<CartaRutina> {
 
-  final String _usuario; //Identificador del usuario.
+  final Persona _usuario; //Identificador del usuario.
   final String _rutina_id; //Identificador único de la rutina.
   final String _nombreDispositivo; //Nombre del dispositivo al que pertenece.
   final String _persona_producto_id; //Producto que controla la rutina.
@@ -84,10 +85,10 @@ class _CartaRutina extends State<CartaRutina> {
   ///@return no retorna nada en caso de no obtener una validación positiva de los campos.
 
   _actualizarRutina() {
-    ServiciosRutina.activarRutina(_usuario, _rutina_id, _persona_producto_id,
+    ServiciosRutina.activarRutina(_usuario.persona_id, _rutina_id, _persona_producto_id,
                                   _activo.toString(),_relacionDispositivo ).then((result) {
 
-      String respuesta =  TratarError().estadoSnackbar(result, context).first.toString();
+      String respuesta =  TratarError(_usuario).estadoSnackbar(result, context).first.toString();
 
       if ( respuesta[0] != "2") {
         if(mounted) {
@@ -150,12 +151,12 @@ class _CartaRutina extends State<CartaRutina> {
             height: _width/25.71428571428571,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: _activo == 0 ? PaletaColores().obtenerColorInactivo()
-                  : PaletaColores().obtenerTerciario(),
+              color: _activo == 0 ? PaletaColores(_usuario).obtenerColorInactivo()
+                  : PaletaColores(_usuario).obtenerTerciario(),
               boxShadow: [
                 BoxShadow(
-                  color: _activo == 0 ? PaletaColores().obtenerColorInactivo()
-                      : PaletaColores().obtenerTerciario(),
+                  color: _activo == 0 ? PaletaColores(_usuario).obtenerColorInactivo()
+                      : PaletaColores(_usuario).obtenerTerciario(),
                   spreadRadius: _activo == 0 ? 0 : 5,
                   blurRadius: _activo == 0 ? 0 : 7,
                 ),
@@ -198,7 +199,7 @@ class _CartaRutina extends State<CartaRutina> {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: _height/79.2,
-            color: PaletaColores().obtenerColorInactivo(),
+            color: PaletaColores(_usuario).obtenerColorInactivo(),
             fontFamily: "Lato",
           ),
         ),

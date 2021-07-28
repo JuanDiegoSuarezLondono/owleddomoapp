@@ -5,21 +5,34 @@ import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/login/Persona.dart';
 import 'package:owleddomoapp/shared/MenuHamburguesa.dart';
 
-final PaletaColores colores = new PaletaColores();
-
 ///Esta clase se encarga de la pantalla donde se direcciona la barra cupertino al
 ///ir hacia los cuartos, contiene todo lo concerniente a los cuartos y los dispositivos.
 ///@version 1.0, 06/04/21
 ///@author Juan Diego Suárez Londoño
 ///@param usuario identificador del usuario.
+///@param width obtiene el ancho de la pantalla del dispositivo.
+///@param height obtiene el alto de la pantalla del dispositivo.
 ///@see owleddomo_app/AppTrips.dart#class().
 ///return un Widget SafeArea con un Scaffold que contendrá toda la información
 ///de los cuartos y los dispositivos, además posee un menú en la barra del título.
 
-class CuartosMain extends StatelessWidget {
+
+class CuartosMain extends StatefulWidget {
 
   final Persona usuario;
-  CuartosMain(this.usuario,{Key key,String pathImagen,String titulo});
+
+  CuartosMain(this.usuario);
+
+  @override
+  State<StatefulWidget> createState () {
+    return _CuartosMain(usuario);
+  }
+}
+
+class _CuartosMain extends State<CuartosMain> {
+
+  final Persona usuario;
+  _CuartosMain(this.usuario,{Key key,String pathImagen,String titulo});
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +47,11 @@ class CuartosMain extends StatelessWidget {
       width: height/19.8,
       height: height/19.8,
       decoration: BoxDecoration(
-        color: PaletaColores().obtenerPrimario(),
+        color: PaletaColores(usuario).obtenerPrimario(),
         shape: BoxShape.circle,
         image: DecorationImage(
           fit: BoxFit.cover,
-          image: AssetImage(usuario.url_foto),
+          image: AssetImage(usuario.url_icono),
         ),
       ),
     );
@@ -51,7 +64,7 @@ class CuartosMain extends StatelessWidget {
         "Cuartos",
         style: TextStyle(
           fontFamily: 'Lato',
-          color: PaletaColores().obtenerLetraContrastePrimario(),
+          color: PaletaColores(usuario).obtenerLetraContrastePrimario(),
           fontSize: height/31.68,
           fontWeight: FontWeight.bold,
         ),
@@ -77,11 +90,11 @@ class CuartosMain extends StatelessWidget {
       length: tabs.length,
       child: SafeArea(
         child: Scaffold(
-          backgroundColor: PaletaColores().obtenerColorFondo(),
+          backgroundColor: PaletaColores(usuario).obtenerColorFondo(),
           appBar: AppBar(
             actions: [Text("")],
             automaticallyImplyLeading: false,
-            backgroundColor: PaletaColores().obtenerPrimario(),
+            backgroundColor: PaletaColores(usuario).obtenerPrimario(),
             flexibleSpace: Container(
               height: height/14.14285714285714,
               child: Row (
@@ -104,9 +117,9 @@ class CuartosMain extends StatelessWidget {
             bottom: PreferredSize(
               preferredSize: Size.fromHeight(height/16.16326530612245),
               child: TabBar(
-                labelColor: PaletaColores().obtenerTerciario(),
-                unselectedLabelColor: PaletaColores().obtenerColorInactivo(),
-                indicatorColor: PaletaColores().obtenerTerciario(),
+                labelColor: PaletaColores(usuario).obtenerTerciario(),
+                unselectedLabelColor: PaletaColores(usuario).obtenerColorInactivo(),
+                indicatorColor: PaletaColores(usuario).obtenerTerciario(),
                 indicatorWeight: height/264,
                 tabs: [
                   for (final tab in tabs) Tab(child: tab),
@@ -121,6 +134,10 @@ class CuartosMain extends StatelessWidget {
             ],
           ),
           endDrawer: MenuHamburguesa(usuario),
+          onEndDrawerChanged: (isClosed) {
+            setState(() {
+            });
+          },
         ),
       ),
     );

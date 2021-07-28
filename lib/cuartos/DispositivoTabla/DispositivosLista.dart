@@ -74,7 +74,7 @@ class _DispositivosLista extends State<DispositivosLista> {
     _dispositivosObtenidos.then((result) {
       if (mounted) {
         setState(() {
-          _estado = TratarError().estadoServicioLeer(result);
+          _estado = TratarError(_usuario).estadoServicioLeer(result);
         });
       }
     });
@@ -88,7 +88,7 @@ class _DispositivosLista extends State<DispositivosLista> {
 
   _alPresionarAgregarDispositivo () {
     Route route = MaterialPageRoute (builder: (context) =>
-        SubPantallaUno(InterfazAgregarDispositivo(_usuario),"Añadir Dispositivo")
+        SubPantallaUno(InterfazAgregarDispositivo(_usuario),"Añadir Dispositivo", _usuario)
     ); //Especifica la ruta hacia la interfaz para agregar un dispositivo.
     Navigator.push(context, route).then((value)=>{
       if(mounted) {
@@ -112,7 +112,7 @@ class _DispositivosLista extends State<DispositivosLista> {
                                                       dispositivo.nombre,
                                                       dispositivo.url_foto,
                                                       dispositivo.fecha_modificacion,
-                                                      _usuario),"Dispositivo"));
+                                                      _usuario),"Dispositivo", _usuario));
     Navigator.push(context, route).then((value)=>{
       if(mounted) {
         setState(() {
@@ -133,7 +133,7 @@ class _DispositivosLista extends State<DispositivosLista> {
 
     Widget _botonAgregarDispositivo() {
       return AvatarGlow(
-        glowColor: PaletaColores().obtenerTerciario(),
+        glowColor: PaletaColores(_usuario).obtenerTerciario(),
         endRadius: 90.0,
         duration: Duration(milliseconds: 2000),
         repeat: true,
@@ -150,7 +150,7 @@ class _DispositivosLista extends State<DispositivosLista> {
                     top: _height/31.68,
                     left: _width/8.779,
                   ),
-                  color: PaletaColores().obtenerColorFondo(),
+                  color: PaletaColores(_usuario).obtenerColorFondo(),
                   width: _height/19.8,
                   height: _height/19.8,
                 ),
@@ -162,7 +162,7 @@ class _DispositivosLista extends State<DispositivosLista> {
                   child: Icon(
                     Icons.add_circle,
                     size: _height/8.799,
-                    color: PaletaColores().obtenerTerciario(),
+                    color: PaletaColores(_usuario).obtenerTerciario(),
                   ),
                 ),
               ],
@@ -192,9 +192,9 @@ class _DispositivosLista extends State<DispositivosLista> {
         child: Card(
           margin: EdgeInsets.symmetric(vertical: _height/79.2),
           color: Color.fromRGBO(
-              PaletaColores().obtenerCuaternario().red,
-              PaletaColores().obtenerCuaternario().green,
-              PaletaColores().obtenerCuaternario().blue,
+              PaletaColores(_usuario).obtenerCuaternario().red,
+              PaletaColores(_usuario).obtenerCuaternario().green,
+              PaletaColores(_usuario).obtenerCuaternario().blue,
               0.6
           ),
           shape: RoundedRectangleBorder(
@@ -312,7 +312,7 @@ class _DispositivosLista extends State<DispositivosLista> {
           barrierDismissible: false,
           context: context,
           builder: (BuildContext dialogContext) {
-            return PantallaEspera();
+            return PantallaEspera(_usuario);
           },
         );
       });
@@ -368,7 +368,7 @@ class _DispositivosLista extends State<DispositivosLista> {
                               child: Icon(
                                 Icons.precision_manufacturing_sharp,
                                 size: _height/7.92,
-                                color: PaletaColores().obtenerColorRiesgo(),
+                                color: PaletaColores(_usuario).obtenerColorRiesgo(),
                               ),
                             ),
                             Container(
@@ -378,7 +378,7 @@ class _DispositivosLista extends State<DispositivosLista> {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: _width/16.36363636363636,
-                                  color: PaletaColores().obtenerColorRiesgo(),
+                                  color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                   fontFamily: "Lato",
                                 ),
                               ),
@@ -397,7 +397,7 @@ class _DispositivosLista extends State<DispositivosLista> {
                               child: Icon(
                                 Icons.local_police_rounded,
                                 size: _height/7.92,
-                                color: PaletaColores().obtenerColorRiesgo(),
+                                color: PaletaColores(_usuario).obtenerColorRiesgo(),
                               ),
                             ),
                             Container(
@@ -407,7 +407,7 @@ class _DispositivosLista extends State<DispositivosLista> {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: _width/16.36363636363636,
-                                  color: PaletaColores().obtenerColorRiesgo(),
+                                  color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                   fontFamily: "Lato",
                                 ),
                               ),
@@ -426,7 +426,7 @@ class _DispositivosLista extends State<DispositivosLista> {
                               child: Icon(
                                 Icons.cloud_off_rounded,
                                 size: _height/7.92,
-                                color: PaletaColores().obtenerCuaternario(),
+                                color: PaletaColores(_usuario).obtenerCuaternario(),
                               ),
                             ),
                             Container(
@@ -436,7 +436,7 @@ class _DispositivosLista extends State<DispositivosLista> {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: _width/16.36363636363636,
-                                  color: PaletaColores().obtenerCuaternario(),
+                                  color: PaletaColores(_usuario).obtenerCuaternario(),
                                   fontFamily: "Lato",
                                 ),
                               ),
@@ -455,7 +455,7 @@ class _DispositivosLista extends State<DispositivosLista> {
                               child: Icon(
                                 Icons.device_unknown_rounded,
                                 size: _height/7.92,
-                                color: PaletaColores().obtenerColorRiesgo(),
+                                color: PaletaColores(_usuario).obtenerColorRiesgo(),
                               ),
                             ),
                             Text(
@@ -464,7 +464,7 @@ class _DispositivosLista extends State<DispositivosLista> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: _width/16.36363636363636,
-                                color: PaletaColores().obtenerColorRiesgo(),
+                                color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                 fontFamily: "Lato",
                               ),
                             ),
@@ -492,7 +492,7 @@ class _DispositivosLista extends State<DispositivosLista> {
                               child: Icon(
                                 Icons.error_rounded,
                                 size: _height/7.92,
-                                color: PaletaColores().obtenerColorRiesgo(),
+                                color: PaletaColores(_usuario).obtenerColorRiesgo(),
                               ),
                             ),
                             Text(
@@ -501,7 +501,7 @@ class _DispositivosLista extends State<DispositivosLista> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: _width/16.36363636363636,
-                                color: PaletaColores().obtenerColorRiesgo(),
+                                color: PaletaColores(_usuario).obtenerColorRiesgo(),
                                 fontFamily: "Lato",
                               ),
                             ),
@@ -523,7 +523,7 @@ class _DispositivosLista extends State<DispositivosLista> {
                             child: Icon(
                               Icons.error_rounded,
                               size: _height/7.92,
-                              color: PaletaColores().obtenerColorRiesgo(),
+                              color: PaletaColores(_usuario).obtenerColorRiesgo(),
                             ),
                           ),
                           Text(
@@ -532,7 +532,7 @@ class _DispositivosLista extends State<DispositivosLista> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: _width/16.36363636363636,
-                              color: PaletaColores().obtenerColorRiesgo(),
+                              color: PaletaColores(_usuario).obtenerColorRiesgo(),
                               fontFamily: "Lato",
                             ),
                           ),

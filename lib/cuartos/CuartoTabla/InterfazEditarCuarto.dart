@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:owleddomoapp/cuartos/CuartoTabla/ServiciosCuarto.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 import 'package:owleddomoapp/shared/PopUpImagenes.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
@@ -28,7 +29,7 @@ class InterfazEditarCuarto extends StatefulWidget {
   final String nombre; //Nombre del cuarto.
   final String imagen; //Valor para seleccionar la imagen.
   final String descripcion; //Descripción del cuarto.
-  final String usuario; //Identificador del usuario.
+  final Persona usuario; //Identificador del usuario.
   InterfazEditarCuarto(this.cuarto_id, this.nombre, this.imagen, this.descripcion,
                        this.usuario); //Constructor de la clase.
 
@@ -65,7 +66,7 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
   File _imagenCamara; //Imagen seleccionada con la camara.
   String _imagenFinal; //Imagen final del cuarto.
   String _descripcion; //Descripción del cuarto.
-  final String _usuario; //Identificador del usuario.
+  final Persona _usuario; //Identificador del usuario.
   _InterfazEditarCuarto(this._cuartoId, this._nombre, this._imagenFinal, this._descripcion, this._usuario); //Constructor de la clase.
 
   bool _existe; //Indica la existencia de la imagen.
@@ -89,7 +90,7 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
     }
     _existe = false; //Se asume que la imagen en la galeria no existe.
     _comprobarImagen(); //Se comprueba la existencia de la imagen en la galeria.
-    _bordeImagen = PaletaColores().obtenerCuaternario();
+    _bordeImagen = PaletaColores(_usuario).obtenerCuaternario();
     _nombreCampo = TextEditingController(text: _nombre); //Asigna el actual nombre al campo de texto.
     _descripcionCampo = TextEditingController(text: _descripcion); //Asigna la actual descripción al campo de texto.
     _estadoBoton = ButtonState.idle;
@@ -114,7 +115,7 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
-        return PopUpImagenes("cuartos");
+        return PopUpImagenes("cuartos",_usuario);
       },
     ).then((value) => {
       if (mounted) {
@@ -122,8 +123,8 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
           _imagenCamara = null;
           value == null ? _imagen = null
                         : _imagen = value;
-          value == null ? _bordeImagen = PaletaColores().obtenerColorRiesgo()
-                        : _bordeImagen = PaletaColores().obtenerCuaternario();
+          value == null ? _bordeImagen = PaletaColores(_usuario).obtenerColorRiesgo()
+                        : _bordeImagen = PaletaColores(_usuario).obtenerCuaternario();
         })
       },
     });
@@ -142,10 +143,10 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
       if(imagen != null) {
         File archivoImagen = File(imagen.path);
         _imagenCamara = archivoImagen;
-        _bordeImagen = PaletaColores().obtenerCuaternario();
+        _bordeImagen = PaletaColores(_usuario).obtenerCuaternario();
       } else {
         _imagenCamara = null;
-        _bordeImagen = PaletaColores().obtenerColorRiesgo();
+        _bordeImagen = PaletaColores(_usuario).obtenerColorRiesgo();
       }
       _comprobarImagen();
       _imagen = null;
@@ -158,10 +159,10 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
   ///@return No retorna nada en caso de no obtener una validación positiva de los campos.
 
   _actualizarCuarto() {
-    ServiciosCuarto.actualizarCuarto(_cuartoId, _usuario, _nombreCampo.text,
+    ServiciosCuarto.actualizarCuarto(_cuartoId, _usuario.persona_id, _nombreCampo.text,
                                      _imagenFinal, _descripcionCampo.text).then((result) {
 
-      String respuesta = TratarError().tarjetaDeEstado( result, [_nombreCampo.text,
+      String respuesta = TratarError(_usuario).tarjetaDeEstado( result, [_nombreCampo.text,
                         _imagenFinal, _descripcionCampo.text], context).first.toString();
       if(mounted) {
         if ( respuesta == "2") {
@@ -198,10 +199,10 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
                 width: _height/300,
               ),
-              color: PaletaColores().obtenerContrasteInactivo(),
+              color: PaletaColores(_usuario).obtenerContrasteInactivo(),
               borderRadius: BorderRadius.circular(150),
             ),
             height: _height/11.31428571428571,
@@ -209,7 +210,7 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
             child: Icon(
               Icons.camera_alt_rounded,
               size: _height/22.62857142857143,
-              color: PaletaColores().obtenerColorInactivo(),
+              color: PaletaColores(_usuario).obtenerColorInactivo(),
             ),
           ),
         ),
@@ -238,7 +239,7 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
                 color: _bordeImagen,
                 width: _height/300,
               ),
-              color: PaletaColores().obtenerSecundario(),
+              color: PaletaColores(_usuario).obtenerSecundario(),
               borderRadius: BorderRadius.circular(150),
               image: DecorationImage(
                   fit: BoxFit.cover,
@@ -257,13 +258,13 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
                 color: _bordeImagen,
                 width: _height/300,
               ),
-              color: PaletaColores().obtenerContrasteInactivo(),
+              color: PaletaColores(_usuario).obtenerContrasteInactivo(),
               borderRadius: BorderRadius.circular(150),
             ),
             child: Icon(
               Icons.image,
               size: _height/6.6,
-              color: PaletaColores().obtenerColorInactivo(),
+              color: PaletaColores(_usuario).obtenerColorInactivo(),
             ),
           ),
         ),
@@ -281,43 +282,43 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: PaletaColores().obtenerCuaternario(),
+            primaryColor: PaletaColores(_usuario).obtenerCuaternario(),
           ),
           child: TextFormField(
             controller: _nombreCampo,
             style: TextStyle(
-              color: PaletaColores().obtenerLetraContrasteSecundario(),
+              color: PaletaColores(_usuario).obtenerLetraContrasteSecundario(),
               fontFamily: "Lato",
             ),
             maxLength: 50,
             decoration: InputDecoration(
               filled: true,
-              fillColor: PaletaColores().obtenerSecundario(),
+              fillColor: PaletaColores(_usuario).obtenerSecundario(),
               border: const OutlineInputBorder(),
               counterStyle: TextStyle(
-                color: PaletaColores().obtenerLetraContrasteSecundario(),
+                color: PaletaColores(_usuario).obtenerLetraContrasteSecundario(),
                 fontFamily: "Lato",
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: PaletaColores().obtenerCuaternario(),
+                  color: PaletaColores(_usuario).obtenerCuaternario(),
                   width: 2.0,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: PaletaColores().obtenerColorInactivo(),
+                  color: PaletaColores(_usuario).obtenerColorInactivo(),
                   width: 2.0,
                 ),
               ),
               hintText: '¿Como quieres llamar a este cuarto?',
               hintStyle: TextStyle(
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
                 fontFamily: "Lato",
               ),
               labelText: 'Nombre',
               labelStyle: TextStyle(
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
                 fontFamily: "Lato",
               ),
             ),
@@ -345,43 +346,43 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: PaletaColores().obtenerCuaternario(),
+            primaryColor: PaletaColores(_usuario).obtenerCuaternario(),
           ),
           child: TextFormField(
             controller: _descripcionCampo,
             style: TextStyle(
-              color: PaletaColores().obtenerLetraContrasteSecundario(),
+              color: PaletaColores(_usuario).obtenerLetraContrasteSecundario(),
               fontFamily: "Lato",
             ),
             maxLength: 500,
             decoration: InputDecoration(
               filled: true,
-              fillColor: PaletaColores().obtenerSecundario(),
+              fillColor: PaletaColores(_usuario).obtenerSecundario(),
               border: const OutlineInputBorder(),
               counterStyle: TextStyle(
-                color: PaletaColores().obtenerLetraContrasteSecundario(),
+                color: PaletaColores(_usuario).obtenerLetraContrasteSecundario(),
                 fontFamily: "Lato",
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: PaletaColores().obtenerCuaternario(),
+                  color: PaletaColores(_usuario).obtenerCuaternario(),
                   width: 2.0,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: PaletaColores().obtenerColorInactivo(),
+                  color: PaletaColores(_usuario).obtenerColorInactivo(),
                   width: 2.0,
                 ),
               ),
               hintText: '¿Que distingue a este cuarto?',
               hintStyle: TextStyle(
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
                 fontFamily: "Lato",
               ),
               labelText: 'Descripcion',
               labelStyle: TextStyle(
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
                 fontFamily: "Lato",
               ),
             ),
@@ -400,7 +401,7 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
     ///@return un retorno vaico.
 
     void _alPresionarBoton() {
-      if ( (_usuario.isEmpty || (_imagen == null && _imagenCamara == null) ||
+      if ( (_usuario.persona_id.isEmpty || (_imagen == null && _imagenCamara == null) ||
           _nombreCampo.text.isEmpty || _descripcionCampo.text.isEmpty) && mounted) {
         if (_estadoBoton == ButtonState.fail) {
           setState(() {
@@ -409,9 +410,9 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
         }
         setState(() {
           if (_imagen == null && _imagenCamara == null) {
-            _bordeImagen = PaletaColores().obtenerColorRiesgo();
+            _bordeImagen = PaletaColores(_usuario).obtenerColorRiesgo();
           } else {
-            _bordeImagen = PaletaColores().obtenerColorInactivo();
+            _bordeImagen = PaletaColores(_usuario).obtenerColorInactivo();
           }
         });
         return;
@@ -446,36 +447,36 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
         width: _width/3.6,
         child: ProgressButton.icon(
             textStyle: TextStyle(
-              color: PaletaColores().obtenerLetraContrastePrimario(),
+              color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
             ),
             iconedButtons: {
               ButtonState.idle: IconedButton(
                   text: "Enviar",
                   icon: Icon(
                     Icons.send,
-                    color: PaletaColores().obtenerLetraContrastePrimario(),
+                    color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                   ),
-                  color: PaletaColores().obtenerColorInactivo(),
+                  color: PaletaColores(_usuario).obtenerColorInactivo(),
               ),
               ButtonState.loading:
               IconedButton(
                 text: "Cargando",
-                color: PaletaColores().obtenerPrimario(),
+                color: PaletaColores(_usuario).obtenerPrimario(),
               ),
               ButtonState.fail: IconedButton(
                 icon: Icon(
                   Icons.cancel,
-                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                  color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                 ),
-                color: PaletaColores().obtenerColorRiesgo(),
+                color: PaletaColores(_usuario).obtenerColorRiesgo(),
               ),
               ButtonState.success: IconedButton(
                   text: "Exito",
                   icon: Icon(
                     Icons.check_circle,
-                    color: PaletaColores().obtenerLetraContrastePrimario(),
+                    color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                   ),
-                  color: PaletaColores().obtenerTerciario(),
+                  color: PaletaColores(_usuario).obtenerTerciario(),
               ),
             }, onPressed: () {
               if (_formKey.currentState.validate()) {
@@ -514,11 +515,11 @@ class _InterfazEditarCuarto extends State<InterfazEditarCuarto> {
       physics: BouncingScrollPhysics(),
       children: [
         Container(
-          color: PaletaColores().obtenerColorFondo(),
+          color: PaletaColores(_usuario).obtenerColorFondo(),
           height: _height/1.161290322580645,
           child: Stack(
               children: <Widget>[
-                FondoCubo(),
+                FondoCubo(_usuario),
                 _pantallaFrontal(),
                 _camara(),
               ]

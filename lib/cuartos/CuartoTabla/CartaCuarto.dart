@@ -93,7 +93,7 @@ class _CartaCuarto extends State<CartaCuarto> {
     ServiciosDispositivo.dispositivoCuarto(_cuartoId, _usuario.persona_id).then((result) {
       if (mounted) {
         setState(() {
-          _textoNumeroDispositivos = TratarError().textoAgregado(result,textos, true).last;
+          _textoNumeroDispositivos = TratarError(_usuario).textoAgregado(result,textos, true).last;
         });
       }
     });
@@ -111,10 +111,10 @@ class _CartaCuarto extends State<CartaCuarto> {
       return Container(
         height: _height/8.799,
         width: _width/2.769 ,
-        margin: EdgeInsets.only(top: _height/264),
+        margin: EdgeInsets.only(top: _height/99),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: PaletaColores().obtenerSecundario(),
+          color: PaletaColores(_usuario).obtenerSecundario(),
           shape: BoxShape.circle,
           image: DecorationImage(
             fit: BoxFit.cover,
@@ -133,14 +133,14 @@ class _CartaCuarto extends State<CartaCuarto> {
     Widget _tituloCarta () {
       return Container(
         alignment: Alignment.center,
-        height: _height/36,
+        height: _height/39.6,
         width: _width/3.272,
         child: Text(
           _nombre,
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: PaletaColores().color_letra_contraste_secundario,
+            color: PaletaColores(_usuario).color_letra_contraste_secundario,
             fontSize: _height/52.8,
             fontWeight: FontWeight.bold,
             fontFamily: "Lato",
@@ -154,7 +154,7 @@ class _CartaCuarto extends State<CartaCuarto> {
 
     Widget _numeroDispositivos () {
       return Container(
-        height: _height/31.68,
+        height: _height/36,
         width: _width/2.769,
         alignment: Alignment.topCenter,
         child: Text(
@@ -163,7 +163,7 @@ class _CartaCuarto extends State<CartaCuarto> {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: _height/66,
-            color: PaletaColores().color_letra_contraste_secundario.withOpacity(0.4),
+            color: PaletaColores(_usuario).color_letra_contraste_secundario.withOpacity(0.4),
             fontFamily: "Lato",
           ),
         ),

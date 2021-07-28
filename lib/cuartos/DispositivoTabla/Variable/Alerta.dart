@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 import 'package:owleddomoapp/cuartos/DispositivoTabla/Variable/ServiciosVariable.dart';
 import 'package:owleddomoapp/cuartos/DispositivoTabla/Variable/Variable.dart';
 import 'package:owleddomoapp/shared/SeleccionarIcono.dart';
@@ -10,22 +11,25 @@ import 'package:owleddomoapp/shared/TratarError.dart';
 ///@version 1.0, 06/04/21
 ///@author Juan Diego Suárez Londoño
 ///@param variable parámetros de la variable.
+///@param usuario parametros del usuario.
 ///@see owleddomo_app/cuartos/Dispositivo/DispositivoTabla/InterfazInformacionDispositivo.dart#class().
 ///@return Un Widget Container con una tarjeta botón para controlar la alerta.
 
 class Alerta extends StatefulWidget {
 
   final Variable variable; //Parámetros de la variable.
+  final Persona usuario; //Parametros del usuario.
 
-  Alerta(this.variable); //Constructor de la clase.
+  Alerta(this.variable, this.usuario); //Constructor de la clase.
 
   @override
-  _Alerta createState() => _Alerta(variable); //Crea un estado mutable del Widget.
+  _Alerta createState() => _Alerta(variable, usuario); //Crea un estado mutable del Widget.
 
 }
 
 ///Esta clase se encarga de formar un estado mutable de la clase “Alerta”.
 ///@param _variable parámetros de la variable.
+///@param _usuario parametros del usuario.
 ///@param _numero numero de la variable en el hardware.
 ///@param _interruptor controla el encendido o apagado.
 ///@param _width obtiene el ancho de la pantalla del dispositivo.
@@ -34,7 +38,9 @@ class Alerta extends StatefulWidget {
 class _Alerta extends State<Alerta> {
 
   final Variable _variable; //Parámetros de la variable.
-  _Alerta(this._variable);
+  final Persona _usuario; //Parametros del usuario.
+
+  _Alerta(this._variable, this._usuario); //Constructor de la clase.
 
   String _numero; //Numero de la variable en el hardware
   bool _interruptor; //Controla el encendido o apagado.
@@ -81,7 +87,7 @@ class _Alerta extends State<Alerta> {
     ServiciosVariable.actualizarVariable(_variable.relacion_id, nuevoValor, _variable.persona_producto_id,
         _variable.relacion_dispositivo)
         .then((result) {
-      String respuesta =  TratarError().estadoSnackbar(result, context).first.toString();
+      String respuesta =  TratarError(_usuario).estadoSnackbar(result, context).first.toString();
       if ( respuesta != "200") {
         _cambiarValor();
       }
@@ -96,7 +102,7 @@ class _Alerta extends State<Alerta> {
     return Container(
       width: _width/3.3962,
       child: Card(
-        color: PaletaColores().obtenerPrimario(),
+        color: PaletaColores(_usuario).obtenerPrimario(),
         child: Column(
           children: <Widget> [
             Padding(
@@ -104,8 +110,8 @@ class _Alerta extends State<Alerta> {
                 top: _height/198,
               ),
               child: MaterialButton(
-                splashColor: PaletaColores().obtenerTerciario(),
-                color: PaletaColores().obtenerLetraContrastePrimario(),
+                splashColor: PaletaColores(_usuario).obtenerTerciario(),
+                color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                 onPressed: _actualizarValor,
                 child: _interruptor ?
                 Container(
@@ -121,7 +127,7 @@ class _Alerta extends State<Alerta> {
                     child: SeleccionarIcono(
                       "Escudo",
                       _height/15.84,
-                      PaletaColores().obtenerColorInactivo(),
+                      PaletaColores(_usuario).obtenerColorInactivo(),
                     ),
                 ),
               ),
@@ -133,7 +139,7 @@ class _Alerta extends State<Alerta> {
               child:Text(
                 "$_numero",
                 style: TextStyle(
-                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                  color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                   fontFamily: "lato",
                   fontWeight: FontWeight.bold,
                   fontSize: _height/29.498,

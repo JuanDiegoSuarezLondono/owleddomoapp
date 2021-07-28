@@ -31,11 +31,11 @@ class RutinasMain extends StatelessWidget {
       width: height/19.8,
       height: height/19.8,
       decoration: BoxDecoration(
-        color: PaletaColores().obtenerPrimario(),
+        color: PaletaColores(usuario).obtenerPrimario(),
         shape: BoxShape.circle,
         image: DecorationImage(
           fit: BoxFit.cover,
-          image: AssetImage(usuario.url_foto),
+          image: AssetImage(usuario.url_icono),
         ),
       ),
     );
@@ -48,7 +48,7 @@ class RutinasMain extends StatelessWidget {
         "Rutinas",
         style: TextStyle(
           fontFamily: 'Lato',
-          color: PaletaColores().obtenerLetraContrastePrimario(),
+          color: PaletaColores(usuario).obtenerLetraContrastePrimario(),
           fontSize: height/31.68,
           fontWeight: FontWeight.bold,
         ),
@@ -57,11 +57,11 @@ class RutinasMain extends StatelessWidget {
 
     return  SafeArea(
         child: Scaffold(
-        backgroundColor: PaletaColores().obtenerColorFondo(),
+        backgroundColor: PaletaColores(usuario).obtenerColorFondo(),
         appBar: AppBar(
           actions: [Text("")],
           automaticallyImplyLeading: false,
-          backgroundColor: PaletaColores().obtenerPrimario(),
+          backgroundColor: PaletaColores(usuario).obtenerPrimario(),
           flexibleSpace: Container(
             height: height/14.14285714285714,
             child: Row (

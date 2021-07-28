@@ -58,7 +58,7 @@ class _CartaSolicitud extends State<CartaSolicitud> {
     if(accion == "1") {
       ServiciosSolicitud.aceptarSolicitud(_usuario.persona_id, solicitud.permiso_id)
           .then((result) {
-            String respuesta =  TratarError().estadoSnackbar(result, context).first.toString();
+            String respuesta =  TratarError(_usuario).estadoSnackbar(result, context).first.toString();
             if ( respuesta[0] != "2") {
               if (mounted) {
                 setState(() {
@@ -96,7 +96,7 @@ class _CartaSolicitud extends State<CartaSolicitud> {
           constraints: BoxConstraints.tightFor(height: _height/17.6),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              primary: PaletaColores().obtenerColorRiesgo(),
+              primary: PaletaColores(_usuario).obtenerColorRiesgo(),
               shape: CircleBorder(),
             ),
             onPressed: () {
@@ -104,7 +104,7 @@ class _CartaSolicitud extends State<CartaSolicitud> {
             },
             child: Icon(
               Icons.clear,
-              color: PaletaColores().obtenerContrasteRiesgo(),
+              color: PaletaColores(_usuario).obtenerContrasteRiesgo(),
               size: _height/26.4,
             ),
           ),
@@ -122,7 +122,7 @@ class _CartaSolicitud extends State<CartaSolicitud> {
           constraints: BoxConstraints.tightFor(height: _height/17.6),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              primary: PaletaColores().obtenerTerciario(),
+              primary: PaletaColores(_usuario).obtenerTerciario(),
               shape: CircleBorder(),
             ),
             onPressed: () {
@@ -130,7 +130,7 @@ class _CartaSolicitud extends State<CartaSolicitud> {
             },
             child: Icon(
               Icons.thumb_up,
-              color: PaletaColores().obtenerContrasteRiesgo(),
+              color: PaletaColores(_usuario).obtenerContrasteRiesgo(),
               size: _height/26.4,
             ),
           ),
@@ -151,7 +151,7 @@ class _CartaSolicitud extends State<CartaSolicitud> {
       }
       return Card(
         margin: EdgeInsets.only(top: _height/79.2),
-        color: PaletaColores().obtenerPrimario(),
+        color: PaletaColores(_usuario).obtenerPrimario(),
         child: Container(
           alignment: Alignment.centerLeft,
           margin: EdgeInsets.all(_height/39.6),
@@ -161,7 +161,7 @@ class _CartaSolicitud extends State<CartaSolicitud> {
               Text(
                 '¡Alguien confía en ti!',
                 style: TextStyle(
-                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                  color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                   fontSize: _height/31.68,
                   fontFamily: "Lato",
                 ),
@@ -172,7 +172,7 @@ class _CartaSolicitud extends State<CartaSolicitud> {
                   '\nPropietario: ${remitente}.\n\n Tipo de dispositivo: ${solicitud.tipo}.'
                       '\n\n Nombre dispositivo: ${solicitud.nombre}.',
                   style: TextStyle(
-                    color: PaletaColores().obtenerLetraContrastePrimario(),
+                    color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                     fontSize: _height/52.8,
                     fontFamily: "Lato",
                     height: 1,
@@ -191,7 +191,7 @@ class _CartaSolicitud extends State<CartaSolicitud> {
                       child: Text(
                         "Has aceptado",
                         style: TextStyle(
-                          color: PaletaColores().obtenerLetraContrastePrimario(),
+                          color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                           fontSize: _height/52.8,
                           fontFamily: "Lato",
                           height: 1,
@@ -201,7 +201,7 @@ class _CartaSolicitud extends State<CartaSolicitud> {
                     solicitud.estado == "pendiente" ? _botonNegar (solicitud)
                         : Icon(
                       Icons.favorite,
-                      color: PaletaColores().obtenerCuaternario(),
+                      color: PaletaColores(_usuario).obtenerCuaternario(),
                       size: _height/33,
                       semanticLabel: 'Text to announce in accessibility modes',
                     ),

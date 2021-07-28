@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 import 'package:owleddomoapp/cuartos/DispositivoTabla/Variable/Variable.dart';
 import 'package:owleddomoapp/cuartos/DispositivoTabla/Variable/ServiciosVariable.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -10,22 +11,25 @@ import 'package:owleddomoapp/shared/TratarError.dart';
 ///@version 1.0, 06/04/21
 ///@author Juan Diego Suárez Londoño
 ///@param variables lista de los parámetros para las 3 variables de colores.
+///@param usuario parametros del usuario.
 ///@see owleddomo_app/cuartos/Dispositivo/DispositivoTabla/InterfazInformacionDispositivo.dart#class().
 ///@return Un Widget Container con una tarjeta botón para controlar el color.
 
 class LuzRGB extends StatefulWidget {
 
   final List<Variable> variables; //Lista de los parámetros para las 3 variables de colores.
+  final Persona usuario; //Parametros del usuario.
 
-  LuzRGB(this.variables); //Constructor de la clase.
+  LuzRGB(this.variables, this.usuario); //Constructor de la clase.
 
   @override
-  _LuzRGB createState() => _LuzRGB(variables); //Crea un estado mutable del Widget.
+  _LuzRGB createState() => _LuzRGB(variables, usuario); //Crea un estado mutable del Widget.
 
 }
 
 ///Esta clase se encarga de formar un estado mutable de la clase “LuzRGB”.
 ///@param _variables lista de los parámetros para las 3 variables de colores.
+///@param _usuario parametros del usuario.
 ///@param _R variable para rojo.
 ///@param _B variable para azul.
 ///@param _G variable para verde.
@@ -35,7 +39,9 @@ class LuzRGB extends StatefulWidget {
 class _LuzRGB extends State<LuzRGB> {
 
   List<Variable> _variables; //Lista de los parámetros para las 3 variables de colores.
-  _LuzRGB(this._variables); //Constructor de la clase.
+  final Persona _usuario; //Parametros del usuario.
+
+  _LuzRGB(this._variables, this._usuario); //Constructor de la clase.
 
   Variable _R; //Variable para rojo.
   Variable _B; //Variable para azul.
@@ -82,7 +88,7 @@ class _LuzRGB extends State<LuzRGB> {
       _R.valor = _colorActual.red.toString();
       ServiciosVariable.actualizarVariable(_R.relacion_id, _R.valor, _R.persona_producto_id, _R.relacion_dispositivo)
           .then((result) {
-            String respuesta =  TratarError().estadoSnackbar(result, context).first.toString();
+            String respuesta =  TratarError(_usuario).estadoSnackbar(result, context).first.toString();
             if ( respuesta != "200" && mounted) {
               setState(() {
                 _colorActual = _colorAnterior;
@@ -95,7 +101,7 @@ class _LuzRGB extends State<LuzRGB> {
       _G.valor = _colorActual.green.toString();
       ServiciosVariable.actualizarVariable(_G.relacion_id, _G.valor, _G.persona_producto_id, _G.relacion_dispositivo)
           .then((result) {
-        String respuesta =  TratarError().estadoSnackbar(result, context).first.toString();
+        String respuesta =  TratarError(_usuario).estadoSnackbar(result, context).first.toString();
         if ( respuesta != "200" && mounted) {
           setState(() {
             _colorActual = _colorAnterior;
@@ -108,7 +114,7 @@ class _LuzRGB extends State<LuzRGB> {
       _B.valor = _colorActual.blue.toString();
       ServiciosVariable.actualizarVariable(_B.relacion_id, _B.valor, _B.persona_producto_id, _B.relacion_dispositivo)
           .then((result) {
-        String respuesta =  TratarError().estadoSnackbar(result, context).first.toString();
+        String respuesta =  TratarError(_usuario).estadoSnackbar(result, context).first.toString();
         if ( respuesta != "200" && mounted) {
           setState(() {
             _colorActual = _colorAnterior;
@@ -164,8 +170,8 @@ class _LuzRGB extends State<LuzRGB> {
         height: _height/13.2,
         child: Card(
           color: useWhiteForeground(_colorActual)
-              ? PaletaColores().obtenerColorInactivo()
-              : PaletaColores().obtenerColorInactivo(),
+              ? PaletaColores(_usuario).obtenerColorInactivo()
+              : PaletaColores(_usuario).obtenerColorInactivo(),
           child: PopupMenuButton(
             icon: Container(
               decoration: BoxDecoration(
@@ -194,7 +200,7 @@ class _LuzRGB extends State<LuzRGB> {
                   child: Text(
                     'Paleta de colores',
                     style: TextStyle(
-                      color: PaletaColores().obtenerLetraContrasteSecundario(),
+                      color: PaletaColores(_usuario).obtenerLetraContrasteSecundario(),
                       fontFamily: "lato",
                     ),
                   ),
@@ -204,7 +210,7 @@ class _LuzRGB extends State<LuzRGB> {
                   child: Text(
                     'Barras RGB',
                     style: TextStyle(
-                      color: PaletaColores().obtenerLetraContrasteSecundario(),
+                      color: PaletaColores(_usuario).obtenerLetraContrasteSecundario(),
                       fontFamily: "lato",
                     ),
                   ),

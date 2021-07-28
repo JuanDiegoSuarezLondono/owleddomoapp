@@ -1,11 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 import 'package:owleddomoapp/rutinas/ServiciosRutina.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/shared/TratarError.dart';
-
-final PaletaColores colores = new PaletaColores(); //Colores predeterminados.
-final TratarError tratarError = new TratarError(); //Respuestas predeterminadas a las API.
 
 ///Esta clase se encarga de construir la vista dentro de la carta de una
 ///rutina, dotándola de un nombre, un botón para activarla o desactivarla,
@@ -27,7 +25,7 @@ final TratarError tratarError = new TratarError(); //Respuestas predeterminadas 
 
 class CartaMensaje extends StatefulWidget{
 
-  final String usuario; //Identificador del usuario.
+  final Persona usuario; //Identificador del usuario.
   final String rutina_id; //Identificador único de la rutina.
   final String nombreDispositivo; //Nombre del dispositivo al que pertenece.
   final String persona_producto_id; //Producto que controla la rutina.
@@ -61,7 +59,7 @@ class CartaMensaje extends StatefulWidget{
 
 class _CartaMensaje extends State<CartaMensaje> {
 
-  final String _usuario; //Identificador del usuario.
+  final Persona _usuario; //Identificador del usuario.
   final String _rutina_id; //Identificador único de la rutina.
   final String _nombreDispositivo; //Nombre del dispositivo al que pertenece.
   final String _persona_producto_id; //Producto que controla la rutina.
@@ -155,7 +153,7 @@ class _CartaMensaje extends State<CartaMensaje> {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: _height/79.2,
-            color: colores.obtenerColorInactivo(),
+            color: PaletaColores(_usuario).obtenerColorInactivo(),
             fontFamily: "Lato",
           ),
         ),

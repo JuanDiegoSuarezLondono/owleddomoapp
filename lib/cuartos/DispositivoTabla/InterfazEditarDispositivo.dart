@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 import 'package:owleddomoapp/cuartos/DispositivoTabla/ServiciosDispositivo.dart';
 import 'package:owleddomoapp/shared/PopUpImagenes.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
@@ -24,7 +25,7 @@ class InterfazEditarDispositivo extends StatefulWidget {
   final String relacionId; //Identificador del producto.
   final String nombre; //Nombre del dispositivo.
   final String pathFoto; //Path de la imagen del dispositivo.
-  final String usuario; //Identificador del usuario.
+  final Persona usuario; //Identificador del usuario.
   InterfazEditarDispositivo(this.relacionId, this.nombre, this.pathFoto, this.usuario) : super(); //Constructor de la clase.
 
   @override
@@ -49,7 +50,7 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
   final String _relacionId; //Identificador del producto.
   String _nombre; //Nombre del dispositivo.
   String _pathFoto; //Path de la imagen del dispositivo.
-  final String _usuario; //Identificador del usuario.
+  final Persona _usuario; //Identificador del usuario.
   _InterfazEditarDispositivo(this._relacionId,this._nombre, this._pathFoto, this._usuario); //Constructor de la clase.
 
   TextEditingController _nombreCampo; //Controlador del campo para el nombre en el formulario.
@@ -63,7 +64,7 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
   void initState() {
     super.initState();
     _nombreCampo = TextEditingController(text: _nombre);//Asigna el actual nombre al campo de texto.
-    _bordeImagen = PaletaColores().obtenerColorInactivo();
+    _bordeImagen = PaletaColores(_usuario).obtenerColorInactivo();
     _estadoBoton = ButtonState.idle;
   }
 
@@ -73,8 +74,8 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
   _validar() {
     if(mounted) {
       setState(() {
-        _bordeImagen = _pathFoto == null ? PaletaColores().obtenerColorRiesgo()
-                                         : PaletaColores().obtenerColorInactivo();
+        _bordeImagen = _pathFoto == null ? PaletaColores(_usuario).obtenerColorRiesgo()
+                                         : PaletaColores(_usuario).obtenerColorInactivo();
       });
     }
   }
@@ -85,13 +86,13 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
-        return PopUpImagenes("dispositivos");
+        return PopUpImagenes("dispositivos", _usuario);
       },
     ).then((value) => {
       if (mounted) {
         setState(() {
-          _bordeImagen = value == null ? PaletaColores().obtenerColorRiesgo()
-                                       : PaletaColores().obtenerCuaternario();
+          _bordeImagen = value == null ? PaletaColores(_usuario).obtenerColorRiesgo()
+                                       : PaletaColores(_usuario).obtenerCuaternario();
           value == null ? _pathFoto= null : _pathFoto = value;
         })
       },
@@ -104,10 +105,10 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
   ///@return no retorna nada en caso de no obtener una validación positiva de los campos.
 
   _actualizarDispositivo() {
-    ServiciosDispositivo.actualizarDispositivo(_relacionId, _usuario,
+    ServiciosDispositivo.actualizarDispositivo(_relacionId, _usuario.persona_id,
                                                _nombreCampo.text,_pathFoto)
         .then((result) {
-      String respuesta = TratarError().tarjetaDeEstado( result, [_nombreCampo.text,
+      String respuesta = TratarError(_usuario).tarjetaDeEstado( result, [_nombreCampo.text,
                          _pathFoto], context).first.toString();
       if(mounted) {
         if ( respuesta == "2") {
@@ -134,7 +135,7 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
     Widget _particulas() {
       return Particles(
         20,
-        PaletaColores().obtenerCuaternario(),
+        PaletaColores(_usuario).obtenerCuaternario(),
       );
     }
 
@@ -159,10 +160,10 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
               height: _height/5.28,
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: PaletaColores().obtenerCuaternario(),
+                  color: PaletaColores(_usuario).obtenerCuaternario(),
                   width: _height/300,
                 ),
-                color: PaletaColores().obtenerCuaternario(),
+                color: PaletaColores(_usuario).obtenerCuaternario(),
                 borderRadius: BorderRadius.circular(150),
                 image: DecorationImage(
                   fit: BoxFit.cover,
@@ -176,7 +177,7 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
                   color: _bordeImagen,
                   width: _height/300,
                 ),
-                color: PaletaColores().obtenerContrasteInactivo(),
+                color: PaletaColores(_usuario).obtenerContrasteInactivo(),
                 borderRadius: BorderRadius.circular(150),
               ),
               width: _width/2.25,
@@ -184,7 +185,7 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
               child: Icon(
                 Icons.image,
                 size: _height/8.0923,
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
               ),
             ),
           ),
@@ -204,43 +205,43 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
         ),
         child: Theme(
           data: ThemeData(
-            primaryColor: PaletaColores().obtenerCuaternario(),
+            primaryColor: PaletaColores(_usuario).obtenerCuaternario(),
           ),
           child: TextFormField(
             controller: _nombreCampo,
             style: TextStyle(
-              color: PaletaColores().obtenerLetraContrasteSecundario(),
+              color: PaletaColores(_usuario).obtenerLetraContrasteSecundario(),
               fontFamily: "Lato",
             ),
             maxLength: 50,
             decoration: InputDecoration(
               filled: true,
-              fillColor: PaletaColores().obtenerSecundario(),
+              fillColor: PaletaColores(_usuario).obtenerSecundario(),
               border: const OutlineInputBorder(),
               counterStyle: TextStyle(
-                color: PaletaColores().obtenerLetraContrasteSecundario(),
+                color: PaletaColores(_usuario).obtenerLetraContrasteSecundario(),
                 fontFamily: "Lato",
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: PaletaColores().obtenerCuaternario(),
+                  color: PaletaColores(_usuario).obtenerCuaternario(),
                   width: 2.0,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: PaletaColores().obtenerColorInactivo(),
+                  color: PaletaColores(_usuario).obtenerColorInactivo(),
                   width: 2.0,
                 ),
               ),
               hintText: '¿Como va a llamar a este dispositivo?',
               hintStyle: TextStyle(
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
                 fontFamily: "Lato",
               ),
               labelText: 'Nombre',
               labelStyle: TextStyle(
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
                 fontFamily: "Lato",
               ),
             ),
@@ -261,7 +262,7 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
     ///@return un retorno vaico.
 
     void _alPresionarBoton() {
-      if ( (_nombreCampo.text.isEmpty || _usuario.isEmpty || _pathFoto == null) && mounted) {
+      if ( (_nombreCampo.text.isEmpty || _usuario.persona_id.isEmpty || _pathFoto == null) && mounted) {
         if (_estadoBoton == ButtonState.fail) {
           setState(() {
             _estadoBoton = ButtonState.idle;
@@ -300,36 +301,36 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
         width: _width/3.6,
         child: ProgressButton.icon(
             textStyle: TextStyle(
-              color: PaletaColores().obtenerLetraContrastePrimario(),
+              color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
             ),
             iconedButtons: {
               ButtonState.idle: IconedButton(
                 text: "Enviar",
                 icon: Icon(
                   Icons.send,
-                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                  color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                 ),
-                color: PaletaColores().obtenerColorInactivo(),
+                color: PaletaColores(_usuario).obtenerColorInactivo(),
               ),
               ButtonState.loading:
               IconedButton(
                 text: "Cargando",
-                color: PaletaColores().obtenerPrimario(),
+                color: PaletaColores(_usuario).obtenerPrimario(),
               ),
               ButtonState.fail: IconedButton(
                 icon: Icon(
                   Icons.cancel,
-                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                  color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                 ),
-                color: PaletaColores().obtenerColorRiesgo(),
+                color: PaletaColores(_usuario).obtenerColorRiesgo(),
               ),
               ButtonState.success: IconedButton(
                 text: "Exito",
                 icon: Icon(
                   Icons.check_circle,
-                  color: PaletaColores().obtenerLetraContrastePrimario(),
+                  color: PaletaColores(_usuario).obtenerLetraContrastePrimario(),
                 ),
-                color: PaletaColores().obtenerTerciario(),
+                color: PaletaColores(_usuario).obtenerTerciario(),
               ),
             }, onPressed: () {
               if (_formKey.currentState.validate()) {
@@ -372,7 +373,7 @@ class _InterfazEditarDispositivo extends State<InterfazEditarDispositivo> {
       physics: BouncingScrollPhysics(),
       children: [
         Container(
-          color: PaletaColores().obtenerColorFondo(),
+          color: PaletaColores(_usuario).obtenerColorFondo(),
           height: _height/1.161290322580645,
           child: Stack(
             children: <Widget>[

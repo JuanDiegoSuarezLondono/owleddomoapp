@@ -35,7 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   http: ^0.13.3 #SDK para hacer peticiones http
   avatar_glow: ^2.0.1 #SDK animacion boton agregar
-  # audioplayers: ^0.13.1
+  audioplayers: ^0.19.1 #SDK reproducir sonido, se ha cambiado la version del build.gradle para que funcione
   flutter_spinkit: ^4.1.2 #SDK animacion del corazon al cargar
   flutter_particles: ^1.0.0+7 #SDK anumacion de particulas del fondo
   image_picker: ^0.7.5 #SDK para seleccionar imagen

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:owleddomoapp/login/Persona.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:flutter/material.dart';
 import 'package:funvas/funvas.dart';
@@ -14,16 +15,20 @@ import 'package:funvas/funvas.dart';
 
 class FondoCubo extends StatelessWidget {
 
+  final Persona usuario;
+
+  FondoCubo(this.usuario);
+
   @override
   Widget build(BuildContext context) {
 
-    double width = MediaQuery.of(context).size.width; //Obtiene el ancho de la pantalla del dispositivo.
+    double width = MediaQuery.of(context).size.width;
 
     return SizedBox(
       width: width,
       height: width,
       child: FunvasContainer(
-        funvas: Sixteen(),
+        funvas: Sixteen(usuario),
       ),
     );
   }
@@ -32,9 +37,14 @@ class FondoCubo extends StatelessWidget {
 ///Esta clase se encarga de formar un Funvas que anime un cubo girando.
 
 class Sixteen extends Funvas {
+
+  final Persona _usuario;
+
+  Sixteen(this._usuario);
+
   @override
   void u(double t) {
-    c.drawPaint(Paint()..color = PaletaColores().obtenerColorFondo());//PaletaColores().obtenerColorFondo());
+    c.drawPaint(Paint()..color = PaletaColores(_usuario).obtenerColorFondo());
     final d = s2q(500).width;
     const double dimenciones = 0.5;
 
@@ -107,7 +117,7 @@ class Sixteen extends Funvas {
         p1,
         p2,
         Paint()
-          ..color = PaletaColores().obtenerTerciario().withBlue(i * 222 ~/ transformedCube.length)
+          ..color = PaletaColores(_usuario).obtenerTerciario().withBlue(i * 222 ~/ transformedCube.length)
           ..strokeWidth = 11
           ..strokeCap = StrokeCap.round,
       );

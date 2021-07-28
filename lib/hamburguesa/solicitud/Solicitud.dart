@@ -8,7 +8,6 @@
 ///@param tipo tipo de dispositivo compartido.
 ///@param nombre nombre del dispositivo.
 ///@param estado estado de la peticion.
-///@param editar indicación si se le permite editar.
 ///@see owleddomo_app/hamburguesa/solicitud/Solicitud.dart#class().
 ///@see owleddomo_app/hamburguesa/solicitud/SolicitudMain.dart#class().
 
@@ -20,10 +19,9 @@ class Solicitud {
   String tipo = "No hay tipos"; //Tipo de dispositivo compartido.
   String nombre = "No hay nombre"; //Nombre del dispositivo.
   String estado = "No hay estado"; //Estado de la peticion.
-  int editar = 0; //Indicación si se le permite editar.
 
   Solicitud({this.permiso_id, this.apodo, this.nombres, this.apellidos, this.tipo,
-             this.nombre, this.estado, this.editar}); //Constructor de la clase.
+             this.nombre, this.estado}); //Constructor de la clase.
 
   ///Recibe un cuarto en formato json y se encarga de transformarlo una
   ///instancia de esta clase.
@@ -38,7 +36,6 @@ class Solicitud {
       tipo: json['tipo'] as String,
       nombre: json['nombre'] as String,
       estado: json['estado'] as String,
-      editar: json['editar'] as int,
     );
   }
 }

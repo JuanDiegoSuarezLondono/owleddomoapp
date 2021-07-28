@@ -6,11 +6,42 @@ import 'package:owleddomoapp/mensajes/MensajesMain.dart';
 import 'package:owleddomoapp/rutinas/RutinasMain.dart';
 import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:flutter/foundation.dart' as foundation;
-
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/services.Dart';
 
 bool get isIos => foundation.defaultTargetPlatform == foundation.TargetPlatform.iOS;
 
-final PaletaColores colores = new PaletaColores();
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'high_importance_channel', // id
+    'High Importance Notifications', // title
+    'This channel is used for important notifications.', // description
+    importance: Importance.high,
+    playSound: true);
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+FlutterLocalNotificationsPlugin();
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('A bg message just showed up :  ${message.messageId}');
+}
+
+Future<void> fireInit() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+}
 
 class AppTrips extends StatefulWidget {
   final Persona usuario;
@@ -36,6 +67,58 @@ class _AppTrips extends State<AppTrips> {
   }
 
   @override
+
+  void initState() {
+    super.initState();
+    fireInit().then((value) {
+      /*FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        RemoteNotification notification = message.notification;
+        AndroidNotification android = message.notification?.android;
+        if (notification != null && android != null) {
+          flutterLocalNotificationsPlugin.show(
+              notification.hashCode,
+              notification.title,
+              notification.body,
+              NotificationDetails(
+                android: AndroidNotificationDetails(
+                  channel.id,
+                  channel.name,
+                  channel.description,
+                  color: PaletaColores().obtenerSecundario(),
+                  playSound: true,
+                  icon: '@mipmap/ic_launcher',
+                ),
+              ));
+        }
+      });
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        print('A new onMessageOpenedApp event was published!');
+        RemoteNotification notification = message.notification;
+        AndroidNotification android = message.notification?.android;
+        if (notification != null && android != null) {
+          showDialog(
+              context: context,
+              builder: (_) {
+                return AlertDialog(
+                  title: Text(notification.title),
+                  content: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [Text(notification.body)],
+                    ),
+                  ),
+                );
+              });
+        }
+      });*/
+
+      print("----------------------------------------------------------------------");
+      FirebaseMessaging.instance.getToken().then((value) {
+        print("Valor: ${value}");
+      });
+    });
+  }
+
   Widget build(BuildContext context) {
 
     List<Widget> tabs = [
@@ -49,41 +132,44 @@ class _AppTrips extends State<AppTrips> {
     if (isIos) {
       return CupertinoTabScaffold(
           tabBar: CupertinoTabBar(
-            activeColor: colores.obtenerColorTres(),
+            activeColor: PaletaColores(_usuario).obtenerTerciario(),
               items: <BottomNavigationBarItem> [
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.home, color: colores.obtenerColorTres()),
+                  icon: Icon(
+                    Icons.home,
+                    color: PaletaColores(_usuario).obtenerTerciario(),
+                  ),
                   // ignore: deprecated_member_use
                   title: Text(
                     "Cuartos",
                     style: TextStyle(
                       fontSize: height/56.57142857142857,
                       fontFamily: "Lato",
-                      color: colores.obtenerColorTres(),
+                      color: PaletaColores(_usuario).obtenerTerciario(),
                     ),
                   ),
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.wb_sunny, color: colores.obtenerColorInactivo()),
+                  icon: Icon(Icons.wb_sunny, color: PaletaColores(_usuario).obtenerColorInactivo()),
                   // ignore: deprecated_member_use
                   title: Text(
                     "Rutinas",
                     style: TextStyle(
                       fontSize: height/56.57142857142857,
                       fontFamily: "Lato",
-                      color: colores.obtenerColorInactivo(),
+                      color: PaletaColores(_usuario).obtenerColorInactivo(),
                     ),
                   ),
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.message, color: colores.obtenerColorInactivo()),
+                  icon: Icon(Icons.message, color: PaletaColores(_usuario).obtenerColorInactivo()),
                   // ignore: deprecated_member_use
                   title: Text(
                     "Mensajes",
                     style: TextStyle(
                       fontSize: height/56.57142857142857,
                       fontFamily: "Lato",
-                      color: colores.obtenerColorInactivo(),
+                      color: PaletaColores(_usuario).obtenerColorInactivo(),
                     ),
                   ),
                 ),
@@ -116,9 +202,9 @@ class _AppTrips extends State<AppTrips> {
       return Scaffold(
         body: tabs[actualIndex],
         bottomNavigationBar: BottomNavigationBar(
-            backgroundColor: PaletaColores().obtenerSecundario(),
-            selectedItemColor: PaletaColores().obtenerCuaternario(),
-            unselectedItemColor: PaletaColores().obtenerColorInactivo(),
+            backgroundColor: PaletaColores(_usuario).obtenerSecundario(),
+            selectedItemColor: PaletaColores(_usuario).obtenerCuaternario(),
+            unselectedItemColor: PaletaColores(_usuario).obtenerColorInactivo(),
             currentIndex: actualIndex,
             onTap: onTapped,
             items: <BottomNavigationBarItem> [

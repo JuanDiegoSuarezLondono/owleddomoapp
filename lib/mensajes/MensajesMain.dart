@@ -4,8 +4,6 @@ import 'package:owleddomoapp/shared/PaletaColores.dart';
 import 'package:owleddomoapp/login/Persona.dart';
 import 'package:owleddomoapp/shared/MenuHamburguesa.dart';
 
-final PaletaColores colores = new PaletaColores();
-
 class MensajesMain extends StatelessWidget {
 
   final Persona usuario;
@@ -24,11 +22,11 @@ class MensajesMain extends StatelessWidget {
       width: height/19.8,
       height: height/19.8,
       decoration: BoxDecoration(
-        color: colores.obtenerColorDos(),
+        color: PaletaColores(usuario).obtenerSecundario(),
         shape: BoxShape.circle,
         image: DecorationImage(
           fit: BoxFit.cover,
-          image: AssetImage(usuario.url_foto),
+          image: AssetImage(usuario.url_icono),
         ),
       ),
     );
@@ -41,7 +39,7 @@ class MensajesMain extends StatelessWidget {
         "Mensajes",
         style: TextStyle(
           fontFamily: 'Lato',
-          color: colores.obtenerColorDos(),
+          color: PaletaColores(usuario).obtenerSecundario(),
           fontSize: height/31.68,
           fontWeight: FontWeight.bold,
         ),
@@ -50,11 +48,11 @@ class MensajesMain extends StatelessWidget {
 
     return  SafeArea(
       child: Scaffold(
-        backgroundColor: colores.obtenerColorFondo(),
+        backgroundColor: PaletaColores(usuario).obtenerColorFondo(),
         appBar: AppBar(
           actions: [Text("")],
           automaticallyImplyLeading: false,
-          backgroundColor: colores.obtenerColorUno(),
+          backgroundColor: PaletaColores(usuario).obtenerSecundario(),
           flexibleSpace: Container(
             height: height/14.14285714285714,
             child: Row (

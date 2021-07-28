@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:owleddomoapp/login/Persona.dart';
 
 class PaletaColores {
 
@@ -14,12 +15,11 @@ class PaletaColores {
   Color color_riesgo;
   Color color_contraste_riesgo;
 
-  PaletaColores() {
-    int a = 1;
-    switch(a) {
+  PaletaColores(Persona usuario) {
+    switch(usuario.tema) {
       case 0:
         color_primario = Color(0xFF08192d);
-        color_secundario = Colors.white;//FFFFFFFF
+        color_secundario = Colors.white;
         color_terciario = Color(0xFF9BBF63);
         color_cuaternario = Color(0xFFbf930d);
         color_letra_contraste_primario = Colors.white;
@@ -34,8 +34,8 @@ class PaletaColores {
       case 1:
         color_primario = Colors.black;
         color_secundario = Color(0xFF08192d);
-        color_terciario = Color(0xFF9BBF63);
-        color_cuaternario = Color(0xFFF2CF1D);
+        color_terciario = Color(0xFF736F3D);
+        color_cuaternario = Color(0xFF8C5C03);
         color_letra_contraste_primario = Colors.white.withOpacity(0.82);
         color_letra_contraste_secundario = Colors.white;//FFFFFFFF
         color_inactivo = Color(0xFF929292);
@@ -78,23 +78,6 @@ class PaletaColores {
 
   Color obtenerContrasteRiesgo () {
     return color_contraste_riesgo;
-  }
-
-
-  Color obtenerColorUno () {
-    return color_primario;
-  }
-
-  Color obtenerColorDos() {
-    return color_secundario;
-  }
-
-  Color obtenerColorTres () {
-    return color_terciario;
-  }
-
-  Color obtenerColorCuatro () {
-    return color_cuaternario;
   }
 
   Color obtenerColorInactivo () {
