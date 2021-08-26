@@ -1,4 +1,5 @@
 # owleddomoapp
+<<<<<<< HEAD
 
 Implementacion del proyecto funcionando desde la implementacion de FCM.
 
@@ -14,3 +15,6 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+Este repositorio aloja el proyecto de la aplicacion realizado para la empresa OWLED.
+>>>>>>> 4a1c52ad839ae0f2e03e9a735ae3d63525059e52
