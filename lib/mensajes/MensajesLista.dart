@@ -68,13 +68,7 @@ class _MensajesLista extends State<MensajesLista> {
     _mensajesLista = [];
     _estado = 0;
     _refrescar = false; //Inicializa este valor para que no haga un Navigator.pop al no tener pantalla de carga.
-    _obtenerMensaje().then((value) => {
-      if(value.first == "EXITO" && value.last != "EXITO" ) {
-        _mensajesLista.addAll(value.last),
-      } else if (value.first == "EXITO") {
-        _estado = 1,
-      }
-    });
+    _mensajesObtenidos = _obtenerMensaje();
   }
 
   ///Hace una petición para conseguir un mapeo con la lista de los parámetros
@@ -127,7 +121,7 @@ class _MensajesLista extends State<MensajesLista> {
         margin: EdgeInsets.all(10),
         alignment: Alignment.centerLeft,
         child: CartaMensaje(_usuario,"rutina", mensaje.evento,"perPro", mensaje.asociacion.toString(),
-                            0, mensaje.notificacion_id, mensaje.fecha_creacion.substring(11,16)),
+                            0, mensaje.notificacion_id, mensaje.fecha_creacion.substring(11,16), mensaje.fecha_creacion.substring(0,10)),
       );
     }
 
@@ -201,7 +195,7 @@ class _MensajesLista extends State<MensajesLista> {
           shrinkWrap: true,
           children: <Widget> [
             FutureBuilder<List>(
-              future: _obtenerMensaje(),
+              future: _mensajesObtenidos,
               builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
                 List<Widget> children;
                 if (snapshot.hasData) {

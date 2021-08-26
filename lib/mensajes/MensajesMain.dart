@@ -22,7 +22,7 @@ class MensajesMain extends StatelessWidget {
       width: height/19.8,
       height: height/19.8,
       decoration: BoxDecoration(
-        color: PaletaColores(usuario).obtenerSecundario(),
+        color: PaletaColores(usuario).obtenerPrimario(),
         shape: BoxShape.circle,
         image: DecorationImage(
           fit: BoxFit.cover,
@@ -39,7 +39,7 @@ class MensajesMain extends StatelessWidget {
         "Mensajes",
         style: TextStyle(
           fontFamily: 'Lato',
-          color: PaletaColores(usuario).obtenerSecundario(),
+          color: PaletaColores(usuario).obtenerLetraContrastePrimario(),
           fontSize: height/31.68,
           fontWeight: FontWeight.bold,
         ),
@@ -52,7 +52,7 @@ class MensajesMain extends StatelessWidget {
         appBar: AppBar(
           actions: [Text("")],
           automaticallyImplyLeading: false,
-          backgroundColor: PaletaColores(usuario).obtenerSecundario(),
+          backgroundColor: PaletaColores(usuario).obtenerPrimario(),
           flexibleSpace: Container(
             height: height/14.14285714285714,
             child: Row (

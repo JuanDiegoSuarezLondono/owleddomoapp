@@ -8,7 +8,9 @@ import 'package:owleddomoapp/login/Persona.dart';
 import 'package:owleddomoapp/shared/SeleccionarIcono.dart';
 import 'package:progress_state_button/progress_button.dart';
 import 'package:progress_state_button/iconed_button.dart';
-import 'package:owleddomoapp/shared/PantallaEspera.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 ///Esta clase se encarga de manejar la pantalla de entrada de la app.
 ///@version 1.0, 06/04/21.
@@ -17,11 +19,13 @@ import 'package:owleddomoapp/shared/PantallaEspera.dart';
 
 class LoginMain extends StatefulWidget {
 
-  LoginMain(); //Constructor de la clase.
+  final String token;
+
+  LoginMain(this.token); //Constructor de la clase.
 
   @override
   State<StatefulWidget> createState() {
-    return _LoginMain(); //Crea un estado mutable del Widget.
+    return _LoginMain(token); //Crea un estado mutable del Widget.
   }
 
 }
@@ -61,10 +65,13 @@ class LoginMain extends StatefulWidget {
 ///@param _keyActual llave de la posición actual en el formulario.
 ///@param _width obtiene el ancho de la pantalla del dispositivo.
 ///@param _height obtiene el alto de la pantalla del dispositivo.
+///
 
 class _LoginMain extends State<LoginMain>{
 
-  _LoginMain(); //Constructor de la clase.
+  final String _token;
+
+  _LoginMain(this._token); //Constructor de la clase.
 
   final String _imagen = "assets/img/Logo_OWLed_Blanco.png"; //Path de la imagen para el logo OWLED.
 
@@ -155,7 +162,9 @@ class _LoginMain extends State<LoginMain>{
   ///@return Un mapeo con el usuario.
 
   Future<List> _obtenerLogin() async {
-    _personasObtenidas =  ServiciosPersona.login(_nombreCorreo.text,_clave.text);
+    var bytes1 = utf8.encode(_clave.text);
+    var hash = sha256.convert(bytes1);
+    _personasObtenidas =  ServiciosPersona.login(_nombreCorreo.text,hash, _token);
     return _personasObtenidas;
   }
 
@@ -227,7 +236,26 @@ class _LoginMain extends State<LoginMain>{
     return _correoObtenidos;
   }
 
+  void autoLogIn(Persona usuario) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('persona_id', usuario.persona_id);
+    prefs.setString('territorio_id', usuario.territorio_id.toString());
+    prefs.setString('nombres', usuario.nombres);
+    prefs.setString('apellidos', usuario.apellidos);
+    prefs.setString('telefono', usuario.telefono);
+    prefs.setString('fecha_nacimiento', usuario.fecha_nacimiento);
+    prefs.setString('correo_electronico', usuario.correo_electronico);
+    prefs.setString('url_foto', usuario.url_foto);
+    prefs.setString('url_icono', usuario.url_icono);
+    prefs.setString('rol', usuario.rol);
+    prefs.setString('apodo', usuario.apodo);
+    prefs.setString('codigo_usuario', usuario.codigo_usuario);
+    prefs.setString('configuracion_id', usuario.configuracion_id);
+    prefs.setString('tema', usuario.tema.toString());
+  }
+
   _alConfirmar (Persona usuario) {
+    autoLogIn(usuario);
     Route route = MaterialPageRoute (builder: (context) =>
         AppTrips(usuario)
     );
@@ -236,8 +264,10 @@ class _LoginMain extends State<LoginMain>{
   }
 
   _alPresionarRegistrar () {
+    var bytes1 = utf8.encode(_ingresarClave.text);
+    var hash = sha256.convert(bytes1);
     ServiciosPersona.agregarUsuario(_ADMDOSSeleccionado.territorio_id, _nombre.text,
-                                     _apellido.text, _telefono.text, _ingresarClave.text,
+                                     _apellido.text, _telefono.text, hash,
                                      _correo.text);
   }
 
@@ -250,14 +280,18 @@ class _LoginMain extends State<LoginMain>{
       _obtenerLogin().then((value) =>
       {
         if (value.first.toString()[0] == "2" && value.last.toString()[0] != "2"
-            && value.last.toString() != "[]") {
-          usuario = value.last[0],
-          _estadoBoton = ButtonState.idle,
+            && value.last.toString() != "[]" && mounted) {
+          setState(() {
+            usuario = value.last[0];
+            _estadoBoton = ButtonState.idle;
+          }),
           _alConfirmar(usuario),
         } else {
-          setState(() {
-            _estadoBoton = ButtonState.fail;
-          }),
+          if (mounted) {
+            setState(() {
+              _estadoBoton = ButtonState.fail;
+            }),
+          }
         }
       }
       );
@@ -309,7 +343,17 @@ class _LoginMain extends State<LoginMain>{
         barrierDismissible: false,
         context: context,
         builder: (BuildContext dialogContext) {
-          return Text("Espera");
+          return AlertDialog(
+            backgroundColor: Color(0xFF08192d),
+            content: SizedBox(
+              child: Text(
+                "Comprobando el correo...",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          );
         },
       );
     });
@@ -356,20 +400,27 @@ class _LoginMain extends State<LoginMain>{
                  && _correo.text.substring(_correo.text.indexOf('.')).length != 1) {
                _cargando();
                _comprobarCorreo().then((result) {
+                 print(result);
+                 print(result.first);
+                 print(result.last);
                  if(mounted) {
                    setState(() {
-                     if(result.first.toString()[0] == "2" && result.last.toString()[0] != "2" && result.last.toString() != "[]" ) {
-                       _errorCorreo = null;
-                       if(validarTelefono) {
-                         _actualIndex++;
-                         _keyActual = _keyList[ _actualIndex];
-                         Scrollable.ensureVisible(
-                           _keyActual.currentContext,
-                           duration: Duration(milliseconds: 1200),
-                         );
+                     if(result.last != null) {
+                       if(result.first.toString()[0] == "2" && result.last.toString()[0] != "2" && result.last.toString() != "[]" ) {
+                         _errorCorreo = null;
+                         if(validarTelefono) {
+                           _actualIndex++;
+                           _keyActual = _keyList[ _actualIndex];
+                           Scrollable.ensureVisible(
+                             _keyActual.currentContext,
+                             duration: Duration(milliseconds: 1200),
+                           );
+                         }
+                       } else {
+                         _errorCorreo = 'Ya esta en uso';
                        }
                      } else {
-                       _errorCorreo = 'Ya esta en uso';
+                       _errorCorreo = 'Error, intenda de nuevo';
                      }
                    });
                  }

@@ -9,7 +9,6 @@ import 'package:flutter/foundation.dart' as foundation;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter/services.Dart';
 
 bool get isIos => foundation.defaultTargetPlatform == foundation.TargetPlatform.iOS;
 
@@ -110,12 +109,12 @@ class _AppTrips extends State<AppTrips> {
                 );
               });
         }
-      });*/
+      });
 
       print("----------------------------------------------------------------------");
       FirebaseMessaging.instance.getToken().then((value) {
         print("Valor: ${value}");
-      });
+      });*/
     });
   }
 
@@ -150,7 +149,10 @@ class _AppTrips extends State<AppTrips> {
                   ),
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.wb_sunny, color: PaletaColores(_usuario).obtenerColorInactivo()),
+                  icon: Icon(
+                    Icons.wb_sunny,
+                    color: PaletaColores(_usuario).obtenerColorInactivo(),
+                  ),
                   // ignore: deprecated_member_use
                   title: Text(
                     "Rutinas",
@@ -162,7 +164,9 @@ class _AppTrips extends State<AppTrips> {
                   ),
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.message, color: PaletaColores(_usuario).obtenerColorInactivo()),
+                  icon: Icon(
+                    Icons.message,
+                    color: PaletaColores(_usuario).obtenerColorInactivo(),),
                   // ignore: deprecated_member_use
                   title: Text(
                     "Mensajes",

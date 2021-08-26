@@ -33,14 +33,15 @@ class CartaMensaje extends StatefulWidget{
   final int activo; //Indica si la rutina esta activada o no.
   final String relacionDispositivo; //Identificador de la rutina dentro del dispositivo.
   final String hora; //Hora en la que se activa la rutina.
+  final String fecha;
 
   CartaMensaje(this.usuario, this.rutina_id, this.nombreDispositivo, this.persona_producto_id,
-      this.nombreRutina, this.activo, this.relacionDispositivo,this.hora) :super(); //Constructor de la clase.
+      this.nombreRutina, this.activo, this.relacionDispositivo,this.hora,this.fecha) :super(); //Constructor de la clase.
 
   @override
   _CartaMensaje createState() => _CartaMensaje(usuario, rutina_id, nombreDispositivo,
       persona_producto_id,nombreRutina, activo,
-      relacionDispositivo,hora); //Crea un estado mutable del Widget.
+      relacionDispositivo,hora,fecha); //Crea un estado mutable del Widget.
 
 }
 
@@ -67,9 +68,10 @@ class _CartaMensaje extends State<CartaMensaje> {
   int _activo; //Indica si la rutina esta activada o no.
   final String _relacionDispositivo; //Identificador de la rutina dentro del dispositivo.
   final String _hora; //Hora en la que se activa la rutina.
+  final String _fecha;
 
   _CartaMensaje(this._usuario, this._rutina_id, this._nombreDispositivo, this._persona_producto_id,
-      this._nombreRutina, this._activo, this._relacionDispositivo, this._hora); //Constructor de la clase.
+      this._nombreRutina, this._activo, this._relacionDispositivo, this._hora, this._fecha); //Constructor de la clase.
 
   @override
 
@@ -100,84 +102,6 @@ class _CartaMensaje extends State<CartaMensaje> {
       bottomRight: Radius.circular(10.0),
     );
 
-    ///Construye el Widget encargado del nombre de la rutina.
-    ///@return un Container con el texto del nombre de la rutina.
-
-    Widget _nombreRutinaWidget () {
-      return Container(
-        width: _width/4.5,
-        alignment: Alignment.center,
-        child: Text(
-          _nombreRutina,
-          maxLines: 2,
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: _height/39.6,
-            fontWeight: FontWeight.bold,
-            fontFamily: "Lato",
-          ),
-        ),
-      );
-    }
-
-    ///Construye el Widget encargado del título.
-    ///@return un Container con el texto del nombre del cuarto.
-
-    Widget _nombreDispositivoWidget () {
-      return Container(
-        alignment: Alignment.center,
-        child: Text(
-          _nombreDispositivo,
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: _height/52.8,
-            fontWeight: FontWeight.bold,
-            fontFamily: "Lato",
-          ),
-        ),
-      );
-    }
-
-    ///Construye el Widget encargado de contruir una leyenda que indica la hora en la
-    ///que se ejecuta la acción.
-    ///@return un Container con el texto que muestra la hora de la rutina.
-
-    Widget _numeroDispositivos () {
-      return Container(
-        alignment: Alignment.topCenter,
-        child: Text(
-          "Hora: ${_hora}",
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: _height/79.2,
-            color: PaletaColores(_usuario).obtenerColorInactivo(),
-            fontFamily: "Lato",
-          ),
-        ),
-      );
-    }
-
-    ///Construye el Widget que forma una columna con el nombre del dispositivo que maneja
-    ///la rutina y una leyenda que indica que hace la rutina.
-    ///@return un Container con un Column.
-
-    Widget _columnaDerecha () {
-      return Container(
-        alignment: Alignment.center,
-        width: _width/2.4,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget> [
-            _nombreDispositivoWidget(),
-            _numeroDispositivos(),
-          ],
-        ),
-      );
-    }
-
     ///Construye el Widget que forma el resultado final del contenido de la tarjeta
     ///con una fila que contiene todos los elementos.
     ///@return un Container con un Row.
@@ -194,7 +118,8 @@ class _CartaMensaje extends State<CartaMensaje> {
                 BoxShadow(
                     blurRadius: .5,
                     spreadRadius: 1.0,
-                    color: Colors.black.withOpacity(.12))
+                    color: Colors.black.withOpacity(.12),
+                ),
               ],
               color: bg,
               borderRadius: radius,
@@ -210,12 +135,32 @@ class _CartaMensaje extends State<CartaMensaje> {
                   right: 0.0,
                   child: Row(
                     children: <Widget>[
-                      Text(_hora,
-                          style: TextStyle(
-                            color: Colors.black38,
-                            fontSize: 10.0,
-                          )),
-                      SizedBox(width: 3.0),
+                      Container(
+                        width: 40,
+                        alignment: Alignment.center,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget> [
+                            Text(
+                              _hora,
+                              style: TextStyle(
+                                color: Colors.black38,
+                                fontSize: 7.2,
+                              ),
+                            ),
+                            Text(
+                              _fecha,
+                              style: TextStyle(
+                                color: Colors.black38,
+                                fontSize: 7.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: 3.0,
+                      ),
                     ],
                   ),
                 )

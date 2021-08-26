@@ -90,11 +90,7 @@ class _InterfazInformacionDispositivo extends State<InterfazInformacionDispositi
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification notification = message.notification;
       AndroidNotification android = message.notification?.android;
-      print("Dale");
       if (notification != null && android != null) {
-        print("hashCode: ${notification.hashCode}");
-        print("hashCode: ${notification.title}");
-        print("hashCode: ${notification.body}");
         if(mounted) {
           setState(() {
             _estado = 8;

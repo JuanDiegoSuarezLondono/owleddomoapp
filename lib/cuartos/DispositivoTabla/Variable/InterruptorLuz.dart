@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:owleddomoapp/login/Persona.dart';
+import 'package:owleddomoapp/notificaciones/ServiciosNotificaciones.dart';
 import 'package:owleddomoapp/cuartos/DispositivoTabla/Variable/ServiciosVariable.dart';
 import 'package:owleddomoapp/cuartos/DispositivoTabla/Variable/Variable.dart';
 import 'package:owleddomoapp/shared/SeleccionarIcono.dart';
@@ -91,6 +92,8 @@ class _InterruptorLuz extends State<InterruptorLuz> {
       String respuesta =  TratarError(_usuario).estadoSnackbar(result, context).first.toString();
       if ( respuesta != "200") {
         _cambiarValor();
+      } else {
+        ServiciosNotificaciones.notificacion(0, _variable.relacion_id, "V", _usuario.persona_id, _interruptor ? 'encendio' : 'apagado' );
       }
     });
   }

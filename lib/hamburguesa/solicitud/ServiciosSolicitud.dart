@@ -13,7 +13,7 @@ import 'package:http/http.dart'as http;
 
 class ServiciosSolicitud {
 
-  static const URL = "https://zmyanb1bc1.execute-api.sa-east-1.amazonaws.com/test/appusuario/hamburguesa/solicitud"; //Url principal que provee las API.
+  static const URL = "https://48qs4b5zlg.execute-api.sa-east-1.amazonaws.com/test/appusuario/hamburguesa/solicitud"; //Url principal que provee las API.
 
   ///Metodo usado para castear la respuesta desde un String que contiene
   ///la informacion de las entidades requeridas a una lista de objetos para

@@ -32,20 +32,20 @@ class CuartosMain extends StatefulWidget {
 class _CuartosMain extends State<CuartosMain> {
 
   final Persona usuario;
-  _CuartosMain(this.usuario,{Key key,String pathImagen,String titulo});
+  _CuartosMain(this.usuario);
 
   @override
   Widget build(BuildContext context) {
 
-    double width = MediaQuery.of(context).size.width; //Obtiene el ancho de la pantalla del dispositivo.
-    double height = MediaQuery.of(context).size.height; //Obtiene el alto de la pantalla del dispositivo.
+    double _width = MediaQuery.of(context).size.width; //Obtiene el ancho de la pantalla del dispositivo.
+    double _height = MediaQuery.of(context).size.height; //Obtiene el alto de la pantalla del dispositivo.
 
     final foto = Container(
       margin: EdgeInsets.only(
-        right: width/18,
+        right: _width/18,
       ),
-      width: height/19.8,
-      height: height/19.8,
+      width: _height/19.8,
+      height: _height/19.8,
       decoration: BoxDecoration(
         color: PaletaColores(usuario).obtenerPrimario(),
         shape: BoxShape.circle,
@@ -58,14 +58,14 @@ class _CuartosMain extends State<CuartosMain> {
 
     final tituloInfo = Container(
       margin: EdgeInsets.only(
-        left: width/14.4,
+        left: _width/14.4,
       ),
       child : Text (
         "Cuartos",
         style: TextStyle(
           fontFamily: 'Lato',
           color: PaletaColores(usuario).obtenerLetraContrastePrimario(),
-          fontSize: height/31.68,
+          fontSize: _height/31.68,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -74,13 +74,13 @@ class _CuartosMain extends State<CuartosMain> {
     final tabs = [
       Text('CUARTOS',
         style: TextStyle(
-          fontSize: height/44,
+          fontSize: _height/44,
           fontFamily: 'Lato',
         ),
       ),
       Text('DISPOSITIVOS',
         style: TextStyle(
-          fontSize: height/44,
+          fontSize: _height/44,
           fontFamily: 'Lato',
         ),
       ),
@@ -96,7 +96,7 @@ class _CuartosMain extends State<CuartosMain> {
             automaticallyImplyLeading: false,
             backgroundColor: PaletaColores(usuario).obtenerPrimario(),
             flexibleSpace: Container(
-              height: height/14.14285714285714,
+              height: _height/14.14285714285714,
               child: Row (
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -115,12 +115,12 @@ class _CuartosMain extends State<CuartosMain> {
               ),
             ),
             bottom: PreferredSize(
-              preferredSize: Size.fromHeight(height/16.16326530612245),
+              preferredSize: Size.fromHeight(_height/16.16326530612245),
               child: TabBar(
                 labelColor: PaletaColores(usuario).obtenerTerciario(),
                 unselectedLabelColor: PaletaColores(usuario).obtenerColorInactivo(),
                 indicatorColor: PaletaColores(usuario).obtenerTerciario(),
-                indicatorWeight: height/264,
+                indicatorWeight: _height/264,
                 tabs: [
                   for (final tab in tabs) Tab(child: tab),
                 ],
