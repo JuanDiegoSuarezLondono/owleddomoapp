@@ -156,6 +156,26 @@ class _LoginMain extends State<LoginMain>{
     _ADMUNOObtenidos = _obtenerADMUNO();
   }
 
+  ///Lleva los valores de todas las casillas para ingresar datos a su valor inicial.
+
+  _reininiciarTextInputs() {
+    setState(() {
+      _nombreCorreo.text = "";
+      _clave.text = "";
+      _nombre.text = "";
+      _apellido.text = "";
+      _obtenerADMUNO();
+      _ADMDOSSeleccionado = Territorio();
+      _ADMDOSSeleccionado.nombre = 'Primero seleccione una region';
+      _ADMDOSLista = [Territorio()];
+      _ADMDOSLista[0] = _ADMDOSSeleccionado;
+      _correo.text = "";
+      _telefono.text = "";
+      _ingresarClave.text = "";
+      _confirmarClave.text = "";
+    });
+  }
+
   ///Hace una petición para conseguir un mapeo con la lista de los parámetros del
   ///usuario que solicita el ingreso.
   ///@see owleddomo_app/login/ServiciosPersona.login#method().
@@ -256,6 +276,7 @@ class _LoginMain extends State<LoginMain>{
 
   _alConfirmar (Persona usuario) {
     autoLogIn(usuario);
+    _reininiciarTextInputs();
     Route route = MaterialPageRoute (builder: (context) =>
         AppTrips(usuario)
     );
@@ -263,9 +284,48 @@ class _LoginMain extends State<LoginMain>{
     });//Especifica la ruta hacia la interfaz para agregar un dispositivo.
   }
 
+  ///Despliega la pantalla que advierte que se ha enviado un correo.
+  ///@return un texto vacío.
+
+  Widget _alertaConfirmarCorreo() {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        backgroundColor: Color(0xFF08192d),
+        title: const Text(
+          '¡Ya casi!',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        content: const Text(
+            'Te hemos enviado un mensaje a tu correo electrónico'
+            ' para que confirmes la creación de tu cuenta.',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'OK'),
+            child: const Text(
+                'OK',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ); //Indica que se ha desplegado una pantalla de carga.
+    return  Text("");
+  }
+
   _alPresionarRegistrar () {
     var bytes1 = utf8.encode(_ingresarClave.text);
     var hash = sha256.convert(bytes1);
+    _alertaConfirmarCorreo();
+    _reininiciarTextInputs();
     ServiciosPersona.agregarUsuario(_ADMDOSSeleccionado.territorio_id, _nombre.text,
                                      _apellido.text, _telefono.text, hash,
                                      _correo.text);
@@ -334,37 +394,28 @@ class _LoginMain extends State<LoginMain>{
     };
   }
 
-  ///Una ventana emergente que bloquea el resto de la interfaz.
-  ///@see owleddomo_app/shared/PantallaEspera.dart#class().
+  ///Una ventana emergente que bloquea el resto de la interfaz hasta que se comprueba
+  ///que el correo suministrado esta libre.
+  ///@return un Alert dialog.
 
-  _plantillaCarga(BuildContext context) {
-    Future.delayed(Duration(milliseconds: 0), () {
-      showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext dialogContext) {
-          return AlertDialog(
-            backgroundColor: Color(0xFF08192d),
-            content: SizedBox(
-              child: Text(
-                "Comprobando el correo...",
-                style: TextStyle(
-                  color: Colors.white,
-                ),
+  _cargandoCorreo() {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          backgroundColor: Color(0xFF08192d),
+          content: SizedBox(
+            child: Text(
+              "Comprobando el correo...",
+              style: TextStyle(
+                color: Colors.white,
               ),
             ),
-          );
-        },
-      );
-    });
-  }
-
-  ///Despliega la pantalla de carga mediante un Widget de tipo Text.
-  ///@return un texto vacío.
-
-  Widget _cargando() {
-    _plantillaCarga(context); //Indica que se ha desplegado una pantalla de carga.
-    return  Text("");
+          ),
+        );
+      },
+    );
   }
 
   _irAdelante() {
@@ -398,11 +449,8 @@ class _LoginMain extends State<LoginMain>{
              if(_correo.text.contains('.',_correo.text.lastIndexOf('@'))
                  && !_correo.text.contains(' ')
                  && _correo.text.substring(_correo.text.indexOf('.')).length != 1) {
-               _cargando();
+               _cargandoCorreo();
                _comprobarCorreo().then((result) {
-                 print(result);
-                 print(result.first);
-                 print(result.last);
                  if(mounted) {
                    setState(() {
                      if(result.last != null) {
@@ -479,10 +527,11 @@ class _LoginMain extends State<LoginMain>{
       );
     }
 
-    ///Construye el Widget que maneja el campo de texto para el nombre.
+    ///Construye el Widget que maneja el campo de texto para introducir el correo
+    ///o el nickname para entrar con una cuenta.
     ///@return un Widget de Container que posee un campo de texto.
 
-    Widget _nombreCorreoWidget() {
+    Widget _usuarioWidget() {
       return Container(
         margin: EdgeInsets.symmetric(
           horizontal: _width/12,
@@ -536,7 +585,8 @@ class _LoginMain extends State<LoginMain>{
       );
     }
 
-    ///Construye el Widget que maneja el campo de texto para la clave.
+    ///Construye el Widget que maneja el campo de texto para la clave para entrar
+    ///con una cuenta.
     ///@return un Widget de Container que posee un campo de texto.
 
     Widget _claveWidget() {
@@ -600,6 +650,7 @@ class _LoginMain extends State<LoginMain>{
     Widget _botonLogin() {
       return Container(
         width: _width/6.545454545454545,
+        height: _width/6.545454545454545,
         child: ProgressButton.icon(
           iconedButtons: {
             ButtonState.idle: IconedButton(
@@ -696,7 +747,8 @@ class _LoginMain extends State<LoginMain>{
       );
     }
 
-    ///Construye el Widget de la fila inferior.
+    ///Construye el Widget de la fila inferior con los botones para registrarse y
+    ///recuperar la contraseña.
     ///@return un Widget de Row que posee dos botones.
 
     Widget _filaRegistro() {
@@ -728,7 +780,7 @@ class _LoginMain extends State<LoginMain>{
     ///Construye el Widget de la carta principal del login.
     ///@return un Widget de Container que posee una carta.
 
-    Widget _cartaIntro() {
+    Widget _cartaLogin() {
       return Container (
         key: _keyList[0],
         margin: EdgeInsets.symmetric(horizontal: _width/15),
@@ -743,7 +795,7 @@ class _LoginMain extends State<LoginMain>{
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  _nombreCorreoWidget(),
+                  _usuarioWidget(),
                   _claveWidget(),
                   _botonesWidget(),
                 ],
@@ -1031,6 +1083,7 @@ class _LoginMain extends State<LoginMain>{
         ),
       );
     }
+
     ///Construye el Widget que maneja la lista desplegable y seleccionable de los
     ///departamentos.
     ///@return Un Widget de Container con un dropDown.
@@ -1124,8 +1177,8 @@ class _LoginMain extends State<LoginMain>{
       );
     }
 
-    ///Construye el Widget del botón de las tarjetas para actualizar
-    ///los departamentos.
+    ///Construye el Widget del botón para actualizar los departamentos en caso
+    ///que no cargue correctamente.
     ///@return un Widget de Container que posee un boton.
 
     Widget _botonActualizarDepartamento() {
@@ -1505,7 +1558,7 @@ class _LoginMain extends State<LoginMain>{
     ///nuevo usuario.
     ///@return un Widget de Container que posee un boton.
 
-    Widget _botonEnviar() {
+    Widget _botonRegistrarse() {
       return Container(
         margin: EdgeInsets.only(right: _width/36),
         child: ElevatedButton(
@@ -1578,7 +1631,7 @@ class _LoginMain extends State<LoginMain>{
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget> [
             _botonAtras(),
-            _botonEnviar(),
+            _botonRegistrarse(),
           ],
         ),
       );
@@ -1640,7 +1693,7 @@ class _LoginMain extends State<LoginMain>{
     ///Construye el Widget que contiene todos los elementos del formulario.
     ///@return un Widget de Padding que contiene un ListView con el formulario.
 
-    Widget _pantallaFrontal() {
+    Widget _listaCartas() {
       return Center (
         child: ListView(
           physics: BouncingScrollPhysics(),
@@ -1688,7 +1741,7 @@ class _LoginMain extends State<LoginMain>{
                     scrollDirection: Axis.horizontal,
                     physics: NeverScrollableScrollPhysics(),
                     children: <Widget> [
-                      _cartaIntro(),
+                      _cartaLogin(),
                       _cartaNombApell(),
                       _cartaTerritorio(),
                       _cartaCorreoTel(),
@@ -1709,7 +1762,7 @@ class _LoginMain extends State<LoginMain>{
         body: Scaffold(
           body: Stack(children: <Widget>[
             _fondo(),
-            _pantallaFrontal(),
+            _listaCartas(),
           ]),
         ),
       ),
