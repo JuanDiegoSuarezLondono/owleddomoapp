@@ -325,10 +325,10 @@ class _LoginMain extends State<LoginMain>{
     var bytes1 = utf8.encode(_ingresarClave.text);
     var hash = sha256.convert(bytes1);
     _alertaConfirmarCorreo();
-    _reininiciarTextInputs();
     ServiciosPersona.agregarUsuario(_ADMDOSSeleccionado.territorio_id, _nombre.text,
                                      _apellido.text, _telefono.text, hash,
                                      _correo.text);
+    _reininiciarTextInputs();
   }
 
   ///Controla los diferentes colores en los botones de selección de imagen y
