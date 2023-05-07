@@ -1,6 +1,4 @@
 # owleddomoapp
-<<<<<<< HEAD
-<<<<<<< HEAD
 
 Implementacion del proyecto funcionando desde la implementacion de FCM.
 
